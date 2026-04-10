@@ -1,0 +1,67 @@
+{
+  "demo": {
+    "title": "English"
+  },
+  "layout": {
+    "nav": {
+      "group": "IELTS mock test",
+      "dashboard": "Home",
+      "reading": "Reading",
+      "listening": "Listening",
+      "writing": "Writing",
+      "speaking": "Speaking",
+      "speaking_caption": "Coming soon"
+    }
+  },
+  "pages": {
+    "ielts": {
+      "document_title": "IELTS mock test",
+      "headline": "IELTS mock test",
+      "subtitle": "Reading, Writing, and Listening modules will appear here as they ship. For now this is the project home.",
+      "demo_badge": "Demo",
+      "modules_title": "Sections",
+      "reading": {
+        "document_title": "Reading — IELTS",
+        "title": "Reading",
+        "description": "Texts and comprehension tasks in IELTS format.",
+        "placeholder": "This section is empty for now — content will be added later."
+      },
+      "writing": {
+        "document_title": "Writing — IELTS",
+        "title": "Writing",
+        "description": "Writing Task 1 and Task 2 practice with feedback.",
+        "placeholder": "This section is empty for now — content will be added later."
+      },
+      "listening": {
+        "document_title": "Listening — IELTS",
+        "title": "Listening",
+        "description": "Listening passages and exam-style questions.",
+        "placeholder": "This section is empty for now — content will be added later."
+      },
+      "analytics": {
+        "demo_hint": "Demo data for preview — real analytics will be wired later.",
+        "stat_attempts": "Mock tests",
+        "stat_band": "Average band",
+        "stat_streak": "Day streak",
+        "stat_week": "Minutes this week",
+        "skills_title": "Progress by module",
+        "activity_title": "Recent activity",
+        "activity_1": "Reading — mock 2, 32 out of 40",
+        "activity_2": "Writing — Task 1 draft saved",
+        "activity_3": "Listening — section 3, 7 out of 10",
+        "trend_positive": "+{{value}} vs last week",
+        "heatmap_summary": "{{count}} practice days in the last year",
+        "heatmap_settings": "Activity settings",
+        "heatmap_less": "Less",
+        "heatmap_more": "More",
+        "heatmap_learn": "How practice days are counted",
+        "heatmap_row_mon": "Mon",
+        "heatmap_row_wed": "Wed",
+        "heatmap_row_fri": "Fri",
+        "heatmap_cell_empty": "No activity · {{date}}",
+        "heatmap_cell_active": "{{date}} · {{minutes}} min"
+      }
+    }
+  },
+  "upgrade_to_pro": "Upgrade to Pro"
+}

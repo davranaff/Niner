@@ -5,264 +5,63 @@
   "layout": {
     "nav": {
       "group": "IELTS Mock Test",
-      "dashboard": "Главная"
+      "dashboard": "Главная",
+      "reading": "Reading",
+      "listening": "Listening",
+      "writing": "Writing",
+      "speaking": "Speaking",
+      "speaking_caption": "Скоро"
     }
   },
   "pages": {
-    "clients": {
-      "add_button": "Добавить клиента",
-      "import_excel_button": "Импорт Excel",
-      "detail": {
-        "not_found": "Клиент не найден",
-        "no_purchases": "Покупок пока нет",
-        "phone_label": "Телефон",
-        "purchase_history": "История покупок"
-      },
-      "detail_document_title": "Клиент",
-      "document_title": "Клиенты",
-      "dialogs": {
-        "create": {
-          "first_name_label": "Имя",
-          "title": "Новый клиент"
-        },
-        "edit": {
-          "title": "Редактировать клиента"
-        },
-        "delete": {
-          "bulk_description": "Вы точно хотите удалить выбранные клиенты? Количество: {{count}}",
-          "bulk_title": "Массовое удаление клиентов",
-          "description": "Вы точно хотите удалить клиента?",
-          "title": "Удаление клиента"
-        }
-      },
-      "search_placeholder": "Поиск по имени или телефону…",
-      "toasts": {
-        "bulk_deleted": "Удалено клиентов: {{count}}",
-        "bulk_created": "Импортировано клиентов: {{count}}",
-        "created": "Клиент успешно создан",
-        "deleted": "Клиент удалён",
-        "required_fields": "Имя и телефон обязательны",
-        "updated": "Клиент обновлён"
-      }
-    },
-    "debts": {
-      "detail": {
-        "add_payment": "Добавить платёж",
-        "client_line": "Клиент:",
-        "heading_detail": "Долг · {{name}}",
-        "not_found": "Долг не найден",
-        "paid_line": "Оплачено:",
-        "payments_section_title": "Платежи",
-        "rem_line": "Остаток:",
-        "status_line": "Статус:",
-        "total_line": "Всего:"
-      },
-      "detail_document_title": "Долг",
-      "document_title": "Долги",
-      "payment_dialog": {
-        "max_amount": "Максимум:",
-        "pay_button": "Оплатить",
-        "title": "Платёж"
-      }
-    },
-    "pos": {
-      "cart": "Корзина",
-      "client": "Клиент",
-      "complete_sale": "Завершить продажу",
-      "document_title": "POS",
-      "empty_cart": "Добавьте товар из списка слева.",
-      "products_heading": "Товары",
-      "search_placeholder": "Поиск по названию или SKU…",
-      "stock_short": "остаток"
-    },
-    "products": {
-      "add_button": "Добавить товар",
-      "create_button": "Создать товар",
-      "detail": {
-        "not_found": "Товар не найден"
-      },
-      "detail_document_title": "Товар",
-      "document_title": "Товары",
-      "dialogs": {
-        "create": {
-          "initial_stock": "Начальный остаток",
-          "purchase_price": "Закупочная цена",
-          "sale_price": "Цена продажи",
-          "title": "Новый товар"
-        },
-        "edit": {
-          "stock_hint": "Остаток меняется только через «Изменить остаток».",
-          "title": "Редактирование"
-        },
-        "delete": {
-          "bulk_description": "Вы точно хотите удалить выбранные товары? Количество: {{count}}",
-          "bulk_title": "Массовое удаление товаров",
-          "description": "Вы точно хотите удалить товар?",
-          "title": "Удаление товара"
-        },
-        "stock": {
-          "delta": "Изменение (+/-)",
-          "mode": "Режим",
-          "mode_increment": "Добавить / убавить",
-          "mode_set": "Установить значение",
-          "new_stock": "Новый остаток",
-          "title": "Остаток"
-        }
-      },
-      "search_placeholder": "Поиск по названию или SKU…",
-      "toasts": {
-        "bulk_deleted": "Удалено товаров: {{count}}",
-        "created": "Товар успешно создан",
-        "deleted": "Товар удалён",
-        "invalid_prices": "Проверьте цены: значения должны быть числами >= 0",
-        "invalid_stock": "Проверьте остаток: значение должно быть числом >= 0",
-        "required_fields": "Название, закупка и продажа обязательны",
-        "updated": "Товар обновлён"
-      }
-    },
-    "sales": {
-      "detail": {
-        "client_line": "Клиент:",
-        "date_line": "Дата:",
-        "heading_detail": "Продажа {{id}}",
-        "lines_title": "Состав",
-        "not_found": "Продажа не найдена",
-        "pay_line": "Оплата:"
-      },
-      "detail_document_title": "Продажа",
-      "document_title": "Продажи",
-      "filters": {
-        "all_option": "Все",
-        "payment_label": "Тип оплаты"
-      },
-      "list_heading": "История продаж"
-    },
     "ielts": {
       "document_title": "IELTS Mock Test",
       "headline": "Пробный тест IELTS",
       "subtitle": "Reading, Writing и Listening — модули появятся здесь по мере готовности. Сейчас это стартовая панель проекта.",
+      "demo_badge": "Демо",
+      "modules_title": "Разделы",
       "reading": {
+        "document_title": "Reading — IELTS",
         "title": "Reading",
-        "description": "Тексты и задания на понимание прочитанного в формате IELTS."
+        "description": "Тексты и задания на понимание прочитанного в формате IELTS.",
+        "placeholder": "Раздел пока пустой — контент появится позже."
       },
       "writing": {
+        "document_title": "Writing — IELTS",
         "title": "Writing",
-        "description": "Задания Writing Task 1 и Task 2 с тренировкой и проверкой."
+        "description": "Задания Writing Task 1 и Task 2 с тренировкой и проверкой.",
+        "placeholder": "Раздел пока пустой — контент появится позже."
       },
       "listening": {
+        "document_title": "Listening — IELTS",
         "title": "Listening",
-        "description": "Аудирование с вопросами в стиле экзамена."
+        "description": "Аудирование с вопросами в стиле экзамена.",
+        "placeholder": "Раздел пока пустой — контент появится позже."
+      },
+      "analytics": {
+        "demo_hint": "Демо-данные для превью — позже подключим реальную аналитику.",
+        "stat_attempts": "Пробников",
+        "stat_band": "Средний band",
+        "stat_streak": "Серия дней",
+        "stat_week": "Минут на неделе",
+        "skills_title": "Прогресс по модулям",
+        "activity_title": "Недавняя активность",
+        "activity_1": "Reading — пробник 2, 32 из 40",
+        "activity_2": "Writing — сохранён черновик Task 1",
+        "activity_3": "Listening — раздел 3, 7 из 10",
+        "trend_positive": "+{{value}} к прошлой неделе",
+        "heatmap_summary": "{{count}} дней с практикой за последний год",
+        "heatmap_settings": "Настройки активности",
+        "heatmap_less": "Меньше",
+        "heatmap_more": "Больше",
+        "heatmap_learn": "Как считаются дни практики",
+        "heatmap_row_mon": "Пн",
+        "heatmap_row_wed": "Ср",
+        "heatmap_row_fri": "Пт",
+        "heatmap_cell_empty": "Нет занятий · {{date}}",
+        "heatmap_cell_active": "{{date}} · {{minutes}} мин"
       }
     }
   },
-  "shared": {
-    "actions": {
-      "apply": "Применить",
-      "back_to_list": "К списку",
-      "cancel": "Отмена",
-      "delete": "Удалить",
-      "edit": "Редактировать",
-      "save": "Сохранить",
-      "view": "Просмотр"
-    },
-    "labels": {
-      "guest": "Гость",
-      "total": "Итого"
-    },
-    "payment": {
-      "card": "Карта",
-      "cash": "Наличные",
-      "debt": "В долг",
-      "method": "Оплата"
-    },
-    "status": {
-      "filter_active": "Активные",
-      "filter_all": "Все",
-      "filter_closed": "Закрытые",
-      "filter_label": "Статус",
-      "row_active": "Активен",
-      "row_closed": "Закрыт"
-    },
-    "table": {
-      "amount": "Сумма",
-      "client": "Клиент",
-      "created": "Создан",
-      "date": "Дата",
-      "name": "Название",
-      "no_data": "Данные не найдены",
-      "paid": "Оплачено",
-      "pay": "Оплата",
-      "phone": "Телефон",
-      "price": "Цена",
-      "product": "Товар",
-      "purchase": "Закупка",
-      "qty": "Кол-во",
-      "rem": "Остаток",
-      "sale_id": "Продажа",
-      "sale_price": "Продажа",
-      "sku": "SKU",
-      "status": "Статус",
-      "stock": "Остаток",
-      "total": "Сумма"
-    }
-  },
-  "account": "аккаунт",
-  "analytics": "аналитика",
-  "app": "приложение",
-  "banking": "банкинг",
-  "blank": "пустая",
-  "blog": "блог",
-  "booking": "бронирование",
-  "calendar": "календарь",
-  "cards": "карточки",
-  "chat": "чат",
-  "checkout": "оформление",
-  "create": "создать",
-  "description": "описание",
-  "details": "детали",
-  "ecommerce": "e-commerce",
-  "edit": "изменить",
-  "file": "файл",
-  "file_manager": "файловый менеджер",
-  "general": "общее",
-  "invoice": "счёт",
-  "item_by_roles": "пункт по ролям",
-  "item_caption": "подпись пункта",
-  "item_disabled": "пункт отключён",
-  "item_external_link": "внешняя ссылка",
-  "item_label": "метка пункта",
-  "job": "вакансии",
-  "kanban": "канбан",
-  "list": "список",
-  "lists": "списки",
-  "mail": "почта",
-  "management": "управление",
-  "menu_level": "уровень меню",
-  "menu_level_1a": "меню уровень 1a",
-  "menu_level_1b": "меню уровень 1b",
-  "menu_level_2a": "меню уровень 2a",
-  "menu_level_2b": "меню уровень 2b",
-  "menu_level_3a": "меню уровень 3a",
-  "menu_level_3b": "меню уровень 3b",
-  "only_admin_can_see_this_item": "Только администратор видит этот пункт",
-  "order": "заказ",
-  "other_cases": "другие случаи",
-  "overview": "обзор",
-  "post": "пост",
-  "product": "товар",
-  "profile": "профиль",
-  "shop": "магазин",
-  "tour": "тур",
-  "upgrade_to_pro": "Перейти на Pro",
-  "user": "пользователь",
-  "validation": {
-    "client_name_required": "Имя клиента обязательно",
-    "number_invalid": "Введите корректное число",
-    "number_min_zero": "Значение должно быть не меньше 0",
-    "phone_required": "Телефон обязателен",
-    "product_name_required": "Название товара обязательно",
-    "purchase_price_required": "Закупочная цена обязательна",
-    "sale_price_required": "Цена продажи обязательна",
-    "stock_required": "Начальный остаток обязателен"
-  }
+  "upgrade_to_pro": "Перейти на Pro"
 }

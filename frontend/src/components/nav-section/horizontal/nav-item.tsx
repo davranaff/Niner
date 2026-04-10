@@ -84,6 +84,14 @@ const NavItem = forwardRef<HTMLDivElement, Props>(
       return null;
     }
 
+    if (disabled) {
+      return (
+        <Box component="div" sx={{ width: 1 }}>
+          {renderContent}
+        </Box>
+      );
+    }
+
     // External link
     if (externalLink)
       return (
@@ -92,11 +100,6 @@ const NavItem = forwardRef<HTMLDivElement, Props>(
           target="_blank"
           rel="noopener"
           underline="none"
-          sx={{
-            ...(disabled && {
-              cursor: 'default',
-            }),
-          }}
         >
           {renderContent}
         </Link>
@@ -108,11 +111,6 @@ const NavItem = forwardRef<HTMLDivElement, Props>(
         component={RouterLink}
         href={path}
         underline="none"
-        sx={{
-          ...(disabled && {
-            cursor: 'default',
-          }),
-        }}
       >
         {renderContent}
       </Link>

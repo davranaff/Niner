@@ -95,6 +95,14 @@ export default function NavItem({
     return null;
   }
 
+  if (disabled) {
+    return (
+      <Box component="div" sx={{ width: 1 }}>
+        {renderContent}
+      </Box>
+    );
+  }
+
   // External link
   if (externalLink)
     return (
@@ -104,11 +112,6 @@ export default function NavItem({
         rel="noopener"
         underline="none"
         color="inherit"
-        sx={{
-          ...(disabled && {
-            cursor: 'default',
-          }),
-        }}
       >
         {renderContent}
       </Link>
@@ -126,11 +129,6 @@ export default function NavItem({
       href={path}
       underline="none"
       color="inherit"
-      sx={{
-        ...(disabled && {
-          cursor: 'default',
-        }),
-      }}
     >
       {renderContent}
     </Link>

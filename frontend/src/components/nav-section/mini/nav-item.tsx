@@ -1,6 +1,7 @@
 import { forwardRef } from 'react';
 // @mui
 import { useTheme } from '@mui/material/styles';
+import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Tooltip from '@mui/material/Tooltip';
 import ListItemText from '@mui/material/ListItemText';
@@ -103,6 +104,14 @@ const NavItem = forwardRef<HTMLDivElement, Props>(
       return null;
     }
 
+    if (disabled) {
+      return (
+        <Box component="div" sx={{ width: 1 }}>
+          {renderContent}
+        </Box>
+      );
+    }
+
     // External link
     if (externalLink)
       return (
@@ -113,9 +122,6 @@ const NavItem = forwardRef<HTMLDivElement, Props>(
           underline="none"
           sx={{
             width: 1,
-            ...(disabled && {
-              cursor: 'default',
-            }),
           }}
         >
           {renderContent}
@@ -130,9 +136,6 @@ const NavItem = forwardRef<HTMLDivElement, Props>(
         underline="none"
         sx={{
           width: 1,
-          ...(disabled && {
-            cursor: 'default',
-          }),
         }}
       >
         {renderContent}

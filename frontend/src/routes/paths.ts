@@ -6,6 +6,12 @@ export const paths = {
 
   dashboard: '/dashboard',
 
+  ielts: {
+    reading: '/dashboard/reading',
+    listening: '/dashboard/listening',
+    writing: '/dashboard/writing',
+  },
+
   components: '/components',
   maintenance: '/maintenance',
   page403: '/403',

@@ -6,6 +6,7 @@ import { localStorageAvailable, localStorageGetItem } from 'src/utils/storage-av
 //
 import { defaultLang, allLangs } from './config-lang';
 //
+import translationEn from './langs/en.json';
 import translationRu from './langs/ru.json';
 import translationUz from './langs/uz.json';
 
@@ -20,6 +21,7 @@ i18n
   .use(initReactI18next)
   .init({
     resources: {
+      en: { translations: translationEn },
       ru: { translations: translationRu },
       uz: { translations: translationUz },
     },

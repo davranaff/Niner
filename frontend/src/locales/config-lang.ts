@@ -18,6 +18,12 @@ export const allLangs = [
     systemValue: ruRU,
     icon: 'flagpack:ru',
   },
+  {
+    label: 'English',
+    value: 'en',
+    systemValue: enUS,
+    icon: 'flagpack:gb',
+  },
 ];
 
 export const defaultLang = allLangs[0];

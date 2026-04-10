@@ -5,264 +5,63 @@
   "layout": {
     "nav": {
       "group": "IELTS sinov testi",
-      "dashboard": "Bosh sahifa"
+      "dashboard": "Bosh sahifa",
+      "reading": "Reading",
+      "listening": "Listening",
+      "writing": "Writing",
+      "speaking": "Speaking",
+      "speaking_caption": "Tez orada"
     }
   },
   "pages": {
-    "clients": {
-      "add_button": "Mijoz qoʻshish",
-      "import_excel_button": "Excel import",
-      "detail": {
-        "not_found": "Mijoz topilmadi",
-        "no_purchases": "Hozircha xaridlar yoʻq",
-        "phone_label": "Telefon",
-        "purchase_history": "Xaridlar tarixi"
-      },
-      "detail_document_title": "Mijoz",
-      "document_title": "Mijozlar",
-      "dialogs": {
-        "create": {
-          "first_name_label": "Ism",
-          "title": "Yangi mijoz"
-        },
-        "edit": {
-          "title": "Mijozni tahrirlash"
-        },
-        "delete": {
-          "bulk_description": "Tanlangan mijozlarni o‘chirishni tasdiqlaysizmi? Soni: {{count}}",
-          "bulk_title": "Mijozlarni ommaviy o‘chirish",
-          "description": "Mijozni o‘chirishni tasdiqlaysizmi?",
-          "title": "Mijozni o‘chirish"
-        }
-      },
-      "search_placeholder": "Ism yoki telefon boʻyicha qidiruv…",
-      "toasts": {
-        "bulk_deleted": "O‘chirilgan mijozlar soni: {{count}}",
-        "bulk_created": "Import qilingan mijozlar soni: {{count}}",
-        "created": "Mijoz muvaffaqiyatli yaratildi",
-        "deleted": "Mijoz o‘chirildi",
-        "required_fields": "Ism va telefon majburiy",
-        "updated": "Mijoz yangilandi"
-      }
-    },
-    "debts": {
-      "detail": {
-        "add_payment": "Toʻlov qoʻshish",
-        "client_line": "Mijoz:",
-        "heading_detail": "Qarz · {{name}}",
-        "not_found": "Qarz topilmadi",
-        "paid_line": "Toʻlangan:",
-        "payments_section_title": "Toʻlovlar",
-        "rem_line": "Qoldiq:",
-        "status_line": "Holat:",
-        "total_line": "Jami:"
-      },
-      "detail_document_title": "Qarz",
-      "document_title": "Qarzlar",
-      "payment_dialog": {
-        "max_amount": "Maksimum:",
-        "pay_button": "Toʻlash",
-        "title": "Toʻlov"
-      }
-    },
-    "pos": {
-      "cart": "Savatcha",
-      "client": "Mijoz",
-      "complete_sale": "Savdoni yakunlash",
-      "document_title": "POS",
-      "empty_cart": "Chapdagi roʻyxatdan mahsulot qoʻshing.",
-      "products_heading": "Mahsulotlar",
-      "search_placeholder": "Nom yoki SKU boʻyicha qidiruv…",
-      "stock_short": "qoldiq"
-    },
-    "products": {
-      "add_button": "Mahsulot qoʻshish",
-      "create_button": "Mahsulot yaratish",
-      "detail": {
-        "not_found": "Mahsulot topilmadi"
-      },
-      "detail_document_title": "Mahsulot",
-      "document_title": "Mahsulotlar",
-      "dialogs": {
-        "create": {
-          "initial_stock": "Boshlangʻich qoldiq",
-          "purchase_price": "Xarid narxi",
-          "sale_price": "Sotuv narxi",
-          "title": "Yangi mahsulot"
-        },
-        "edit": {
-          "stock_hint": "Qoldiq faqat qoldiqni oʻzgartirish orqali yangilanadi.",
-          "title": "Tahrirlash"
-        },
-        "delete": {
-          "bulk_description": "Tanlangan mahsulotlarni o‘chirishni tasdiqlaysizmi? Soni: {{count}}",
-          "bulk_title": "Mahsulotlarni ommaviy o‘chirish",
-          "description": "Mahsulotni o‘chirishni tasdiqlaysizmi?",
-          "title": "Mahsulotni o‘chirish"
-        },
-        "stock": {
-          "delta": "Oʻzgarish (+/-)",
-          "mode": "Rejim",
-          "mode_increment": "Qoʻshish yoki ayirish",
-          "mode_set": "Qiymatni belgilash",
-          "new_stock": "Yangi qoldiq",
-          "title": "Qoldiq"
-        }
-      },
-      "search_placeholder": "Nom yoki SKU boʻyicha qidiruv…",
-      "toasts": {
-        "bulk_deleted": "O‘chirilgan mahsulotlar soni: {{count}}",
-        "created": "Mahsulot muvaffaqiyatli yaratildi",
-        "deleted": "Mahsulot o‘chirildi",
-        "invalid_prices": "Narxlarni tekshiring: qiymatlar 0 dan katta yoki teng son bo'lishi kerak",
-        "invalid_stock": "Qoldiqni tekshiring: qiymat 0 dan katta yoki teng son bo'lishi kerak",
-        "required_fields": "Nomi, xarid narxi va sotuv narxi majburiy",
-        "updated": "Mahsulot yangilandi"
-      }
-    },
-    "sales": {
-      "detail": {
-        "client_line": "Mijoz:",
-        "date_line": "Sana:",
-        "heading_detail": "Savdo {{id}}",
-        "lines_title": "Tarkib",
-        "not_found": "Savdo topilmadi",
-        "pay_line": "Toʻlov:"
-      },
-      "detail_document_title": "Savdo",
-      "document_title": "Savdolar",
-      "filters": {
-        "all_option": "Barchasi",
-        "payment_label": "Toʻlov turi"
-      },
-      "list_heading": "Savdolar tarixi"
-    },
     "ielts": {
       "document_title": "IELTS sinov testi",
       "headline": "IELTS sinov testi",
       "subtitle": "Reading, Writing va Listening modullari tayyor boʻlishi bilan shu yerda ochiladi. Hozircha loyiha uchun bosh panel.",
+      "demo_badge": "Demo",
+      "modules_title": "Bo‘limlar",
       "reading": {
+        "document_title": "Reading — IELTS",
         "title": "Reading",
-        "description": "IELTS formatidagi matnlar va tushunish topshiriqlari."
+        "description": "IELTS formatidagi matnlar va tushunish topshiriqlari.",
+        "placeholder": "Bo‘lim hozircha bo‘sh — keyinroq kontent qo‘shiladi."
       },
       "writing": {
+        "document_title": "Writing — IELTS",
         "title": "Writing",
-        "description": "Writing Task 1 va Task 2 mashqlari."
+        "description": "Writing Task 1 va Task 2 mashqlari.",
+        "placeholder": "Bo‘lim hozircha bo‘sh — keyinroq kontent qo‘shiladi."
       },
       "listening": {
+        "document_title": "Listening — IELTS",
         "title": "Listening",
-        "description": "Imtihon uslubidagi eshitish va savollar."
+        "description": "Imtihon uslubidagi eshitish va savollar.",
+        "placeholder": "Bo‘lim hozircha bo‘sh — keyinroq kontent qo‘shiladi."
+      },
+      "analytics": {
+        "demo_hint": "Ko‘rinish uchun demo ma’lumotlar — keyin haqiqiy tahlil ulashiladi.",
+        "stat_attempts": "Sinovlar",
+        "stat_band": "O‘rtacha band",
+        "stat_streak": "Ketma-ket kunlar",
+        "stat_week": "Haftada daqiqa",
+        "skills_title": "Modullar bo‘yicha progress",
+        "activity_title": "So‘nggi faollik",
+        "activity_1": "Reading — sinov 2, 32/40",
+        "activity_2": "Writing — Task 1 qoralama saqlandi",
+        "activity_3": "Listening — 3-bo‘lim, 7/10",
+        "trend_positive": "O‘tgan haftaga nisbatan +{{value}}",
+        "heatmap_summary": "So‘nggi yilda {{count}} kun mashq qilindi",
+        "heatmap_settings": "Faollik sozlamalari",
+        "heatmap_less": "Kamroq",
+        "heatmap_more": "Ko‘proq",
+        "heatmap_learn": "Mashq kunlari qanday hisoblanadi",
+        "heatmap_row_mon": "Du",
+        "heatmap_row_wed": "Ch",
+        "heatmap_row_fri": "Ju",
+        "heatmap_cell_empty": "Mashq yoʻq · {{date}}",
+        "heatmap_cell_active": "{{date}} · {{minutes}} daq"
       }
     }
   },
-  "shared": {
-    "actions": {
-      "apply": "Qoʻllash",
-      "back_to_list": "Roʻyxatga",
-      "cancel": "Bekor qilish",
-      "delete": "O‘chirish",
-      "edit": "Tahrirlash",
-      "save": "Saqlash",
-      "view": "Ko‘rish"
-    },
-    "labels": {
-      "guest": "Mehmon",
-      "total": "Jami"
-    },
-    "payment": {
-      "card": "Karta",
-      "cash": "Naqd",
-      "debt": "Qarzga",
-      "method": "Toʻlov"
-    },
-    "status": {
-      "filter_active": "Faol",
-      "filter_all": "Hammasi",
-      "filter_closed": "Yopilgan",
-      "filter_label": "Holat",
-      "row_active": "Faol",
-      "row_closed": "Yopiq"
-    },
-    "table": {
-      "amount": "Summa",
-      "client": "Mijoz",
-      "created": "Yaratilgan",
-      "date": "Sana",
-      "name": "Nomi",
-      "no_data": "Ma'lumot topilmadi",
-      "paid": "Toʻlangan",
-      "pay": "Toʻlov",
-      "phone": "Telefon",
-      "price": "Narx",
-      "product": "Mahsulot",
-      "purchase": "Xarid",
-      "qty": "Miqdor",
-      "rem": "Qoldiq",
-      "sale_id": "Savdo",
-      "sale_price": "Sotuv",
-      "sku": "SKU",
-      "status": "Holat",
-      "stock": "Qoldiq",
-      "total": "Summa"
-    }
-  },
-  "account": "akkaunt",
-  "analytics": "analitika",
-  "app": "ilova",
-  "banking": "bank",
-  "blank": "boʻsh",
-  "blog": "blog",
-  "booking": "bron qilish",
-  "calendar": "kalendar",
-  "cards": "kartalar",
-  "chat": "chat",
-  "checkout": "rasmiylashtirish",
-  "create": "yaratish",
-  "description": "tavsif",
-  "details": "tafsilotlar",
-  "ecommerce": "e-tijorat",
-  "edit": "tahrirlash",
-  "file": "fayl",
-  "file_manager": "fayl menejeri",
-  "general": "umumiy",
-  "invoice": "hisob-faktura",
-  "item_by_roles": "rollar boʻyicha band",
-  "item_caption": "sarlavha",
-  "item_disabled": "oʻchirilgan band",
-  "item_external_link": "tashqi havola",
-  "item_label": "yorliq",
-  "job": "ish",
-  "kanban": "kanban",
-  "list": "roʻyxat",
-  "lists": "roʻyxatlar",
-  "mail": "pochta",
-  "management": "boshqaruv",
-  "menu_level": "menyu darajasi",
-  "menu_level_1a": "menyu 1a",
-  "menu_level_1b": "menyu 1b",
-  "menu_level_2a": "menyu 2a",
-  "menu_level_2b": "menyu 2b",
-  "menu_level_3a": "menyu 3a",
-  "menu_level_3b": "menyu 3b",
-  "only_admin_can_see_this_item": "Faqat administrator koʻra oladi",
-  "order": "buyurtma",
-  "other_cases": "boshqa holatlar",
-  "overview": "umumiy koʻrinish",
-  "post": "post",
-  "product": "mahsulot",
-  "profile": "profil",
-  "shop": "doʻkon",
-  "tour": "tur",
-  "upgrade_to_pro": "Pro ga oʻtish",
-  "user": "foydalanuvchi",
-  "validation": {
-    "client_name_required": "Mijoz ismi majburiy",
-    "number_invalid": "Toʻgʻri son kiriting",
-    "number_min_zero": "Qiymat 0 dan kichik bo'lmasligi kerak",
-    "phone_required": "Telefon majburiy",
-    "product_name_required": "Mahsulot nomi majburiy",
-    "purchase_price_required": "Xarid narxi majburiy",
-    "sale_price_required": "Sotuv narxi majburiy",
-    "stock_required": "Boshlangʻich qoldiq majburiy"
-  }
+  "upgrade_to_pro": "Pro ga oʻtish"
 }
