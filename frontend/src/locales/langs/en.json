@@ -195,6 +195,7 @@
         "page_label": "Page {{page}}",
         "previous_page": "Previous",
         "next_page": "Next",
+        "load_more": "Load more",
         "about_test": "About this test",
         "last_attempt": "Last attempt",
         "open_last_result": "Open last result",

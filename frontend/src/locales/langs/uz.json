@@ -195,6 +195,7 @@
         "page_label": "{{page}}-sahifa",
         "previous_page": "Oldingi",
         "next_page": "Keyingi",
+        "load_more": "Yana yuklash",
         "about_test": "Test haqida",
         "last_attempt": "Oxirgi urinish",
         "open_last_result": "Oxirgi natijani ochish",

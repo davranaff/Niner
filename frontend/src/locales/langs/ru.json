@@ -195,6 +195,7 @@
         "page_label": "Страница {{page}}",
         "previous_page": "Назад",
         "next_page": "Вперёд",
+        "load_more": "Показать ещё",
         "about_test": "О тесте",
         "last_attempt": "Последняя попытка",
         "open_last_result": "Открыть прошлый результат",

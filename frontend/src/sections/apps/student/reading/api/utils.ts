@@ -28,7 +28,7 @@ import type {
   ReadingTestDetail,
 } from './types';
 
-export const READING_LIST_DEFAULT_PAGE_SIZE = 6;
+export const READING_LIST_DEFAULT_PAGE_SIZE = 12;
 export const READING_EXAMS_LOOKUP_LIMIT = 100;
 
 const SECONDS_IN_MINUTE = 60;
@@ -141,10 +141,15 @@ function toReadingPart(part: BackendReadingPart): ReadingPart {
   };
 }
 
-export function buildReadingListRequestParams(page: number, limit: number): ReadingListRequestParams {
+/** Cumulative list: `offset` 0, `limit` = batches × `batchSize` (URL `page` = batch count, min 1). */
+export function buildReadingListRequestParams(
+  loadedBatchCount: number,
+  batchSize: number
+): ReadingListRequestParams {
+  const batches = Math.max(1, loadedBatchCount);
   return {
-    offset: Math.max(0, (page - 1) * limit),
-    limit,
+    offset: 0,
+    limit: batches * batchSize,
   };
 }
 

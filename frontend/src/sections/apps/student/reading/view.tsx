@@ -5,8 +5,6 @@ import Grid from '@mui/material/Grid';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import MenuItem from '@mui/material/MenuItem';
-import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
 
@@ -43,7 +41,7 @@ export default function AppsReadingCatalogView() {
 
   const listQuery = useReadingListQuery({
     page: listState.page,
-    rowsPerPage: listState.rowsPerPage,
+    rowsPerPage: READING_LIST_DEFAULT_PAGE_SIZE,
   });
   const examsQuery = useMyReadingExamsQuery();
   const startReadingFlowMutation = useStartReadingFlowMutation();
@@ -66,13 +64,12 @@ export default function AppsReadingCatalogView() {
     }
   };
 
-  const goToPreviousPage = () => {
-    listState.setPage(Math.max(0, listState.page - 2));
-  };
-
-  const goToNextPage = () => {
+  const handleLoadMore = () => {
     listState.setPage(listState.page);
   };
+
+  const showInitialSkeleton = listQuery.isPending && !listQuery.data;
+  const loadMorePending = listQuery.isFetching && listQuery.isPlaceholderData;
 
   return (
     <Container maxWidth="lg">
@@ -81,27 +78,9 @@ export default function AppsReadingCatalogView() {
         description={tx('pages.ielts.reading.description')}
       />
 
-      <Card variant="outlined" sx={{ p: 2.5, mb: 3 }}>
-        <Stack direction="row" justifyContent={{ xs: 'stretch', md: 'flex-end' }}>
-          <TextField
-            select
-            label={tx('pages.ielts.shared.items_per_page')}
-            value={String(listState.rowsPerPage)}
-            onChange={(event) => listState.setRowsPerPage(Number(event.target.value))}
-            sx={{ minWidth: { md: 180 } }}
-          >
-            {[6, 12, 24].map((pageSize) => (
-              <MenuItem key={pageSize} value={pageSize}>
-                {pageSize}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Stack>
-      </Card>
+      {showInitialSkeleton ? <ReadingCatalogSkeleton /> : null}
 
-      {listQuery.isLoading ? <ReadingCatalogSkeleton /> : null}
-
-      {!listQuery.isLoading && listQuery.data ? (
+      {!showInitialSkeleton && listQuery.data ? (
         <>
           {listQuery.data.items.length ? (
             <Grid container spacing={3}>
@@ -157,38 +136,36 @@ export default function AppsReadingCatalogView() {
             />
           )}
 
-          <Card variant="outlined" sx={{ p: 2.5, mt: 3 }}>
-            <Stack
-              direction={{ xs: 'column', md: 'row' }}
-              spacing={2}
-              alignItems={{ xs: 'flex-start', md: 'center' }}
-              justifyContent="space-between"
-            >
-              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                {tx('pages.ielts.shared.page_label', { page: listQuery.data.page })}
-              </Typography>
+          {listQuery.data.hasNextPage ? (
+            <Card variant="outlined" sx={{ p: 2.5, mt: 3 }}>
+              <Stack
+                direction={{ xs: 'column', md: 'row' }}
+                spacing={2}
+                alignItems={{ xs: 'stretch', md: 'center' }}
+                justifyContent="space-between"
+              >
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                  {tx('pages.ielts.shared.total_results', { count: listQuery.data.items.length })}
+                </Typography>
 
-              <Stack direction="row" spacing={1.5}>
-                <Button
-                  variant="outlined"
-                  color="inherit"
-                  onClick={goToPreviousPage}
-                  disabled={!listQuery.data.hasPreviousPage}
-                >
-                  {tx('pages.ielts.shared.previous_page')}
-                </Button>
-
-                <Button
+                <LoadingButton
                   variant="contained"
                   color="inherit"
-                  onClick={goToNextPage}
-                  disabled={!listQuery.data.hasNextPage}
+                  loading={loadMorePending}
+                  onClick={handleLoadMore}
+                  sx={{ alignSelf: { xs: 'stretch', md: 'center' } }}
                 >
-                  {tx('pages.ielts.shared.next_page')}
-                </Button>
+                  {tx('pages.ielts.shared.load_more')}
+                </LoadingButton>
               </Stack>
-            </Stack>
-          </Card>
+            </Card>
+          ) : null}
+
+          {!listQuery.data.hasNextPage && listQuery.data.items.length > 0 ? (
+            <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 3 }}>
+              {tx('pages.ielts.shared.total_results', { count: listQuery.data.items.length })}
+            </Typography>
+          ) : null}
         </>
       ) : null}
     </Container>

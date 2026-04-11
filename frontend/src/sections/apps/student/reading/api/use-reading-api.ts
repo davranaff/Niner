@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { keepPreviousData } from '@tanstack/react-query';
 
 import { useFetch, useMutate } from 'src/hooks/api';
 
@@ -28,13 +29,15 @@ const readingQueryRoot = ['student-reading'] as const;
 
 export const readingQueryKeys = {
   root: readingQueryRoot,
-  list: (page: number, rowsPerPage: number) =>
-    [...readingQueryRoot, 'list', { page, rowsPerPage }] as const,
+  /** `loadedBatches` — число подгруженных порций (URL `page`). */
+  list: (loadedBatches: number, rowsPerPage: number) =>
+    [...readingQueryRoot, 'list', { loadedBatches, rowsPerPage }] as const,
   detail: (testId: number) => [...readingQueryRoot, 'detail', testId] as const,
   exams: (limit: number) => [...readingQueryRoot, 'exams', { limit }] as const,
 };
 
 type UseReadingListQueryParams = {
+  /** 1-based: сколько порций по `rowsPerPage` запросить за один вызов API (кумулятивно с offset 0). */
   page: number;
   rowsPerPage: number;
 };
@@ -45,11 +48,15 @@ type UseMyReadingExamsQueryParams = {
 };
 
 export function useReadingListQuery({ page, rowsPerPage }: UseReadingListQueryParams) {
-  return useFetch(readingQueryKeys.list(page, rowsPerPage), async () => {
-    const response = await fetchReadingList(buildReadingListRequestParams(page, rowsPerPage));
+  return useFetch(
+    readingQueryKeys.list(page, rowsPerPage),
+    async () => {
+      const response = await fetchReadingList(buildReadingListRequestParams(page, rowsPerPage));
 
-    return toReadingListPage(response);
-  });
+      return toReadingListPage(response);
+    },
+    { placeholderData: keepPreviousData }
+  );
 }
 
 export function useReadingDetailQuery(testId: number, enabled = true) {
