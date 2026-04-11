@@ -7,21 +7,19 @@ export function createLoginSchema(tx: Translate) {
     email: Yup.string()
       .required(tx('auth.validation.email_required'))
       .email(tx('auth.validation.email_invalid')),
-    password: Yup.string().required(tx('auth.validation.password_required')),
+    password: Yup.string()
+      .required(tx('auth.validation.password_required'))
+      .min(8, tx('auth.validation.password_min', { count: 8 })),
   });
 }
 
 export function createRegisterSchema(tx: Translate) {
   return Yup.object({
-    name: Yup.string().required(tx('auth.validation.full_name_required')),
+    firstName: Yup.string().required(tx('auth.validation.first_name_required')),
+    lastName: Yup.string().required(tx('auth.validation.last_name_required')),
     email: Yup.string()
       .required(tx('auth.validation.email_required'))
       .email(tx('auth.validation.email_invalid')),
-    targetBand: Yup.number()
-      .typeError(tx('auth.validation.target_band_required'))
-      .required(tx('auth.validation.target_band_required'))
-      .min(4.5, tx('auth.validation.target_band_min'))
-      .max(9, tx('auth.validation.target_band_max')),
     password: Yup.string()
       .required(tx('auth.validation.password_required'))
       .min(8, tx('auth.validation.password_min', { count: 8 })),

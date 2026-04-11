@@ -8,8 +8,15 @@ import {
   createMockAuthResponseFromLogin,
   createMockAuthResponseFromRegister,
   isJwtAuthMock,
+  isJwtSignInMock,
 } from '../context/jwt/mock-auth';
-import type { LoginRequest, RegisterRequest, TokenPairResponse } from './types';
+import {
+  type LoginRequest,
+  type RegisterMutationResult,
+  type RegisterRequest,
+  type TokenPairResponse,
+  isTokenPairResponse,
+} from './types';
 
 // ----------------------------------------------------------------------
 
@@ -19,7 +26,7 @@ export function useLoginMutation() {
 
   return useMutate<TokenPairResponse, LoginRequest>(
     async (data) => {
-      if (isJwtAuthMock()) {
+      if (isJwtSignInMock()) {
         return createMockAuthResponseFromLogin(data);
       }
       return fetchLogin(data);
@@ -38,7 +45,7 @@ export function useRegisterMutation() {
   const { syncSessionFromApiResponse } = useAuthContext();
   const queryClient = useQueryClient();
 
-  return useMutate<TokenPairResponse, RegisterRequest>(
+  return useMutate<RegisterMutationResult, RegisterRequest>(
     async (data) => {
       if (isJwtAuthMock()) {
         return createMockAuthResponseFromRegister(data);
@@ -48,8 +55,10 @@ export function useRegisterMutation() {
     {
       skipGlobalErrorNotification: true,
       onSuccess: (payload) => {
-        syncSessionFromApiResponse(payload);
-        queryClient.invalidateQueries();
+        if (isTokenPairResponse(payload)) {
+          syncSessionFromApiResponse(payload);
+          queryClient.invalidateQueries();
+        }
       },
     }
   );

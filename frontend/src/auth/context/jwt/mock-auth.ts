@@ -27,6 +27,12 @@ export const isJwtAuthMock = () => {
   return !String(HOST_API ?? '').trim();
 };
 
+/**
+ * Sign-in is wired to the real backend whenever `HOST_API` is configured,
+ * even if the rest of auth flows are still mocked.
+ */
+export const isJwtSignInMock = () => !String(HOST_API ?? '').trim();
+
 function encodeBase64Url(obj: object) {
   return btoa(JSON.stringify(obj))
     .replace(/\+/g, '-')
@@ -107,13 +113,11 @@ export function createMockAuthResponseFromLogin(credentials: LoginRequest): Toke
 
 export function createMockAuthResponseFromRegister(data: RegisterRequest): TokenPairResponse {
   const access = createMockAccessToken();
-  const [first, ...rest] = data.name.split(' ');
   const user = buildMockAuthUser({
     email: data.email,
-    firstName: first,
-    lastName: rest.join(' ') || undefined,
+    firstName: data.firstName,
+    lastName: data.lastName,
     role: 'student',
-    targetBand: data.targetBand,
   });
 
   return { access, refresh: '', user };
