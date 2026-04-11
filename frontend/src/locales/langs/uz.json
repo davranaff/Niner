@@ -7,7 +7,9 @@
       "email": "Email",
       "password": "Parol",
       "confirm_password": "Parolni tasdiqlang",
-      "full_name": "To'liq ism"
+      "full_name": "To'liq ism",
+      "first_name": "Ism",
+      "last_name": "Familiya"
     },
     "login": {
       "title": "IELTS workspace ga kirish",
@@ -24,9 +26,9 @@
       "title": "IELTS akkaunt yaratish",
       "have_account": "Akkauntingiz bormi?",
       "sign_in": "Kirish",
-      "target_band": "Maqsad band",
       "submit": "Akkaunt yaratish",
-      "terms": "Ro'yxatdan o'tish orqali demo Terms of Service va Privacy Policy ga rozilik bildirasiz."
+      "terms": "Ro'yxatdan o'tish orqali demo Terms of Service va Privacy Policy ga rozilik bildirasiz.",
+      "success_check_email": "Tasdiqlash havolasi emailga yuborildi. Akkauntni faollashtirish uchun havolani oching, so'ng kiring."
     },
     "validation": {
       "email_required": "Email majburiy",
@@ -34,11 +36,10 @@
       "password_required": "Parol majburiy",
       "confirm_password_required": "Parol tasdig'i majburiy",
       "full_name_required": "To'liq ism majburiy",
+      "first_name_required": "Ism majburiy",
+      "last_name_required": "Familiya majburiy",
       "password_min": "Parol kamida {{count}} ta belgidan iborat bo'lishi kerak",
-      "passwords_match": "Parollar bir xil bo'lishi kerak",
-      "target_band_required": "Maqsad band majburiy",
-      "target_band_min": "Maqsad band kamida 4.5 bo'lishi kerak",
-      "target_band_max": "Maqsad band 9.0 dan oshmasligi kerak"
+      "passwords_match": "Parollar bir xil bo'lishi kerak"
     }
   },
   "layout": {

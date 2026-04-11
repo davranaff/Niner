@@ -10,6 +10,7 @@ import {
   createMockAuthResponseFromLogin,
   createMockAuthResponseFromRegister,
   isJwtAuthMock,
+  isJwtSignInMock,
 } from './mock-auth';
 import { ActionMapType, AuthStateType, AuthUserType } from '../../types';
 
@@ -109,7 +110,7 @@ export function AuthProvider({ children }: Props) {
       if (accessToken && isValidToken(accessToken)) {
         setSession(accessToken);
 
-        if (isJwtAuthMock()) {
+        if (isJwtAuthMock() && isJwtSignInMock()) {
           dispatch({
             type: Types.INITIAL,
             payload: {
@@ -159,7 +160,7 @@ export function AuthProvider({ children }: Props) {
 
   const login = useCallback(
     async (credentials: LoginRequest) => {
-      if (isJwtAuthMock()) {
+      if (isJwtSignInMock()) {
         syncSessionFromApiResponse(createMockAuthResponseFromLogin(credentials));
         return;
       }
@@ -177,8 +178,7 @@ export function AuthProvider({ children }: Props) {
         return;
       }
 
-      const payload = await fetchRegister(data);
-      syncSessionFromApiResponse(payload);
+      await fetchRegister(data);
     },
     [syncSessionFromApiResponse]
   );

@@ -16,7 +16,7 @@ import { paths } from 'src/routes/paths';
 import { useSearchParams } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 // auth
-import { useRegisterMutation } from 'src/auth/api';
+import { isTokenPairResponse, useRegisterMutation } from 'src/auth/api';
 import { useLocales } from 'src/locales';
 // components
 import Iconify from 'src/components/iconify';
@@ -27,9 +27,9 @@ import { createRegisterSchema } from './utils/auth-form-schemas';
 // ----------------------------------------------------------------------
 
 type FormValuesProps = {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  targetBand: number;
   password: string;
   passwordConfirm: string;
 };
@@ -38,6 +38,7 @@ export default function JwtRegisterView() {
   const { tx } = useLocales();
   const registerMutation = useRegisterMutation();
   const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const searchParams = useSearchParams();
   const returnTo = searchParams.get('returnTo');
   const password = useBoolean();
@@ -45,12 +46,13 @@ export default function JwtRegisterView() {
   const methods = useForm<FormValuesProps>({
     resolver: yupResolver(createRegisterSchema(tx)),
     defaultValues: {
-      name: '',
+      firstName: '',
+      lastName: '',
       email: '',
-      targetBand: 7,
       password: '',
       passwordConfirm: '',
     },
+    mode: 'onChange',
   });
 
   const {
@@ -62,21 +64,26 @@ export default function JwtRegisterView() {
     async (data: FormValuesProps) => {
       try {
         setErrorMsg('');
+        setSuccessMsg('');
         const payload = await registerMutation.mutateAsync({
           tenantName: 'IELTS Mock Platform',
-          name: data.name,
+          firstName: data.firstName.trim(),
+          lastName: data.lastName.trim(),
           email: data.email,
           password: data.password,
           passwordConfirm: data.passwordConfirm,
-          targetBand: Number(data.targetBand),
           mockRole: 'student',
         });
-        window.location.href = returnTo || paths.afterLogin(payload.user.role);
+        if (isTokenPairResponse(payload)) {
+          window.location.href = returnTo || paths.afterLogin(payload.user.role);
+        } else {
+          setSuccessMsg(tx('auth.register.success_check_email'));
+        }
       } catch (error) {
         setErrorMsg(getAuthFormErrorMessage(error, 'register'));
       }
     },
-    [registerMutation, returnTo]
+    [registerMutation, returnTo, tx]
   );
 
   return (
@@ -101,16 +108,17 @@ export default function JwtRegisterView() {
             </Alert>
           )}
 
-          <RHFTextField name="name" label={tx('auth.shared.full_name')} />
+          {!!successMsg && (
+            <Alert severity="success" onClose={() => setSuccessMsg('')}>
+              {successMsg}
+            </Alert>
+          )}
+
+          <RHFTextField name="firstName" label={tx('auth.shared.first_name')} />
+
+          <RHFTextField name="lastName" label={tx('auth.shared.last_name')} />
 
           <RHFTextField name="email" label={tx('auth.shared.email')} />
-
-          <RHFTextField
-            name="targetBand"
-            label={tx('auth.register.target_band')}
-            type="number"
-            inputProps={{ min: 4.5, max: 9, step: 0.5 }}
-          />
 
           <RHFTextField
             name="password"

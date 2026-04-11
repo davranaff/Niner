@@ -1,16 +1,15 @@
 const API_V1 = '/api/v1';
 
-/**
- * Pathnames from the app origin (`baseURL` = `HOST_API`).
- * Django: `config.urls` → `/api/v1/...`
- */
+/** Pathnames from the app origin (`baseURL` = `HOST_API`). */
 export const API_ENDPOINTS = {
   auth: {
-    register: `${API_V1}/auth/register/`,
+    signUp: `${API_V1}/auth/sign-up`,
     login: `${API_V1}/auth/login/`,
-    refresh: `${API_V1}/auth/token/refresh/`,
-    /** Add on backend when you expose a current-user endpoint */
-    me: `${API_V1}/auth/me/`,
+    signIn: `${API_V1}/auth/sign-in`,
+    refresh: `${API_V1}/auth/refresh`,
+  },
+  users: {
+    me: `${API_V1}/users/me`,
   },
   products: {
     list: `${API_V1}/products/`,
