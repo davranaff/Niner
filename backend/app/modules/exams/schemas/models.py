@@ -4,6 +4,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, Field
 
 ExamKind = Literal["reading", "listening", "writing"]
+ExamAttemptStatus = Literal["in_progress", "completed", "terminated"]
 
 
 class ExamCreateIn(BaseModel):
@@ -41,3 +42,25 @@ class ExamsMeOut(BaseModel):
     reading: dict[str, Any]
     listening: dict[str, Any]
     writing: dict[str, Any]
+
+
+class StudentAttemptListItemOut(BaseModel):
+    id: int
+    kind: ExamKind
+    test_id: int
+    test_title: str
+    time_limit: int
+    status: ExamAttemptStatus
+    finish_reason: str | None
+    started_at: datetime | None
+    finished_at: datetime | None
+    created_at: datetime
+    updated_at: datetime
+    estimated_band: float | None
+
+
+class StudentAttemptListOut(BaseModel):
+    items: list[StudentAttemptListItemOut]
+    count: int = Field(ge=0)
+    limit: int = Field(ge=1, le=100)
+    offset: int = Field(ge=0)

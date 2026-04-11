@@ -55,6 +55,7 @@ If exam is already finished:
 ## 6) View exam history
 Endpoint:
 - `GET /api/v1/exams/me`
+- `GET /api/v1/exams/my-tests`
 
 Returns three sections:
 - `reading`
@@ -62,3 +63,9 @@ Returns three sections:
 - `writing`
 
 Each section is paginated independently with its own offset.
+
+`/api/v1/exams/my-tests` returns a flat student-facing list with:
+- search by test title,
+- module/status filters,
+- offset/limit pagination,
+- ordering (default `-updated_at`).

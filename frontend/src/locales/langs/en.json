@@ -220,6 +220,7 @@
         "finish_reason": "Finish reason",
         "finish_manual_submit": "Manual submit",
         "finish_completed": "Completed",
+        "finish_left": "User left",
         "finish_timeout": "Time expired",
         "finish_time_is_up": "Time expired",
         "finish_tab_switch": "Integrity violation",

@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import logging
 from datetime import UTC, datetime
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal
 from typing import Any, Literal
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import ApiError
-from app.core.pagination import serialize_page
+from app.core.pagination import normalize_limit, normalize_offset, serialize_page
 from app.db.models import (
     AiSummaryModuleEnum,
     FinishReasonEnum,
@@ -37,6 +37,23 @@ from app.workers.queue import enqueue_writing_evaluation
 logger = logging.getLogger(__name__)
 
 ExamKind = Literal["reading", "listening", "writing"]
+ExamAttemptStatus = Literal["in_progress", "completed", "terminated"]
+
+DEFAULT_STUDENT_ATTEMPTS_ORDERING = "-updated_at"
+ALLOWED_STUDENT_ATTEMPTS_ORDERING = {
+    "created_at",
+    "-created_at",
+    "updated_at",
+    "-updated_at",
+    "started_at",
+    "-started_at",
+    "finished_at",
+    "-finished_at",
+    "test_title",
+    "-test_title",
+    "estimated_band",
+    "-estimated_band",
+}
 
 
 def _calculate_elapsed_seconds(started_at: datetime | None, finished_at: datetime | None) -> int | None:
@@ -111,6 +128,99 @@ def _serialize_exam_summary(kind: ExamKind, exam: Any) -> dict[str, Any]:
         "finished_at": exam.finished_at,
         "finish_reason": exam.finish_reason.value if exam.finish_reason else None,
     }
+
+
+def _resolve_attempt_status(exam: Any) -> ExamAttemptStatus:
+    if exam.finished_at is None:
+        return "in_progress"
+    if exam.finish_reason == FinishReasonEnum.left:
+        return "terminated"
+    return "completed"
+
+
+def _calculate_reading_or_listening_estimated_band(question_answers: list[Any]) -> float | None:
+    if not question_answers:
+        return None
+
+    correct_count = sum(1 for answer in question_answers if answer.is_correct)
+    return reading_band_score(correct_count)
+
+
+def _calculate_writing_estimated_band(parts: list[WritingExamPart]) -> float | None:
+    submitted_parts = [part for part in parts if (part.essay or "").strip()]
+    if not submitted_parts:
+        return None
+    if any(part.score is None for part in submitted_parts):
+        return None
+
+    total = sum((Decimal(str(part.score)) for part in submitted_parts), Decimal("0.0"))
+    average = (total / Decimal(len(submitted_parts))).quantize(Decimal("0.1"), rounding=ROUND_HALF_UP)
+    return float(average)
+
+
+def _serialize_student_attempt_item(kind: ExamKind, exam: Any) -> dict[str, Any]:
+    if kind == "reading":
+        test = exam.reading_test
+        test_id = exam.reading_test_id
+        estimated_band = _calculate_reading_or_listening_estimated_band(exam.question_answers)
+    elif kind == "listening":
+        test = exam.listening_test
+        test_id = exam.listening_test_id
+        estimated_band = _calculate_reading_or_listening_estimated_band(exam.question_answers)
+    else:
+        test = exam.writing_test
+        test_id = exam.writing_test_id
+        estimated_band = _calculate_writing_estimated_band(exam.writing_parts)
+
+    return {
+        "id": exam.id,
+        "kind": kind,
+        "test_id": test_id,
+        "test_title": test.title,
+        "time_limit": int(test.time_limit),
+        "status": _resolve_attempt_status(exam),
+        "finish_reason": exam.finish_reason.value if exam.finish_reason else None,
+        "started_at": exam.started_at,
+        "finished_at": exam.finished_at,
+        "created_at": exam.created_at,
+        "updated_at": exam.updated_at,
+        "estimated_band": estimated_band,
+    }
+
+
+def _matches_student_attempt_search(item: dict[str, Any], search: str | None) -> bool:
+    if not search:
+        return True
+
+    normalized = search.strip().lower()
+    if not normalized:
+        return True
+
+    return normalized in str(item["test_title"]).lower()
+
+
+def _sort_student_attempts(
+    items: list[dict[str, Any]],
+    ordering: str,
+) -> list[dict[str, Any]]:
+    normalized_ordering = (
+        ordering if ordering in ALLOWED_STUDENT_ATTEMPTS_ORDERING else DEFAULT_STUDENT_ATTEMPTS_ORDERING
+    )
+    reverse = normalized_ordering.startswith("-")
+    field = normalized_ordering[1:] if reverse else normalized_ordering
+
+    non_null_items = [item for item in items if item.get(field) is not None]
+    null_items = [item for item in items if item.get(field) is None]
+
+    if field in {"created_at", "updated_at", "started_at", "finished_at"}:
+        key_fn = lambda item: item[field]
+    elif field == "estimated_band":
+        key_fn = lambda item: float(item[field])
+    else:
+        key_fn = lambda item: str(item[field]).lower()
+
+    sorted_items = sorted(non_null_items, key=key_fn, reverse=reverse)
+    return sorted_items + null_items
 
 
 async def create_exam(db: AsyncSession, user: User, kind: ExamKind, test_id: int) -> dict[str, Any]:
@@ -451,7 +561,8 @@ async def submit_writing_exam(
     exam.finished_at = finished_at
     exam.finish_reason = _resolve_finish_reason(elapsed_seconds, time_limit_seconds)
     await db.commit()
-    await db.refresh(exam)
+
+    serialized_exam = await _get_writing_exam_owned(db, exam.id, user.id)
 
     try:
         await create_auto_summary(
@@ -473,10 +584,13 @@ async def submit_writing_exam(
             )
 
     return {
-        "answers": _serialize_writing_parts(exam),
+        "answers": _serialize_writing_parts(serialized_exam),
         "score": None,
         "correct_answers": None,
-        "time_spent": _calculate_time_spent_seconds(exam.started_at, exam.finished_at),
+        "time_spent": _calculate_time_spent_seconds(
+            serialized_exam.started_at,
+            serialized_exam.finished_at,
+        ),
     }
 
 
@@ -526,4 +640,47 @@ async def get_my_exams(
             limit=limit,
             offset=writing_offset,
         ).model_dump(),
+    }
+
+
+async def list_student_attempts(
+    db: AsyncSession,
+    user: User,
+    *,
+    search: str | None,
+    module: ExamKind | None,
+    status: ExamAttemptStatus | None,
+    ordering: str,
+    offset: int,
+    limit: int,
+) -> dict[str, Any]:
+    rows: list[dict[str, Any]] = []
+
+    if module in {None, "reading"}:
+        reading_rows = await repository.list_all_user_reading_exams_with_relations(db, user_id=user.id)
+        rows.extend(_serialize_student_attempt_item("reading", exam) for exam in reading_rows)
+
+    if module in {None, "listening"}:
+        listening_rows = await repository.list_all_user_listening_exams_with_relations(db, user_id=user.id)
+        rows.extend(_serialize_student_attempt_item("listening", exam) for exam in listening_rows)
+
+    if module in {None, "writing"}:
+        writing_rows = await repository.list_all_user_writing_exams_with_relations(db, user_id=user.id)
+        rows.extend(_serialize_student_attempt_item("writing", exam) for exam in writing_rows)
+
+    filtered_rows = [row for row in rows if _matches_student_attempt_search(row, search)]
+    if status is not None:
+        filtered_rows = [row for row in filtered_rows if row["status"] == status]
+
+    sorted_rows = _sort_student_attempts(filtered_rows, ordering)
+
+    normalized_offset = normalize_offset(offset)
+    normalized_limit = normalize_limit(limit)
+    paged_rows = sorted_rows[normalized_offset : normalized_offset + normalized_limit]
+
+    return {
+        "items": paged_rows,
+        "count": len(sorted_rows),
+        "limit": normalized_limit,
+        "offset": normalized_offset,
     }

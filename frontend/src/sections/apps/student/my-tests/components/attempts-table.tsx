@@ -20,12 +20,12 @@ import { AppsStatusChip } from 'src/pages/components/apps';
 // utils
 import { getModuleAttemptPath, getModuleSessionPath } from 'src/sections/apps/common/module-test/utils/module-meta';
 // types
-import type { StudentAttemptsListItem } from 'src/sections/apps/common/api/types';
+import type { StudentAttemptListItem } from '../api/types';
 
 // ----------------------------------------------------------------------
 
 type AttemptsTableProps = {
-  items: StudentAttemptsListItem[];
+  items: StudentAttemptListItem[];
   count: number;
   page: number;
   rowsPerPage: number;
@@ -63,47 +63,44 @@ export function AttemptsTable({
 
           <TableBody>
             {items.map((item) => (
-              <TableRow key={item.attempt.id} hover>
+              <TableRow key={item.id} hover>
                 <TableCell>
                   <Stack spacing={0.25}>
-                    <Typography variant="subtitle2">{item.test.title}</Typography>
+                    <Typography variant="subtitle2">{item.testTitle}</Typography>
                     <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                      {item.test.durationMinutes} min
+                      {item.durationMinutes} min
                     </Typography>
                   </Stack>
                 </TableCell>
 
-                <TableCell>{tx(`pages.ielts.${item.attempt.module}.title`)}</TableCell>
+                <TableCell>{tx(`pages.ielts.${item.module}.title`)}</TableCell>
 
                 <TableCell>
-                  <AppsStatusChip
-                    status={item.attempt.status}
-                    label={tx(`pages.ielts.shared.status_${item.attempt.status}`)}
-                  />
+                  <AppsStatusChip status={item.status} label={tx(`pages.ielts.shared.status_${item.status}`)} />
                 </TableCell>
-
-                <TableCell>{item.result ? item.result.estimatedBand.toFixed(1) : '-'}</TableCell>
 
                 <TableCell>
-                  {item.attempt.finishReason
-                    ? tx(`pages.ielts.shared.finish_${item.attempt.finishReason}`)
-                    : '-'}
+                  {typeof item.estimatedBand === 'number' ? item.estimatedBand.toFixed(1) : '-'}
                 </TableCell>
 
-                <TableCell>{fDate(item.attempt.updatedAt)}</TableCell>
+                <TableCell>
+                  {item.finishReason ? tx(`pages.ielts.shared.finish_${item.finishReason}`) : '-'}
+                </TableCell>
+
+                <TableCell>{fDate(item.updatedAt)}</TableCell>
 
                 <TableCell align="right">
                   <Button
                     component={RouterLink}
                     href={
-                      item.attempt.status === 'in_progress'
-                        ? getModuleSessionPath(item.attempt.module, item.attempt.testId)
-                        : getModuleAttemptPath(item.attempt.module, item.attempt.id)
+                      item.status === 'in_progress'
+                        ? getModuleSessionPath(item.module, String(item.testId))
+                        : getModuleAttemptPath(item.module, String(item.id))
                     }
                     size="small"
                     color="inherit"
                   >
-                    {item.attempt.status === 'in_progress'
+                    {item.status === 'in_progress'
                       ? tx('pages.ielts.shared.continue')
                       : tx('pages.ielts.shared.open_result')}
                   </Button>
@@ -123,6 +120,16 @@ export function AttemptsTable({
         onPageChange={onPageChange}
         onRowsPerPageChange={onRowsPerPageChange}
         rowsPerPageOptions={[5, 10, 20]}
+        sx={{
+          px: 1,
+          '.MuiTablePagination-toolbar': {
+            minHeight: 72,
+            px: { xs: 1.5, md: 2.5 },
+          },
+          '.MuiTablePagination-actions': {
+            ml: 1,
+          },
+        }}
       />
     </Card>
   );

@@ -220,6 +220,7 @@
         "finish_reason": "Причина завершения",
         "finish_manual_submit": "Ручной submit",
         "finish_completed": "Завершено",
+        "finish_left": "Пользователь вышел",
         "finish_timeout": "Время вышло",
         "finish_time_is_up": "Время вышло",
         "finish_tab_switch": "Нарушение integrity",

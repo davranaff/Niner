@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 // @mui
 import Container from '@mui/material/Container';
 // locales
@@ -6,47 +6,92 @@ import { useLocales } from 'src/locales';
 // hooks
 import {
   useUrlListState,
-  useUrlQueryState,
-  stringParam,
+  stringFilterParam,
   useSyncTableWithUrlListState,
 } from 'src/hooks/use-url-query-state';
+import { useDebounce } from 'src/hooks/use-debounce';
 // table
 import { useTable } from 'src/components/table';
 import { AppsPageHeader } from 'src/pages/components/apps';
 // api
-import { useStudentAttemptsQuery } from 'src/sections/apps/common/api/use-apps';
+import { useStudentAttemptsQuery } from './api/use-my-tests-api';
+import { MY_TESTS_DEFAULT_PAGE_SIZE } from './api/utils';
 import { AttemptsTable, FiltersToolbar } from './components';
 import { AppsMyTestsSkeleton } from './skeleton';
 
 // ----------------------------------------------------------------------
 
+const myTestsUrlExtraSchema = Object.freeze({
+  module: stringFilterParam('all'),
+  status: stringFilterParam('all'),
+});
+
 export default function AppsMyTestsView() {
   const { tx } = useLocales();
-  const table = useTable({ defaultRowsPerPage: 10, defaultCurrentPage: 0 });
-  const listState = useUrlListState({ defaultPageSize: 10, defaultOrdering: '-updated_at' });
-  const { values, setValues } = useUrlQueryState({
-    module: stringParam('all'),
-    status: stringParam('all'),
+  const table = useTable({ defaultRowsPerPage: MY_TESTS_DEFAULT_PAGE_SIZE, defaultCurrentPage: 0 });
+  const listState = useUrlListState({
+    defaultPageSize: MY_TESTS_DEFAULT_PAGE_SIZE,
+    defaultOrdering: '-updated_at',
+    extraSchema: myTestsUrlExtraSchema,
   });
+  const {
+    page,
+    rowsPerPage,
+    search,
+    ordering,
+    values,
+    setValues,
+    setSearch,
+    handlePageChange,
+    handleRowsPerPageChange,
+  } = listState;
+
+  const filterModule = values.module as string;
+  const filterStatus = values.status as string;
+
+  const [searchInput, setSearchInput] = useState(search);
+  const debouncedSearch = useDebounce(searchInput, 400);
 
   useSyncTableWithUrlListState({
-    page: listState.page,
-    rowsPerPage: listState.rowsPerPage,
+    page,
+    rowsPerPage,
     tablePage: table.page,
     tableRowsPerPage: table.rowsPerPage,
     setTablePage: table.setPage,
     setTableRowsPerPage: table.setRowsPerPage,
   });
 
+  useEffect(() => {
+    setSearchInput(search);
+  }, [search]);
+
+  useEffect(() => {
+    if (debouncedSearch === searchInput && debouncedSearch !== search) {
+      setSearch(debouncedSearch);
+    }
+  }, [debouncedSearch, search, searchInput, setSearch]);
+
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchInput(value);
+  }, []);
+
+  const setUrlFilter = useCallback(
+    (key: 'module' | 'status', value: string) => {
+      setValues({ [key]: value, page: 1 });
+    },
+    [setValues]
+  );
+
   const filters = useMemo(
     () => ({
-      page: listState.page,
-      pageSize: listState.rowsPerPage,
-      search: listState.search,
-      module: values.module,
-      status: values.status,
+      page,
+      rowsPerPage,
+      search,
+      ordering,
+      module: filterModule,
+      status: filterStatus,
     }),
-    [listState.page, listState.rowsPerPage, listState.search, values.module, values.status]
+    [filterModule, filterStatus, ordering, page, rowsPerPage, search]
   );
 
   const attemptsQuery = useStudentAttemptsQuery(filters);
@@ -59,25 +104,26 @@ export default function AppsMyTestsView() {
       />
 
       <FiltersToolbar
-        search={listState.search}
-        module={values.module}
-        status={values.status}
-        onSearchChange={listState.setSearch}
-        onModuleChange={(value) => setValues({ module: value })}
-        onStatusChange={(value) => setValues({ status: value })}
+        search={searchInput}
+        module={filterModule}
+        status={filterStatus}
+        totalCount={attemptsQuery.data?.count ?? 0}
+        onSearchChange={handleSearchChange}
+        onModuleChange={(value) => setUrlFilter('module', value)}
+        onStatusChange={(value) => setUrlFilter('status', value)}
       />
 
-      {attemptsQuery.isLoading || !attemptsQuery.data ? <AppsMyTestsSkeleton /> : null}
+      {attemptsQuery.isPending && !attemptsQuery.data ? <AppsMyTestsSkeleton /> : null}
 
       {attemptsQuery.data ? (
         <AttemptsTable
-          items={attemptsQuery.data.results}
+          items={attemptsQuery.data.items}
           count={attemptsQuery.data.count}
           page={table.page}
           rowsPerPage={table.rowsPerPage}
           dense={table.dense}
-          onPageChange={listState.handlePageChange}
-          onRowsPerPageChange={listState.handleRowsPerPageChange}
+          onPageChange={handlePageChange}
+          onRowsPerPageChange={handleRowsPerPageChange}
         />
       ) : null}
     </Container>

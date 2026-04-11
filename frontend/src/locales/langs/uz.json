@@ -220,6 +220,7 @@
         "finish_reason": "Yakun sabab",
         "finish_manual_submit": "Qo'lda submit",
         "finish_completed": "Yakunlandi",
+        "finish_left": "Foydalanuvchi chiqib ketdi",
         "finish_timeout": "Vaqt tugadi",
         "finish_time_is_up": "Vaqt tugadi",
         "finish_tab_switch": "Integrity buzilishi",

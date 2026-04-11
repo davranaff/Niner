@@ -74,3 +74,23 @@ Example:
 ```http
 GET /api/v1/exams/me?limit=10&reading_offset=0&listening_offset=20&writing_offset=0
 ```
+
+## F) Student attempts list for `GET /api/v1/exams/my-tests`
+`exams/my-tests` returns one flat list with total count:
+
+```json
+{
+  "items": [],
+  "count": 0,
+  "limit": 20,
+  "offset": 0
+}
+```
+
+Supported query params:
+- `search`
+- `module=reading|listening|writing`
+- `status=in_progress|completed|terminated`
+- `ordering` (`-updated_at` by default)
+- `offset`
+- `limit`

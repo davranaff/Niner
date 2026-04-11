@@ -33,6 +33,7 @@ Writing:
 
 History:
 - `GET /api/v1/exams/me`
+- `GET /api/v1/exams/my-tests`
 
 ## 3) Admin endpoints for content and exam control
 Reading content:

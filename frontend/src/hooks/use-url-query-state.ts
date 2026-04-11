@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 
 type Primitive = string | number | boolean;
 
@@ -30,6 +30,20 @@ export function stringParam(defaultValue = ''): UrlParamCodec<string> {
   };
 }
 
+/** String filter codec: default value is omitted from the URL (e.g. `all`). */
+export function stringFilterParam(defaultValue: string): UrlParamCodec<string> {
+  return {
+    defaultValue,
+    parse: (value) => (value != null && value.length > 0 ? value : defaultValue),
+    serialize: (value) => {
+      if (typeof value !== 'string') return null;
+      const normalized = value.trim();
+      if (!normalized.length || normalized === defaultValue) return null;
+      return normalized;
+    },
+  };
+}
+
 export function intParam(defaultValue: number, min = 1): UrlParamCodec<number> {
   return {
     defaultValue,
@@ -53,42 +67,49 @@ export function intParam(defaultValue: number, min = 1): UrlParamCodec<number> {
 }
 
 export function useUrlQueryState<TSchema extends UrlQuerySchema>(schema: TSchema) {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+  const [, setSearchParams] = useSearchParams();
 
   const values = useMemo(() => {
+    const params = new URLSearchParams(location.search);
     const nextValues = {} as ValuesFromSchema<TSchema>;
 
     (Object.keys(schema) as Array<keyof TSchema>).forEach((key) => {
       const codec = schema[key];
-      nextValues[key] = codec.parse(searchParams.get(String(key))) as ValuesFromSchema<TSchema>[typeof key];
+      nextValues[key] = codec.parse(params.get(String(key))) as ValuesFromSchema<TSchema>[typeof key];
     });
 
     return nextValues;
-  }, [schema, searchParams]);
+  }, [schema, location.search]);
 
   const setValues = useCallback(
     (patch: Partial<ValuesFromSchema<TSchema>>, options?: { replace?: boolean }) => {
-      const nextParams = new URLSearchParams(searchParams);
+      setSearchParams(
+        (currentSearchParams) => {
+          const nextParams = new URLSearchParams(currentSearchParams);
 
-      (Object.keys(patch) as Array<keyof typeof patch>).forEach((key) => {
-        const codec = schema[key as keyof TSchema];
-        if (!codec) return;
+          (Object.keys(patch) as Array<keyof typeof patch>).forEach((key) => {
+            const codec = schema[key as keyof TSchema];
+            if (!codec) return;
 
-        const nextValue = patch[key];
-        if (typeof nextValue === 'undefined') return;
+            const nextValue = patch[key];
+            if (typeof nextValue === 'undefined') return;
 
-        const serialized = codec.serialize(nextValue);
-        if (serialized === null) {
-          nextParams.delete(String(key));
-          return;
-        }
+            const serialized = codec.serialize(nextValue);
+            if (serialized === null) {
+              nextParams.delete(String(key));
+              return;
+            }
 
-        nextParams.set(String(key), serialized);
-      });
+            nextParams.set(String(key), serialized);
+          });
 
-      setSearchParams(nextParams, { replace: options?.replace ?? true });
+          return nextParams;
+        },
+        { replace: options?.replace ?? true }
+      );
     },
-    [schema, searchParams, setSearchParams]
+    [schema, setSearchParams]
   );
 
   return { values, setValues };
@@ -102,6 +123,8 @@ type UseUrlListStateOptions = {
   defaultPage?: number;
   defaultPageSize?: number;
   defaultOrdering?: string;
+  /** Merged into the same URL state as list params. Keys must not collide with page/search/ordering keys. */
+  extraSchema?: UrlQuerySchema;
 };
 
 export function useUrlListState(options?: UseUrlListStateOptions) {
@@ -113,6 +136,7 @@ export function useUrlListState(options?: UseUrlListStateOptions) {
     defaultPage = 1,
     defaultPageSize = 15,
     defaultOrdering = '-created_at',
+    extraSchema,
   } = options ?? {};
 
   const schema = useMemo(
@@ -121,8 +145,18 @@ export function useUrlListState(options?: UseUrlListStateOptions) {
       [pageSizeKey]: intParam(defaultPageSize),
       [orderingKey]: stringParam(defaultOrdering),
       [searchKey]: stringParam(''),
+      ...(extraSchema ?? {}),
     }),
-    [defaultOrdering, defaultPage, defaultPageSize, orderingKey, pageKey, pageSizeKey, searchKey]
+    [
+      defaultOrdering,
+      defaultPage,
+      defaultPageSize,
+      extraSchema,
+      orderingKey,
+      pageKey,
+      pageSizeKey,
+      searchKey,
+    ]
   );
 
   const { values, setValues } = useUrlQueryState(schema);

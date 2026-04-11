@@ -177,3 +177,50 @@ async def list_user_writing_exams(
         offset,
     )
 
+
+async def list_all_user_reading_exams_with_relations(
+    db: AsyncSession,
+    *,
+    user_id: int,
+) -> list[ReadingExam]:
+    stmt = (
+        select(ReadingExam)
+        .where(ReadingExam.user_id == user_id)
+        .options(
+            selectinload(ReadingExam.reading_test),
+            selectinload(ReadingExam.question_answers),
+        )
+    )
+    return list((await db.execute(stmt)).scalars().all())
+
+
+async def list_all_user_listening_exams_with_relations(
+    db: AsyncSession,
+    *,
+    user_id: int,
+) -> list[ListeningExam]:
+    stmt = (
+        select(ListeningExam)
+        .where(ListeningExam.user_id == user_id)
+        .options(
+            selectinload(ListeningExam.listening_test),
+            selectinload(ListeningExam.question_answers),
+        )
+    )
+    return list((await db.execute(stmt)).scalars().all())
+
+
+async def list_all_user_writing_exams_with_relations(
+    db: AsyncSession,
+    *,
+    user_id: int,
+) -> list[WritingExam]:
+    stmt = (
+        select(WritingExam)
+        .where(WritingExam.user_id == user_id)
+        .options(
+            selectinload(WritingExam.writing_test),
+            selectinload(WritingExam.writing_parts),
+        )
+    )
+    return list((await db.execute(stmt)).scalars().all())
