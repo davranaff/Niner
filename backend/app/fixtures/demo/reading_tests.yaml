@@ -1,927 +1,3336 @@
 tests:
-  - title: Reading Demo Test 1
-    description: Reading tasks on culture, transport, and language preservation.
-    time_limit: 3600
-    is_active: true
-    passages:
-      - title: Part 1 Manuscript Preservation in Samarkand
-        passage_number: 1
-        content: Archivists in Samarkand developed layered storage systems and cataloging rules to protect manuscripts for centuries.
-        blocks:
-          - title: Questions 1-7
-            description: Choose True, False or Not Given.
-            block_type: true_false_ng
-            order: 1
-            questions:
-              - order: 1
-                question_text: The archives accepted only religious texts.
-                options:
-                  - option_text: True
-                    is_correct: false
-                  - option_text: False
-                    is_correct: true
-                  - option_text: Not Given
-                    is_correct: false
-              - order: 2
-                question_text: Humidity control was a key part of preservation.
-                options:
-                  - option_text: True
-                    is_correct: true
-                  - option_text: False
-                    is_correct: false
-                  - option_text: Not Given
-                    is_correct: false
-              - order: 3
-                question_text: Scribes copied all manuscripts at night.
-                options:
-                  - option_text: True
-                    is_correct: false
-                  - option_text: False
-                    is_correct: false
-                  - option_text: Not Given
-                    is_correct: true
-              - order: 4
-                question_text: Clay containers were used in one storage stage.
-                options:
-                  - option_text: True
-                    is_correct: true
-                  - option_text: False
-                    is_correct: false
-                  - option_text: Not Given
-                    is_correct: false
-              - order: 5
-                question_text: The oldest documents were kept near windows.
-                options:
-                  - option_text: True
-                    is_correct: false
-                  - option_text: False
-                    is_correct: true
-                  - option_text: Not Given
-                    is_correct: false
-              - order: 6
-                question_text: Every manuscript had a unique shelf code.
-                options:
-                  - option_text: True
-                    is_correct: true
-                  - option_text: False
-                    is_correct: false
-                  - option_text: Not Given
-                    is_correct: false
-              - order: 7
-                question_text: Water damage was more common than fire damage.
-                options:
-                  - option_text: True
-                    is_correct: false
-                  - option_text: False
-                    is_correct: false
-                  - option_text: Not Given
-                    is_correct: true
+- title: Reading Real-Life Test 01
+  description: Academic reading tasks focused on water management and urban resilience.
+  time_limit: 3600
+  is_active: true
+  passages:
+  - title: Part 1 Water Management and Urban Resilience - Passage 1
+    passage_number: 1
+    content: Water Management and Urban Resilience case study 01, section 1. Archivists in Samarkand developed layered storage
+      systems and cataloging rules to protect manuscripts for centuries. The text includes policy evidence, implementation
+      outcomes, and stakeholder perspectives.
+    blocks:
+    - title: Questions 1-7
+      description: Choose True, False or Not Given.
+      block_type: true_false_ng
+      order: 1
+      questions:
+      - order: 1
+        question_text: The archives accepted only religious texts.
+        options:
+        - option_text: true
+          is_correct: false
+        - option_text: false
+          is_correct: true
+        - option_text: Not Given
+          is_correct: false
+      - order: 2
+        question_text: Humidity control was a key part of preservation.
+        options:
+        - option_text: true
+          is_correct: true
+        - option_text: false
+          is_correct: false
+        - option_text: Not Given
+          is_correct: false
+      - order: 3
+        question_text: Scribes copied all manuscripts at night.
+        options:
+        - option_text: true
+          is_correct: false
+        - option_text: false
+          is_correct: false
+        - option_text: Not Given
+          is_correct: true
+      - order: 4
+        question_text: Clay containers were used in one storage stage.
+        options:
+        - option_text: true
+          is_correct: true
+        - option_text: false
+          is_correct: false
+        - option_text: Not Given
+          is_correct: false
+      - order: 5
+        question_text: The oldest documents were kept near windows.
+        options:
+        - option_text: true
+          is_correct: false
+        - option_text: false
+          is_correct: true
+        - option_text: Not Given
+          is_correct: false
+      - order: 6
+        question_text: Every manuscript had a unique shelf code.
+        options:
+        - option_text: true
+          is_correct: true
+        - option_text: false
+          is_correct: false
+        - option_text: Not Given
+          is_correct: false
+      - order: 7
+        question_text: Water damage was more common than fire damage.
+        options:
+        - option_text: true
+          is_correct: false
+        - option_text: false
+          is_correct: false
+        - option_text: Not Given
+          is_correct: true
+    - title: Questions 8-13
+      description: Complete the table below. Choose NO MORE THAN TWO WORDS from the passage for each answer.
+      block_type: table_completion
+      order: 2
+      table_completion: Century | Main Material | Main Storage Method
+      table_json:
+        header:
+        - Century
+        - Main Material
+        - Main Storage Method
+        rows:
+        - - 13th
+          - paper
+          - ____
+        - - 14th
+          - parchment
+          - ____
+        - - 15th
+          - mixed copies
+          - ____
+      questions:
+      - order: 1
+        question_text: Storage method used in the 13th century
+        answers:
+        - clay box
+      - order: 2
+        question_text: Storage method used in the 14th century
+        answers:
+        - cedar chest
+        - wooden chest
+      - order: 3
+        question_text: Storage method used in the 15th century
+        answers:
+        - sealed shelf
+      - order: 4
+        question_text: Label attached to damaged manuscripts
+        answers:
+        - repair tag
+      - order: 5
+        question_text: Role responsible for final shelf control
+        answers:
+        - chief archivist
+      - order: 6
+        question_text: Material used to wrap fragile pages
+        answers:
+        - silk cloth
+  - title: Part 2 Water Management and Urban Resilience - Passage 2
+    passage_number: 2
+    content: Water Management and Urban Resilience case study 01, section 2. Regional railway policy combined freight priorities,
+      station modernization, and route planning for trade corridors. The text includes policy evidence, implementation outcomes,
+      and stakeholder perspectives.
+    blocks:
+    - title: Questions 14-18
+      description: Choose the correct heading, A-E, for each paragraph.
+      block_type: matching_headings
+      order: 1
+      list_of_headings: 'A. Safety Standards in Mountain Sections
 
-          - title: Questions 8-13
-            description: Complete the table below. Choose NO MORE THAN TWO WORDS from the passage for each answer.
-            block_type: table_completion
-            order: 2
-            table_completion: Century | Main Material | Main Storage Method
-            table_json:
-              header: [Century, Main Material, Main Storage Method]
-              rows:
-                - [13th, paper, "____"]
-                - [14th, parchment, "____"]
-                - [15th, mixed copies, "____"]
-            questions:
-              - order: 1
-                question_text: Storage method used in the 13th century
-                answers: [clay box]
-              - order: 2
-                question_text: Storage method used in the 14th century
-                answers: [cedar chest, wooden chest]
-              - order: 3
-                question_text: Storage method used in the 15th century
-                answers: [sealed shelf]
-              - order: 4
-                question_text: Label attached to damaged manuscripts
-                answers: [repair tag]
-              - order: 5
-                question_text: Role responsible for final shelf control
-                answers: [chief archivist]
-              - order: 6
-                question_text: Material used to wrap fragile pages
-                answers: [silk cloth]
+        B. Funding and International Partnerships
 
-      - title: Part 2 Railway Expansion in Central Asia
-        passage_number: 2
-        content: Regional railway policy combined freight priorities, station modernization, and route planning for trade corridors.
-        blocks:
-          - title: Questions 14-18
-            description: Choose the correct heading, A-E, for each paragraph.
-            block_type: matching_headings
-            order: 1
-            list_of_headings: |
-              A. Safety Standards in Mountain Sections
-              B. Funding and International Partnerships
-              C. Passenger Demand During Holidays
-              D. Digital Control and Dispatching
-              E. Freight Capacity Strategy
-            questions:
-              - order: 1
-                question_text: Heading for paragraph 1
-                options:
-                  - option_text: A
-                    is_correct: false
-                  - option_text: B
-                    is_correct: false
-                  - option_text: C
-                    is_correct: false
-                  - option_text: D
-                    is_correct: false
-                  - option_text: E
-                    is_correct: true
-              - order: 2
-                question_text: Heading for paragraph 2
-                options:
-                  - option_text: A
-                    is_correct: false
-                  - option_text: B
-                    is_correct: true
-                  - option_text: C
-                    is_correct: false
-                  - option_text: D
-                    is_correct: false
-                  - option_text: E
-                    is_correct: false
-              - order: 3
-                question_text: Heading for paragraph 3
-                options:
-                  - option_text: A
-                    is_correct: false
-                  - option_text: B
-                    is_correct: false
-                  - option_text: C
-                    is_correct: false
-                  - option_text: D
-                    is_correct: true
-                  - option_text: E
-                    is_correct: false
-              - order: 4
-                question_text: Heading for paragraph 4
-                options:
-                  - option_text: A
-                    is_correct: true
-                  - option_text: B
-                    is_correct: false
-                  - option_text: C
-                    is_correct: false
-                  - option_text: D
-                    is_correct: false
-                  - option_text: E
-                    is_correct: false
-              - order: 5
-                question_text: Heading for paragraph 5
-                options:
-                  - option_text: A
-                    is_correct: false
-                  - option_text: B
-                    is_correct: false
-                  - option_text: C
-                    is_correct: true
-                  - option_text: D
-                    is_correct: false
-                  - option_text: E
-                    is_correct: false
+        C. Passenger Demand During Holidays
 
-          - title: Questions 19-24
-            description: Complete each sentence with NO MORE THAN TWO WORDS.
-            block_type: sentence_completion
-            order: 2
-            questions:
-              - order: 1
-                question_text: Freight priority was increased on the ___ route.
-                answers: [northern corridor]
-              - order: 2
-                question_text: The modernization program started with old ___ systems.
-                answers: [signal]
-              - order: 3
-                question_text: New platforms reduced average boarding ___ .
-                answers: [time]
-              - order: 4
-                question_text: The dispatch center used a shared ___ dashboard.
-                answers: [digital]
-              - order: 5
-                question_text: Seasonal demand peaked during the ___ period.
-                answers: [holiday season]
-              - order: 6
-                question_text: The pilot route was extended after strong ___ results.
-                answers: [safety]
+        D. Digital Control and Dispatching
 
-      - title: Part 3 Language Revitalization Project
-        passage_number: 3
-        content: Community language initiatives balanced school programs, oral archives, and local media participation.
-        blocks:
-          - title: Questions 25-30
-            description: Choose the correct letter, A-D.
-            block_type: list_of_options
-            order: 1
-            questions:
-              - order: 1
-                question_text: What was the first project priority?
-                options:
-                  - option_text: A. Produce grammar books only
-                    is_correct: false
-                  - option_text: B. Train local facilitators
-                    is_correct: true
-                  - option_text: C. Replace school teachers
-                    is_correct: false
-                  - option_text: D. Launch national TV content
-                    is_correct: false
-              - order: 2
-                question_text: Why were oral interviews recorded?
-                options:
-                  - option_text: A. To support lexical archives
-                    is_correct: true
-                  - option_text: B. To test internet speed
-                    is_correct: false
-                  - option_text: C. To create exam questions
-                    is_correct: false
-                  - option_text: D. To replace printed textbooks
-                    is_correct: false
-              - order: 3
-                question_text: What limited early participation?
-                options:
-                  - option_text: A. Lack of dictionaries
-                    is_correct: false
-                  - option_text: B. Poor audio quality
-                    is_correct: false
-                  - option_text: C. Limited evening transport
-                    is_correct: true
-                  - option_text: D. Low exam scores
-                    is_correct: false
-              - order: 4
-                question_text: Which method improved attendance most?
-                options:
-                  - option_text: A. Remote-only classes
-                    is_correct: false
-                  - option_text: B. Weekend family sessions
-                    is_correct: true
-                  - option_text: C. Written-only tasks
-                    is_correct: false
-                  - option_text: D. Strict weekly testing
-                    is_correct: false
-              - order: 5
-                question_text: What was the main benefit for teachers?
-                options:
-                  - option_text: A. Lower workload
-                    is_correct: false
-                  - option_text: B. Better classroom materials
-                    is_correct: true
-                  - option_text: C. Fewer students
-                    is_correct: false
-                  - option_text: D. Shorter semesters
-                    is_correct: false
-              - order: 6
-                question_text: Which outcome was reported after one year?
-                options:
-                  - option_text: A. Reduced literacy in primary classes
-                    is_correct: false
-                  - option_text: B. Increased local media usage
-                    is_correct: true
-                  - option_text: C. Closure of cultural centers
-                    is_correct: false
-                  - option_text: D. Cancellation of oral archives
-                    is_correct: false
+        E. Freight Capacity Strategy
 
-          - title: Questions 31-36
-            description: Answer the questions below. Write NO MORE THAN TWO WORDS for each answer.
-            block_type: short_answers
-            order: 2
-            questions:
-              - order: 1
-                question_text: What type of events attracted older speakers?
-                answers: [story circles]
-              - order: 2
-                question_text: What resource was shared between schools?
-                answers: [audio library]
-              - order: 3
-                question_text: Who reviewed youth recordings for quality?
-                answers: [language mentors]
-              - order: 4
-                question_text: Which media format was added for teenagers?
-                answers: [short podcast]
-              - order: 5
-                question_text: What did families request after pilot classes?
-                answers: [extra sessions]
-              - order: 6
-                question_text: Which community group led translation efforts?
-                answers: [local volunteers]
+        '
+      questions:
+      - order: 1
+        question_text: Heading for paragraph 1
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+        - option_text: E
+          is_correct: true
+      - order: 2
+        question_text: Heading for paragraph 2
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: true
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+        - option_text: E
+          is_correct: false
+      - order: 3
+        question_text: Heading for paragraph 3
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: true
+        - option_text: E
+          is_correct: false
+      - order: 4
+        question_text: Heading for paragraph 4
+        options:
+        - option_text: A
+          is_correct: true
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+        - option_text: E
+          is_correct: false
+      - order: 5
+        question_text: Heading for paragraph 5
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: true
+        - option_text: D
+          is_correct: false
+        - option_text: E
+          is_correct: false
+    - title: Questions 19-24
+      description: Complete each sentence with NO MORE THAN TWO WORDS.
+      block_type: sentence_completion
+      order: 2
+      questions:
+      - order: 1
+        question_text: Freight priority was increased on the ___ route.
+        answers:
+        - northern corridor
+      - order: 2
+        question_text: The modernization program started with old ___ systems.
+        answers:
+        - signal
+      - order: 3
+        question_text: New platforms reduced average boarding ___ .
+        answers:
+        - time
+      - order: 4
+        question_text: The dispatch center used a shared ___ dashboard.
+        answers:
+        - digital
+      - order: 5
+        question_text: Seasonal demand peaked during the ___ period.
+        answers:
+        - holiday season
+      - order: 6
+        question_text: The pilot route was extended after strong ___ results.
+        answers:
+        - safety
+  - title: Part 3 Water Management and Urban Resilience - Passage 3
+    passage_number: 3
+    content: Water Management and Urban Resilience case study 01, section 3. Community language initiatives balanced school
+      programs, oral archives, and local media participation. The text includes policy evidence, implementation outcomes,
+      and stakeholder perspectives.
+    blocks:
+    - title: Questions 25-30
+      description: Choose the correct letter, A-D.
+      block_type: list_of_options
+      order: 1
+      questions:
+      - order: 1
+        question_text: What was the first project priority?
+        options:
+        - option_text: A. Produce grammar books only
+          is_correct: false
+        - option_text: B. Train local facilitators
+          is_correct: true
+        - option_text: C. Replace school teachers
+          is_correct: false
+        - option_text: D. Launch national TV content
+          is_correct: false
+      - order: 2
+        question_text: Why were oral interviews recorded?
+        options:
+        - option_text: A. To support lexical archives
+          is_correct: true
+        - option_text: B. To test internet speed
+          is_correct: false
+        - option_text: C. To create exam questions
+          is_correct: false
+        - option_text: D. To replace printed textbooks
+          is_correct: false
+      - order: 3
+        question_text: What limited early participation?
+        options:
+        - option_text: A. Lack of dictionaries
+          is_correct: false
+        - option_text: B. Poor audio quality
+          is_correct: false
+        - option_text: C. Limited evening transport
+          is_correct: true
+        - option_text: D. Low exam scores
+          is_correct: false
+      - order: 4
+        question_text: Which method improved attendance most?
+        options:
+        - option_text: A. Remote-only classes
+          is_correct: false
+        - option_text: B. Weekend family sessions
+          is_correct: true
+        - option_text: C. Written-only tasks
+          is_correct: false
+        - option_text: D. Strict weekly testing
+          is_correct: false
+      - order: 5
+        question_text: What was the main benefit for teachers?
+        options:
+        - option_text: A. Lower workload
+          is_correct: false
+        - option_text: B. Better classroom materials
+          is_correct: true
+        - option_text: C. Fewer students
+          is_correct: false
+        - option_text: D. Shorter semesters
+          is_correct: false
+      - order: 6
+        question_text: Which outcome was reported after one year?
+        options:
+        - option_text: A. Reduced literacy in primary classes
+          is_correct: false
+        - option_text: B. Increased local media usage
+          is_correct: true
+        - option_text: C. Closure of cultural centers
+          is_correct: false
+        - option_text: D. Cancellation of oral archives
+          is_correct: false
+    - title: Questions 31-36
+      description: Answer the questions below. Write NO MORE THAN TWO WORDS for each answer.
+      block_type: short_answers
+      order: 2
+      questions:
+      - order: 1
+        question_text: What type of events attracted older speakers?
+        answers:
+        - story circles
+      - order: 2
+        question_text: What resource was shared between schools?
+        answers:
+        - audio library
+      - order: 3
+        question_text: Who reviewed youth recordings for quality?
+        answers:
+        - language mentors
+      - order: 4
+        question_text: Which media format was added for teenagers?
+        answers:
+        - short podcast
+      - order: 5
+        question_text: What did families request after pilot classes?
+        answers:
+        - extra sessions
+      - order: 6
+        question_text: Which community group led translation efforts?
+        answers:
+        - local volunteers
+- title: Reading Real-Life Test 02
+  description: Academic reading tasks focused on public health campaign outcomes.
+  time_limit: 3600
+  is_active: true
+  passages:
+  - title: Part 1 Public Health Campaign Outcomes - Passage 1
+    passage_number: 1
+    content: Public Health Campaign Outcomes case study 02, section 1. Local clinics and schools coordinated health awareness
+      campaigns using volunteers and mobile support teams. The text includes policy evidence, implementation outcomes, and
+      stakeholder perspectives.
+    blocks:
+    - title: Questions 1-6
+      description: Choose the correct option, A-C.
+      block_type: multiple_choice
+      order: 1
+      questions:
+      - order: 1
+        question_text: Which group launched the campaign first?
+        options:
+        - option_text: A. Local clinics
+          is_correct: true
+        - option_text: B. Private hospitals
+          is_correct: false
+        - option_text: C. University labs
+          is_correct: false
+      - order: 2
+        question_text: What was the campaign's core method?
+        options:
+        - option_text: A. Printed newspapers only
+          is_correct: false
+        - option_text: B. Short in-person sessions
+          is_correct: true
+        - option_text: C. National TV ads only
+          is_correct: false
+      - order: 3
+        question_text: Why were volunteers important?
+        options:
+        - option_text: A. They reduced translation errors
+          is_correct: false
+        - option_text: B. They reached remote families quickly
+          is_correct: true
+        - option_text: C. They replaced all nurses
+          is_correct: false
+      - order: 4
+        question_text: Which issue reduced attendance?
+        options:
+        - option_text: A. Rainy weather
+          is_correct: false
+        - option_text: B. Evening work schedules
+          is_correct: true
+        - option_text: C. Transport strikes
+          is_correct: false
+      - order: 5
+        question_text: What changed after the second month?
+        options:
+        - option_text: A. Session length increased
+          is_correct: false
+        - option_text: B. Mobile teams were introduced
+          is_correct: true
+        - option_text: C. Volunteer numbers dropped
+          is_correct: false
+      - order: 6
+        question_text: What was the final reported effect?
+        options:
+        - option_text: A. Lower participation rates
+          is_correct: false
+        - option_text: B. Better routine check-up coverage
+          is_correct: true
+        - option_text: C. Longer waiting lists
+          is_correct: false
+    - title: Questions 7-12
+      description: Complete the notes. Write ONE WORD ONLY.
+      block_type: note_completion
+      order: 2
+      question_heading: Campaign Timeline
+      questions:
+      - order: 1
+        question_text: Number of pilot districts
+        answers:
+        - four
+      - order: 2
+        question_text: Main channel for reminders
+        answers:
+        - sms
+      - order: 3
+        question_text: Weekly training location
+        answers:
+        - clinic
+      - order: 4
+        question_text: Primary target population
+        answers:
+        - families
+      - order: 5
+        question_text: Key post-session material
+        answers:
+        - leaflet
+      - order: 6
+        question_text: Final review meeting month
+        answers:
+        - november
+  - title: Part 2 Public Health Campaign Outcomes - Passage 2
+    passage_number: 2
+    content: Public Health Campaign Outcomes case study 02, section 2. A regional open-data initiative improved transparency
+      and allowed local teams to build shared evidence dashboards. The text includes policy evidence, implementation outcomes,
+      and stakeholder perspectives.
+    blocks:
+    - title: Questions 13-18
+      description: Choose the best title, A-D, for each section.
+      block_type: choose_title
+      order: 1
+      questions:
+      - order: 1
+        question_text: Section 1 title
+        options:
+        - option_text: A. Funding Delay
+          is_correct: false
+        - option_text: B. Baseline Data Gap
+          is_correct: true
+        - option_text: C. Teacher Recruitment
+          is_correct: false
+        - option_text: D. Export Growth
+          is_correct: false
+      - order: 2
+        question_text: Section 2 title
+        options:
+        - option_text: A. Team Coordination Model
+          is_correct: true
+        - option_text: B. Rare Disease Trends
+          is_correct: false
+        - option_text: C. Annual Budget Cuts
+          is_correct: false
+        - option_text: D. City Tourism Plan
+          is_correct: false
+      - order: 3
+        question_text: Section 3 title
+        options:
+        - option_text: A. End of Local Access
+          is_correct: false
+        - option_text: B. Privacy Control Layer
+          is_correct: true
+        - option_text: C. Railway Safety Issues
+          is_correct: false
+        - option_text: D. Tax Reform Framework
+          is_correct: false
+      - order: 4
+        question_text: Section 4 title
+        options:
+        - option_text: A. Data Literacy Training
+          is_correct: true
+        - option_text: B. Airport Expansion
+          is_correct: false
+        - option_text: C. River Pollution Source
+          is_correct: false
+        - option_text: D. Museum Financing
+          is_correct: false
+      - order: 5
+        question_text: Section 5 title
+        options:
+        - option_text: A. Research Output Growth
+          is_correct: true
+        - option_text: B. Crop Rotation Failure
+          is_correct: false
+        - option_text: C. Water Price Index
+          is_correct: false
+        - option_text: D. Parking Reform
+          is_correct: false
+      - order: 6
+        question_text: Section 6 title
+        options:
+        - option_text: A. International Conference Plan
+          is_correct: false
+        - option_text: B. Long-term Governance Rules
+          is_correct: true
+        - option_text: C. New Sports Program
+          is_correct: false
+        - option_text: D. Shipping Terminal Design
+          is_correct: false
+    - title: Questions 19-24
+      description: Complete the summary below. Write NO MORE THAN TWO WORDS.
+      block_type: summary_completion
+      order: 2
+      questions:
+      - order: 1
+        question_text: Teams first agreed on common ___ definitions.
+        answers:
+        - indicator
+      - order: 2
+        question_text: Data checks were automated through a ___ pipeline.
+        answers:
+        - validation
+      - order: 3
+        question_text: Access control was improved with role-based ___ .
+        answers:
+        - permissions
+      - order: 4
+        question_text: The dashboard highlighted regional ___ in outcomes.
+        answers:
+        - differences
+      - order: 5
+        question_text: Training sessions included non-technical ___ staff.
+        answers:
+        - public
+      - order: 6
+        question_text: Governance decisions were recorded in shared ___ .
+        answers:
+        - minutes
+  - title: Part 3 Public Health Campaign Outcomes - Passage 3
+    passage_number: 3
+    content: Public Health Campaign Outcomes case study 02, section 3. Rural schools tested blended learning formats and invested
+      in teacher coaching to improve lesson quality. The text includes policy evidence, implementation outcomes, and stakeholder
+      perspectives.
+    blocks:
+    - title: Questions 25-30
+      description: Choose the correct sentence ending, A-F.
+      block_type: matching_sentence_endings
+      order: 1
+      questions:
+      - order: 1
+        question_text: Teacher coaching worked best when
+        options:
+        - option_text: A. school leaders joined feedback sessions
+          is_correct: true
+        - option_text: B. all lessons were moved online
+          is_correct: false
+        - option_text: C. textbook usage was banned
+          is_correct: false
+        - option_text: D. parents graded homework
+          is_correct: false
+        - option_text: E. class duration was reduced
+          is_correct: false
+        - option_text: F. attendance penalties increased
+          is_correct: false
+      - order: 2
+        question_text: Device-sharing became sustainable after
+        options:
+        - option_text: A. new language exams were introduced
+          is_correct: false
+        - option_text: B. schools created rotating schedules
+          is_correct: true
+        - option_text: C. teachers cancelled practical lessons
+          is_correct: false
+        - option_text: D. private tutors replaced school classes
+          is_correct: false
+        - option_text: E. paper homework was removed
+          is_correct: false
+        - option_text: F. exam dates were postponed
+          is_correct: false
+      - order: 3
+        question_text: Parent trust increased because
+        options:
+        - option_text: A. grading became fully automatic
+          is_correct: false
+        - option_text: B. schools published clear progress reports
+          is_correct: true
+        - option_text: C. attendance was no longer tracked
+          is_correct: false
+        - option_text: D. timetables were hidden
+          is_correct: false
+        - option_text: E. classes were merged permanently
+          is_correct: false
+        - option_text: F. homework was optional
+          is_correct: false
+      - order: 4
+        question_text: Student writing quality improved when
+        options:
+        - option_text: A. internet access was restricted
+          is_correct: false
+        - option_text: B. teachers used structured rubrics
+          is_correct: true
+        - option_text: C. lesson plans were shortened
+          is_correct: false
+        - option_text: D. class size doubled
+          is_correct: false
+        - option_text: E. tests were removed
+          is_correct: false
+        - option_text: F. mobile devices were prohibited
+          is_correct: false
+      - order: 5
+        question_text: Blended learning failed in schools where
+        options:
+        - option_text: A. mentorship time was protected
+          is_correct: false
+        - option_text: B. school internet was unstable
+          is_correct: true
+        - option_text: C. lesson plans were reviewed weekly
+          is_correct: false
+        - option_text: D. student clubs were active
+          is_correct: false
+        - option_text: E. parent meetings were regular
+          is_correct: false
+        - option_text: F. attendance was monitored
+          is_correct: false
+      - order: 6
+        question_text: The final recommendation was to
+        options:
+        - option_text: A. cancel all digital modules
+          is_correct: false
+        - option_text: B. scale coaching with local mentors
+          is_correct: true
+        - option_text: C. replace teachers with recorded videos
+          is_correct: false
+        - option_text: D. stop formative assessment
+          is_correct: false
+        - option_text: E. reduce school terms
+          is_correct: false
+        - option_text: F. focus only on exams
+          is_correct: false
+    - title: Questions 31-36
+      description: Label the diagram. Write NO MORE THAN TWO WORDS for each answer.
+      block_type: diagram_completion
+      order: 2
+      questions:
+      - order: 1
+        question_text: Name of the first support stage
+        answers:
+        - baseline review
+      - order: 2
+        question_text: Name of the teacher feedback cycle
+        answers:
+        - peer coaching
+      - order: 3
+        question_text: Name of the digital practice stage
+        answers:
+        - guided practice
+      - order: 4
+        question_text: Name of the parent alignment stage
+        answers:
+        - family briefing
+      - order: 5
+        question_text: Name of the progress tracking stage
+        answers:
+        - weekly tracking
+      - order: 6
+        question_text: Name of the final consolidation stage
+        answers:
+        - term reflection
+- title: Reading Real-Life Test 03
+  description: Academic reading tasks focused on logistics hubs and regional trade.
+  time_limit: 3600
+  is_active: true
+  passages:
+  - title: Part 1 Logistics Hubs and Regional Trade - Passage 1
+    passage_number: 1
+    content: Logistics Hubs and Regional Trade case study 03, section 1. The river basin program monitored biodiversity, tracked
+      pollution points, and coordinated cross-district restoration. The text includes policy evidence, implementation outcomes,
+      and stakeholder perspectives.
+    blocks:
+    - title: Questions 1-6
+      description: Match each finding with the correct district, A-D.
+      block_type: matching_features
+      order: 1
+      questions:
+      - order: 1
+        question_text: District with the fastest sediment decline
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: true
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+      - order: 2
+        question_text: District with the largest wetland recovery
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: true
+        - option_text: D
+          is_correct: false
+      - order: 3
+        question_text: District with delayed field reporting
+        options:
+        - option_text: A
+          is_correct: true
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+      - order: 4
+        question_text: District with highest volunteer retention
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: true
+      - order: 5
+        question_text: District where drone mapping began first
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: true
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+      - order: 6
+        question_text: District with the largest school participation
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: true
+        - option_text: D
+          is_correct: false
+    - title: Questions 7-12
+      description: Complete the flow chart below. Write NO MORE THAN TWO WORDS.
+      block_type: flow_chart_completion
+      order: 2
+      flow_chart_completion: Field sampling -> Lab check -> Community briefing -> Action plan
+      questions:
+      - order: 1
+        question_text: First stage after planning
+        answers:
+        - field sampling
+      - order: 2
+        question_text: Stage where toxins were verified
+        answers:
+        - lab check
+      - order: 3
+        question_text: Stage involving local schools
+        answers:
+        - community briefing
+      - order: 4
+        question_text: Final stage before implementation
+        answers:
+        - action plan
+      - order: 5
+        question_text: Tool used for visual mapping
+        answers:
+        - drone survey
+      - order: 6
+        question_text: Data format used in shared reports
+        answers:
+        - open dashboard
+  - title: Part 2 Logistics Hubs and Regional Trade - Passage 2
+    passage_number: 2
+    content: Logistics Hubs and Regional Trade case study 03, section 2. City planners tested flexible street designs, mixed-use
+      zoning, and community safety audits in selected districts. The text includes policy evidence, implementation outcomes,
+      and stakeholder perspectives.
+    blocks:
+    - title: Questions 13-18
+      description: Choose True, False or Not Given.
+      block_type: true_false_ng
+      order: 1
+      questions:
+      - order: 1
+        question_text: All pilot districts removed car traffic entirely.
+        options:
+        - option_text: true
+          is_correct: false
+        - option_text: false
+          is_correct: true
+        - option_text: Not Given
+          is_correct: false
+      - order: 2
+        question_text: Night lighting quality was measured monthly.
+        options:
+        - option_text: true
+          is_correct: true
+        - option_text: false
+          is_correct: false
+        - option_text: Not Given
+          is_correct: false
+      - order: 3
+        question_text: School routes were excluded from the audit.
+        options:
+        - option_text: true
+          is_correct: false
+        - option_text: false
+          is_correct: true
+        - option_text: Not Given
+          is_correct: false
+      - order: 4
+        question_text: Public consultations were held in all districts.
+        options:
+        - option_text: true
+          is_correct: false
+        - option_text: false
+          is_correct: false
+        - option_text: Not Given
+          is_correct: true
+      - order: 5
+        question_text: Mixed-use zoning included evening services.
+        options:
+        - option_text: true
+          is_correct: true
+        - option_text: false
+          is_correct: false
+        - option_text: Not Given
+          is_correct: false
+      - order: 6
+        question_text: The project was funded by one private donor.
+        options:
+        - option_text: true
+          is_correct: false
+        - option_text: false
+          is_correct: true
+        - option_text: Not Given
+          is_correct: false
+    - title: Questions 19-24
+      description: Complete the notes below. Write ONE WORD ONLY.
+      block_type: note_completion
+      order: 2
+      question_heading: Planning Audit Notes
+      questions:
+      - order: 1
+        question_text: Number of pilot intersections
+        answers:
+        - twelve
+      - order: 2
+        question_text: Main safety indicator
+        answers:
+        - visibility
+      - order: 3
+        question_text: Consultation venue type
+        answers:
+        - school
+      - order: 4
+        question_text: Preferred route for older residents
+        answers:
+        - boulevard
+      - order: 5
+        question_text: Transport mode prioritized in phase two
+        answers:
+        - bus
+      - order: 6
+        question_text: Tool used for citizen feedback
+        answers:
+        - app
+  - title: Part 3 Logistics Hubs and Regional Trade - Passage 3
+    passage_number: 3
+    content: Logistics Hubs and Regional Trade case study 03, section 3. Public institutions tested AI-assisted workflows
+      for document handling, triage, and service response optimization. The text includes policy evidence, implementation
+      outcomes, and stakeholder perspectives.
+    blocks:
+    - title: Questions 25-30
+      description: Choose the correct letter, A-D.
+      block_type: list_of_options
+      order: 1
+      questions:
+      - order: 1
+        question_text: What was the main reason to run pilot teams first?
+        options:
+        - option_text: A. To avoid all legal review
+          is_correct: false
+        - option_text: B. To measure operational risk safely
+          is_correct: true
+        - option_text: C. To replace all staff quickly
+          is_correct: false
+        - option_text: D. To reduce data quality checks
+          is_correct: false
+      - order: 2
+        question_text: Which process improved response speed most?
+        options:
+        - option_text: A. Manual triage only
+          is_correct: false
+        - option_text: B. AI-supported ticket routing
+          is_correct: true
+        - option_text: C. Removing service categories
+          is_correct: false
+        - option_text: D. Weekly offline updates
+          is_correct: false
+      - order: 3
+        question_text: What remained fully human-led?
+        options:
+        - option_text: A. Final policy decisions
+          is_correct: true
+        - option_text: B. Spam classification
+          is_correct: false
+        - option_text: C. Initial summaries
+          is_correct: false
+        - option_text: D. Form extraction
+          is_correct: false
+      - order: 4
+        question_text: Which control reduced incorrect routing?
+        options:
+        - option_text: A. Lower training frequency
+          is_correct: false
+        - option_text: B. Confidence thresholds
+          is_correct: true
+        - option_text: C. Random assignment
+          is_correct: false
+        - option_text: D. Disabling feedback loops
+          is_correct: false
+      - order: 5
+        question_text: Why was model drift monitoring added?
+        options:
+        - option_text: A. To shorten legal documents
+          is_correct: false
+        - option_text: B. To keep quality stable over time
+          is_correct: true
+        - option_text: C. To increase ticket volume
+          is_correct: false
+        - option_text: D. To remove review teams
+          is_correct: false
+      - order: 6
+        question_text: What was reported by users after rollout?
+        options:
+        - option_text: A. Longer wait times
+          is_correct: false
+        - option_text: B. Clearer status updates
+          is_correct: true
+        - option_text: C. Lower service availability
+          is_correct: false
+        - option_text: D. More form errors
+          is_correct: false
+    - title: Questions 31-36
+      description: Answer the questions below. Write NO MORE THAN TWO WORDS.
+      block_type: short_answers
+      order: 2
+      questions:
+      - order: 1
+        question_text: Which team reviewed exception cases?
+        answers:
+        - quality board
+      - order: 2
+        question_text: What format was used for policy logs?
+        answers:
+        - audit trail
+      - order: 3
+        question_text: Which signal triggered manual escalation?
+        answers:
+        - low confidence
+      - order: 4
+        question_text: What helped reduce duplicate requests?
+        answers:
+        - status portal
+      - order: 5
+        question_text: Which group validated monthly metrics?
+        answers:
+        - service leads
+      - order: 6
+        question_text: What outcome improved in pilot offices?
+        answers:
+        - response time
+- title: Reading Real-Life Test 04
+  description: Academic reading tasks focused on agricultural innovation in dry climates.
+  time_limit: 3600
+  is_active: true
+  passages:
+  - title: Part 1 Agricultural Innovation in Dry Climates - Passage 1
+    passage_number: 1
+    content: Agricultural Innovation in Dry Climates case study 04, section 1. Archivists in Samarkand developed layered storage
+      systems and cataloging rules to protect manuscripts for centuries. The text includes policy evidence, implementation
+      outcomes, and stakeholder perspectives.
+    blocks:
+    - title: Questions 1-7
+      description: Choose True, False or Not Given.
+      block_type: true_false_ng
+      order: 1
+      questions:
+      - order: 1
+        question_text: The archives accepted only religious texts.
+        options:
+        - option_text: true
+          is_correct: false
+        - option_text: false
+          is_correct: true
+        - option_text: Not Given
+          is_correct: false
+      - order: 2
+        question_text: Humidity control was a key part of preservation.
+        options:
+        - option_text: true
+          is_correct: true
+        - option_text: false
+          is_correct: false
+        - option_text: Not Given
+          is_correct: false
+      - order: 3
+        question_text: Scribes copied all manuscripts at night.
+        options:
+        - option_text: true
+          is_correct: false
+        - option_text: false
+          is_correct: false
+        - option_text: Not Given
+          is_correct: true
+      - order: 4
+        question_text: Clay containers were used in one storage stage.
+        options:
+        - option_text: true
+          is_correct: true
+        - option_text: false
+          is_correct: false
+        - option_text: Not Given
+          is_correct: false
+      - order: 5
+        question_text: The oldest documents were kept near windows.
+        options:
+        - option_text: true
+          is_correct: false
+        - option_text: false
+          is_correct: true
+        - option_text: Not Given
+          is_correct: false
+      - order: 6
+        question_text: Every manuscript had a unique shelf code.
+        options:
+        - option_text: true
+          is_correct: true
+        - option_text: false
+          is_correct: false
+        - option_text: Not Given
+          is_correct: false
+      - order: 7
+        question_text: Water damage was more common than fire damage.
+        options:
+        - option_text: true
+          is_correct: false
+        - option_text: false
+          is_correct: false
+        - option_text: Not Given
+          is_correct: true
+    - title: Questions 8-13
+      description: Complete the table below. Choose NO MORE THAN TWO WORDS from the passage for each answer.
+      block_type: table_completion
+      order: 2
+      table_completion: Century | Main Material | Main Storage Method
+      table_json:
+        header:
+        - Century
+        - Main Material
+        - Main Storage Method
+        rows:
+        - - 13th
+          - paper
+          - ____
+        - - 14th
+          - parchment
+          - ____
+        - - 15th
+          - mixed copies
+          - ____
+      questions:
+      - order: 1
+        question_text: Storage method used in the 13th century
+        answers:
+        - clay box
+      - order: 2
+        question_text: Storage method used in the 14th century
+        answers:
+        - cedar chest
+        - wooden chest
+      - order: 3
+        question_text: Storage method used in the 15th century
+        answers:
+        - sealed shelf
+      - order: 4
+        question_text: Label attached to damaged manuscripts
+        answers:
+        - repair tag
+      - order: 5
+        question_text: Role responsible for final shelf control
+        answers:
+        - chief archivist
+      - order: 6
+        question_text: Material used to wrap fragile pages
+        answers:
+        - silk cloth
+  - title: Part 2 Agricultural Innovation in Dry Climates - Passage 2
+    passage_number: 2
+    content: Agricultural Innovation in Dry Climates case study 04, section 2. Regional railway policy combined freight priorities,
+      station modernization, and route planning for trade corridors. The text includes policy evidence, implementation outcomes,
+      and stakeholder perspectives.
+    blocks:
+    - title: Questions 14-18
+      description: Choose the correct heading, A-E, for each paragraph.
+      block_type: matching_headings
+      order: 1
+      list_of_headings: 'A. Safety Standards in Mountain Sections
 
-  - title: Reading Demo Test 2
-    description: Reading tasks on public health, research, and education policy.
-    time_limit: 3600
-    is_active: true
-    passages:
-      - title: Part 1 Community Health Campaigns
-        passage_number: 1
-        content: Local clinics and schools coordinated health awareness campaigns using volunteers and mobile support teams.
-        blocks:
-          - title: Questions 1-6
-            description: Choose the correct option, A-C.
-            block_type: multiple_choice
-            order: 1
-            questions:
-              - order: 1
-                question_text: Which group launched the campaign first?
-                options:
-                  - option_text: A. Local clinics
-                    is_correct: true
-                  - option_text: B. Private hospitals
-                    is_correct: false
-                  - option_text: C. University labs
-                    is_correct: false
-              - order: 2
-                question_text: What was the campaign's core method?
-                options:
-                  - option_text: A. Printed newspapers only
-                    is_correct: false
-                  - option_text: B. Short in-person sessions
-                    is_correct: true
-                  - option_text: C. National TV ads only
-                    is_correct: false
-              - order: 3
-                question_text: Why were volunteers important?
-                options:
-                  - option_text: A. They reduced translation errors
-                    is_correct: false
-                  - option_text: B. They reached remote families quickly
-                    is_correct: true
-                  - option_text: C. They replaced all nurses
-                    is_correct: false
-              - order: 4
-                question_text: Which issue reduced attendance?
-                options:
-                  - option_text: A. Rainy weather
-                    is_correct: false
-                  - option_text: B. Evening work schedules
-                    is_correct: true
-                  - option_text: C. Transport strikes
-                    is_correct: false
-              - order: 5
-                question_text: What changed after the second month?
-                options:
-                  - option_text: A. Session length increased
-                    is_correct: false
-                  - option_text: B. Mobile teams were introduced
-                    is_correct: true
-                  - option_text: C. Volunteer numbers dropped
-                    is_correct: false
-              - order: 6
-                question_text: What was the final reported effect?
-                options:
-                  - option_text: A. Lower participation rates
-                    is_correct: false
-                  - option_text: B. Better routine check-up coverage
-                    is_correct: true
-                  - option_text: C. Longer waiting lists
-                    is_correct: false
+        B. Funding and International Partnerships
 
-          - title: Questions 7-12
-            description: Complete the notes. Write ONE WORD ONLY.
-            block_type: note_completion
-            order: 2
-            question_heading: Campaign Timeline
-            questions:
-              - order: 1
-                question_text: Number of pilot districts
-                answers: [four]
-              - order: 2
-                question_text: Main channel for reminders
-                answers: [sms]
-              - order: 3
-                question_text: Weekly training location
-                answers: [clinic]
-              - order: 4
-                question_text: Primary target population
-                answers: [families]
-              - order: 5
-                question_text: Key post-session material
-                answers: [leaflet]
-              - order: 6
-                question_text: Final review meeting month
-                answers: [november]
+        C. Passenger Demand During Holidays
 
-      - title: Part 2 Open Data and Regional Research
-        passage_number: 2
-        content: A regional open-data initiative improved transparency and allowed local teams to build shared evidence dashboards.
-        blocks:
-          - title: Questions 13-18
-            description: Choose the best title, A-D, for each section.
-            block_type: choose_title
-            order: 1
-            questions:
-              - order: 1
-                question_text: Section 1 title
-                options:
-                  - option_text: A. Funding Delay
-                    is_correct: false
-                  - option_text: B. Baseline Data Gap
-                    is_correct: true
-                  - option_text: C. Teacher Recruitment
-                    is_correct: false
-                  - option_text: D. Export Growth
-                    is_correct: false
-              - order: 2
-                question_text: Section 2 title
-                options:
-                  - option_text: A. Team Coordination Model
-                    is_correct: true
-                  - option_text: B. Rare Disease Trends
-                    is_correct: false
-                  - option_text: C. Annual Budget Cuts
-                    is_correct: false
-                  - option_text: D. City Tourism Plan
-                    is_correct: false
-              - order: 3
-                question_text: Section 3 title
-                options:
-                  - option_text: A. End of Local Access
-                    is_correct: false
-                  - option_text: B. Privacy Control Layer
-                    is_correct: true
-                  - option_text: C. Railway Safety Issues
-                    is_correct: false
-                  - option_text: D. Tax Reform Framework
-                    is_correct: false
-              - order: 4
-                question_text: Section 4 title
-                options:
-                  - option_text: A. Data Literacy Training
-                    is_correct: true
-                  - option_text: B. Airport Expansion
-                    is_correct: false
-                  - option_text: C. River Pollution Source
-                    is_correct: false
-                  - option_text: D. Museum Financing
-                    is_correct: false
-              - order: 5
-                question_text: Section 5 title
-                options:
-                  - option_text: A. Research Output Growth
-                    is_correct: true
-                  - option_text: B. Crop Rotation Failure
-                    is_correct: false
-                  - option_text: C. Water Price Index
-                    is_correct: false
-                  - option_text: D. Parking Reform
-                    is_correct: false
-              - order: 6
-                question_text: Section 6 title
-                options:
-                  - option_text: A. International Conference Plan
-                    is_correct: false
-                  - option_text: B. Long-term Governance Rules
-                    is_correct: true
-                  - option_text: C. New Sports Program
-                    is_correct: false
-                  - option_text: D. Shipping Terminal Design
-                    is_correct: false
+        D. Digital Control and Dispatching
 
-          - title: Questions 19-24
-            description: Complete the summary below. Write NO MORE THAN TWO WORDS.
-            block_type: summary_completion
-            order: 2
-            questions:
-              - order: 1
-                question_text: Teams first agreed on common ___ definitions.
-                answers: [indicator]
-              - order: 2
-                question_text: Data checks were automated through a ___ pipeline.
-                answers: [validation]
-              - order: 3
-                question_text: Access control was improved with role-based ___ .
-                answers: [permissions]
-              - order: 4
-                question_text: The dashboard highlighted regional ___ in outcomes.
-                answers: [differences]
-              - order: 5
-                question_text: Training sessions included non-technical ___ staff.
-                answers: [public]
-              - order: 6
-                question_text: Governance decisions were recorded in shared ___ .
-                answers: [minutes]
+        E. Freight Capacity Strategy
 
-      - title: Part 3 Education Quality in Rural Areas
-        passage_number: 3
-        content: Rural schools tested blended learning formats and invested in teacher coaching to improve lesson quality.
-        blocks:
-          - title: Questions 25-30
-            description: Choose the correct sentence ending, A-F.
-            block_type: matching_sentence_endings
-            order: 1
-            questions:
-              - order: 1
-                question_text: Teacher coaching worked best when
-                options:
-                  - option_text: A. school leaders joined feedback sessions
-                    is_correct: true
-                  - option_text: B. all lessons were moved online
-                    is_correct: false
-                  - option_text: C. textbook usage was banned
-                    is_correct: false
-                  - option_text: D. parents graded homework
-                    is_correct: false
-                  - option_text: E. class duration was reduced
-                    is_correct: false
-                  - option_text: F. attendance penalties increased
-                    is_correct: false
-              - order: 2
-                question_text: Device-sharing became sustainable after
-                options:
-                  - option_text: A. new language exams were introduced
-                    is_correct: false
-                  - option_text: B. schools created rotating schedules
-                    is_correct: true
-                  - option_text: C. teachers cancelled practical lessons
-                    is_correct: false
-                  - option_text: D. private tutors replaced school classes
-                    is_correct: false
-                  - option_text: E. paper homework was removed
-                    is_correct: false
-                  - option_text: F. exam dates were postponed
-                    is_correct: false
-              - order: 3
-                question_text: Parent trust increased because
-                options:
-                  - option_text: A. grading became fully automatic
-                    is_correct: false
-                  - option_text: B. schools published clear progress reports
-                    is_correct: true
-                  - option_text: C. attendance was no longer tracked
-                    is_correct: false
-                  - option_text: D. timetables were hidden
-                    is_correct: false
-                  - option_text: E. classes were merged permanently
-                    is_correct: false
-                  - option_text: F. homework was optional
-                    is_correct: false
-              - order: 4
-                question_text: Student writing quality improved when
-                options:
-                  - option_text: A. internet access was restricted
-                    is_correct: false
-                  - option_text: B. teachers used structured rubrics
-                    is_correct: true
-                  - option_text: C. lesson plans were shortened
-                    is_correct: false
-                  - option_text: D. class size doubled
-                    is_correct: false
-                  - option_text: E. tests were removed
-                    is_correct: false
-                  - option_text: F. mobile devices were prohibited
-                    is_correct: false
-              - order: 5
-                question_text: Blended learning failed in schools where
-                options:
-                  - option_text: A. mentorship time was protected
-                    is_correct: false
-                  - option_text: B. school internet was unstable
-                    is_correct: true
-                  - option_text: C. lesson plans were reviewed weekly
-                    is_correct: false
-                  - option_text: D. student clubs were active
-                    is_correct: false
-                  - option_text: E. parent meetings were regular
-                    is_correct: false
-                  - option_text: F. attendance was monitored
-                    is_correct: false
-              - order: 6
-                question_text: The final recommendation was to
-                options:
-                  - option_text: A. cancel all digital modules
-                    is_correct: false
-                  - option_text: B. scale coaching with local mentors
-                    is_correct: true
-                  - option_text: C. replace teachers with recorded videos
-                    is_correct: false
-                  - option_text: D. stop formative assessment
-                    is_correct: false
-                  - option_text: E. reduce school terms
-                    is_correct: false
-                  - option_text: F. focus only on exams
-                    is_correct: false
+        '
+      questions:
+      - order: 1
+        question_text: Heading for paragraph 1
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+        - option_text: E
+          is_correct: true
+      - order: 2
+        question_text: Heading for paragraph 2
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: true
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+        - option_text: E
+          is_correct: false
+      - order: 3
+        question_text: Heading for paragraph 3
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: true
+        - option_text: E
+          is_correct: false
+      - order: 4
+        question_text: Heading for paragraph 4
+        options:
+        - option_text: A
+          is_correct: true
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+        - option_text: E
+          is_correct: false
+      - order: 5
+        question_text: Heading for paragraph 5
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: true
+        - option_text: D
+          is_correct: false
+        - option_text: E
+          is_correct: false
+    - title: Questions 19-24
+      description: Complete each sentence with NO MORE THAN TWO WORDS.
+      block_type: sentence_completion
+      order: 2
+      questions:
+      - order: 1
+        question_text: Freight priority was increased on the ___ route.
+        answers:
+        - northern corridor
+      - order: 2
+        question_text: The modernization program started with old ___ systems.
+        answers:
+        - signal
+      - order: 3
+        question_text: New platforms reduced average boarding ___ .
+        answers:
+        - time
+      - order: 4
+        question_text: The dispatch center used a shared ___ dashboard.
+        answers:
+        - digital
+      - order: 5
+        question_text: Seasonal demand peaked during the ___ period.
+        answers:
+        - holiday season
+      - order: 6
+        question_text: The pilot route was extended after strong ___ results.
+        answers:
+        - safety
+  - title: Part 3 Agricultural Innovation in Dry Climates - Passage 3
+    passage_number: 3
+    content: Agricultural Innovation in Dry Climates case study 04, section 3. Community language initiatives balanced school
+      programs, oral archives, and local media participation. The text includes policy evidence, implementation outcomes,
+      and stakeholder perspectives.
+    blocks:
+    - title: Questions 25-30
+      description: Choose the correct letter, A-D.
+      block_type: list_of_options
+      order: 1
+      questions:
+      - order: 1
+        question_text: What was the first project priority?
+        options:
+        - option_text: A. Produce grammar books only
+          is_correct: false
+        - option_text: B. Train local facilitators
+          is_correct: true
+        - option_text: C. Replace school teachers
+          is_correct: false
+        - option_text: D. Launch national TV content
+          is_correct: false
+      - order: 2
+        question_text: Why were oral interviews recorded?
+        options:
+        - option_text: A. To support lexical archives
+          is_correct: true
+        - option_text: B. To test internet speed
+          is_correct: false
+        - option_text: C. To create exam questions
+          is_correct: false
+        - option_text: D. To replace printed textbooks
+          is_correct: false
+      - order: 3
+        question_text: What limited early participation?
+        options:
+        - option_text: A. Lack of dictionaries
+          is_correct: false
+        - option_text: B. Poor audio quality
+          is_correct: false
+        - option_text: C. Limited evening transport
+          is_correct: true
+        - option_text: D. Low exam scores
+          is_correct: false
+      - order: 4
+        question_text: Which method improved attendance most?
+        options:
+        - option_text: A. Remote-only classes
+          is_correct: false
+        - option_text: B. Weekend family sessions
+          is_correct: true
+        - option_text: C. Written-only tasks
+          is_correct: false
+        - option_text: D. Strict weekly testing
+          is_correct: false
+      - order: 5
+        question_text: What was the main benefit for teachers?
+        options:
+        - option_text: A. Lower workload
+          is_correct: false
+        - option_text: B. Better classroom materials
+          is_correct: true
+        - option_text: C. Fewer students
+          is_correct: false
+        - option_text: D. Shorter semesters
+          is_correct: false
+      - order: 6
+        question_text: Which outcome was reported after one year?
+        options:
+        - option_text: A. Reduced literacy in primary classes
+          is_correct: false
+        - option_text: B. Increased local media usage
+          is_correct: true
+        - option_text: C. Closure of cultural centers
+          is_correct: false
+        - option_text: D. Cancellation of oral archives
+          is_correct: false
+    - title: Questions 31-36
+      description: Answer the questions below. Write NO MORE THAN TWO WORDS for each answer.
+      block_type: short_answers
+      order: 2
+      questions:
+      - order: 1
+        question_text: What type of events attracted older speakers?
+        answers:
+        - story circles
+      - order: 2
+        question_text: What resource was shared between schools?
+        answers:
+        - audio library
+      - order: 3
+        question_text: Who reviewed youth recordings for quality?
+        answers:
+        - language mentors
+      - order: 4
+        question_text: Which media format was added for teenagers?
+        answers:
+        - short podcast
+      - order: 5
+        question_text: What did families request after pilot classes?
+        answers:
+        - extra sessions
+      - order: 6
+        question_text: Which community group led translation efforts?
+        answers:
+        - local volunteers
+- title: Reading Real-Life Test 05
+  description: Academic reading tasks focused on museum digitization and visitor access.
+  time_limit: 3600
+  is_active: true
+  passages:
+  - title: Part 1 Museum Digitization and Visitor Access - Passage 1
+    passage_number: 1
+    content: Museum Digitization and Visitor Access case study 05, section 1. Local clinics and schools coordinated health
+      awareness campaigns using volunteers and mobile support teams. The text includes policy evidence, implementation outcomes,
+      and stakeholder perspectives.
+    blocks:
+    - title: Questions 1-6
+      description: Choose the correct option, A-C.
+      block_type: multiple_choice
+      order: 1
+      questions:
+      - order: 1
+        question_text: Which group launched the campaign first?
+        options:
+        - option_text: A. Local clinics
+          is_correct: true
+        - option_text: B. Private hospitals
+          is_correct: false
+        - option_text: C. University labs
+          is_correct: false
+      - order: 2
+        question_text: What was the campaign's core method?
+        options:
+        - option_text: A. Printed newspapers only
+          is_correct: false
+        - option_text: B. Short in-person sessions
+          is_correct: true
+        - option_text: C. National TV ads only
+          is_correct: false
+      - order: 3
+        question_text: Why were volunteers important?
+        options:
+        - option_text: A. They reduced translation errors
+          is_correct: false
+        - option_text: B. They reached remote families quickly
+          is_correct: true
+        - option_text: C. They replaced all nurses
+          is_correct: false
+      - order: 4
+        question_text: Which issue reduced attendance?
+        options:
+        - option_text: A. Rainy weather
+          is_correct: false
+        - option_text: B. Evening work schedules
+          is_correct: true
+        - option_text: C. Transport strikes
+          is_correct: false
+      - order: 5
+        question_text: What changed after the second month?
+        options:
+        - option_text: A. Session length increased
+          is_correct: false
+        - option_text: B. Mobile teams were introduced
+          is_correct: true
+        - option_text: C. Volunteer numbers dropped
+          is_correct: false
+      - order: 6
+        question_text: What was the final reported effect?
+        options:
+        - option_text: A. Lower participation rates
+          is_correct: false
+        - option_text: B. Better routine check-up coverage
+          is_correct: true
+        - option_text: C. Longer waiting lists
+          is_correct: false
+    - title: Questions 7-12
+      description: Complete the notes. Write ONE WORD ONLY.
+      block_type: note_completion
+      order: 2
+      question_heading: Campaign Timeline
+      questions:
+      - order: 1
+        question_text: Number of pilot districts
+        answers:
+        - four
+      - order: 2
+        question_text: Main channel for reminders
+        answers:
+        - sms
+      - order: 3
+        question_text: Weekly training location
+        answers:
+        - clinic
+      - order: 4
+        question_text: Primary target population
+        answers:
+        - families
+      - order: 5
+        question_text: Key post-session material
+        answers:
+        - leaflet
+      - order: 6
+        question_text: Final review meeting month
+        answers:
+        - november
+  - title: Part 2 Museum Digitization and Visitor Access - Passage 2
+    passage_number: 2
+    content: Museum Digitization and Visitor Access case study 05, section 2. A regional open-data initiative improved transparency
+      and allowed local teams to build shared evidence dashboards. The text includes policy evidence, implementation outcomes,
+      and stakeholder perspectives.
+    blocks:
+    - title: Questions 13-18
+      description: Choose the best title, A-D, for each section.
+      block_type: choose_title
+      order: 1
+      questions:
+      - order: 1
+        question_text: Section 1 title
+        options:
+        - option_text: A. Funding Delay
+          is_correct: false
+        - option_text: B. Baseline Data Gap
+          is_correct: true
+        - option_text: C. Teacher Recruitment
+          is_correct: false
+        - option_text: D. Export Growth
+          is_correct: false
+      - order: 2
+        question_text: Section 2 title
+        options:
+        - option_text: A. Team Coordination Model
+          is_correct: true
+        - option_text: B. Rare Disease Trends
+          is_correct: false
+        - option_text: C. Annual Budget Cuts
+          is_correct: false
+        - option_text: D. City Tourism Plan
+          is_correct: false
+      - order: 3
+        question_text: Section 3 title
+        options:
+        - option_text: A. End of Local Access
+          is_correct: false
+        - option_text: B. Privacy Control Layer
+          is_correct: true
+        - option_text: C. Railway Safety Issues
+          is_correct: false
+        - option_text: D. Tax Reform Framework
+          is_correct: false
+      - order: 4
+        question_text: Section 4 title
+        options:
+        - option_text: A. Data Literacy Training
+          is_correct: true
+        - option_text: B. Airport Expansion
+          is_correct: false
+        - option_text: C. River Pollution Source
+          is_correct: false
+        - option_text: D. Museum Financing
+          is_correct: false
+      - order: 5
+        question_text: Section 5 title
+        options:
+        - option_text: A. Research Output Growth
+          is_correct: true
+        - option_text: B. Crop Rotation Failure
+          is_correct: false
+        - option_text: C. Water Price Index
+          is_correct: false
+        - option_text: D. Parking Reform
+          is_correct: false
+      - order: 6
+        question_text: Section 6 title
+        options:
+        - option_text: A. International Conference Plan
+          is_correct: false
+        - option_text: B. Long-term Governance Rules
+          is_correct: true
+        - option_text: C. New Sports Program
+          is_correct: false
+        - option_text: D. Shipping Terminal Design
+          is_correct: false
+    - title: Questions 19-24
+      description: Complete the summary below. Write NO MORE THAN TWO WORDS.
+      block_type: summary_completion
+      order: 2
+      questions:
+      - order: 1
+        question_text: Teams first agreed on common ___ definitions.
+        answers:
+        - indicator
+      - order: 2
+        question_text: Data checks were automated through a ___ pipeline.
+        answers:
+        - validation
+      - order: 3
+        question_text: Access control was improved with role-based ___ .
+        answers:
+        - permissions
+      - order: 4
+        question_text: The dashboard highlighted regional ___ in outcomes.
+        answers:
+        - differences
+      - order: 5
+        question_text: Training sessions included non-technical ___ staff.
+        answers:
+        - public
+      - order: 6
+        question_text: Governance decisions were recorded in shared ___ .
+        answers:
+        - minutes
+  - title: Part 3 Museum Digitization and Visitor Access - Passage 3
+    passage_number: 3
+    content: Museum Digitization and Visitor Access case study 05, section 3. Rural schools tested blended learning formats
+      and invested in teacher coaching to improve lesson quality. The text includes policy evidence, implementation outcomes,
+      and stakeholder perspectives.
+    blocks:
+    - title: Questions 25-30
+      description: Choose the correct sentence ending, A-F.
+      block_type: matching_sentence_endings
+      order: 1
+      questions:
+      - order: 1
+        question_text: Teacher coaching worked best when
+        options:
+        - option_text: A. school leaders joined feedback sessions
+          is_correct: true
+        - option_text: B. all lessons were moved online
+          is_correct: false
+        - option_text: C. textbook usage was banned
+          is_correct: false
+        - option_text: D. parents graded homework
+          is_correct: false
+        - option_text: E. class duration was reduced
+          is_correct: false
+        - option_text: F. attendance penalties increased
+          is_correct: false
+      - order: 2
+        question_text: Device-sharing became sustainable after
+        options:
+        - option_text: A. new language exams were introduced
+          is_correct: false
+        - option_text: B. schools created rotating schedules
+          is_correct: true
+        - option_text: C. teachers cancelled practical lessons
+          is_correct: false
+        - option_text: D. private tutors replaced school classes
+          is_correct: false
+        - option_text: E. paper homework was removed
+          is_correct: false
+        - option_text: F. exam dates were postponed
+          is_correct: false
+      - order: 3
+        question_text: Parent trust increased because
+        options:
+        - option_text: A. grading became fully automatic
+          is_correct: false
+        - option_text: B. schools published clear progress reports
+          is_correct: true
+        - option_text: C. attendance was no longer tracked
+          is_correct: false
+        - option_text: D. timetables were hidden
+          is_correct: false
+        - option_text: E. classes were merged permanently
+          is_correct: false
+        - option_text: F. homework was optional
+          is_correct: false
+      - order: 4
+        question_text: Student writing quality improved when
+        options:
+        - option_text: A. internet access was restricted
+          is_correct: false
+        - option_text: B. teachers used structured rubrics
+          is_correct: true
+        - option_text: C. lesson plans were shortened
+          is_correct: false
+        - option_text: D. class size doubled
+          is_correct: false
+        - option_text: E. tests were removed
+          is_correct: false
+        - option_text: F. mobile devices were prohibited
+          is_correct: false
+      - order: 5
+        question_text: Blended learning failed in schools where
+        options:
+        - option_text: A. mentorship time was protected
+          is_correct: false
+        - option_text: B. school internet was unstable
+          is_correct: true
+        - option_text: C. lesson plans were reviewed weekly
+          is_correct: false
+        - option_text: D. student clubs were active
+          is_correct: false
+        - option_text: E. parent meetings were regular
+          is_correct: false
+        - option_text: F. attendance was monitored
+          is_correct: false
+      - order: 6
+        question_text: The final recommendation was to
+        options:
+        - option_text: A. cancel all digital modules
+          is_correct: false
+        - option_text: B. scale coaching with local mentors
+          is_correct: true
+        - option_text: C. replace teachers with recorded videos
+          is_correct: false
+        - option_text: D. stop formative assessment
+          is_correct: false
+        - option_text: E. reduce school terms
+          is_correct: false
+        - option_text: F. focus only on exams
+          is_correct: false
+    - title: Questions 31-36
+      description: Label the diagram. Write NO MORE THAN TWO WORDS for each answer.
+      block_type: diagram_completion
+      order: 2
+      questions:
+      - order: 1
+        question_text: Name of the first support stage
+        answers:
+        - baseline review
+      - order: 2
+        question_text: Name of the teacher feedback cycle
+        answers:
+        - peer coaching
+      - order: 3
+        question_text: Name of the digital practice stage
+        answers:
+        - guided practice
+      - order: 4
+        question_text: Name of the parent alignment stage
+        answers:
+        - family briefing
+      - order: 5
+        question_text: Name of the progress tracking stage
+        answers:
+        - weekly tracking
+      - order: 6
+        question_text: Name of the final consolidation stage
+        answers:
+        - term reflection
+- title: Reading Real-Life Test 06
+  description: Academic reading tasks focused on renewable energy storage strategies.
+  time_limit: 3600
+  is_active: true
+  passages:
+  - title: Part 1 Renewable Energy Storage Strategies - Passage 1
+    passage_number: 1
+    content: Renewable Energy Storage Strategies case study 06, section 1. The river basin program monitored biodiversity,
+      tracked pollution points, and coordinated cross-district restoration. The text includes policy evidence, implementation
+      outcomes, and stakeholder perspectives.
+    blocks:
+    - title: Questions 1-6
+      description: Match each finding with the correct district, A-D.
+      block_type: matching_features
+      order: 1
+      questions:
+      - order: 1
+        question_text: District with the fastest sediment decline
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: true
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+      - order: 2
+        question_text: District with the largest wetland recovery
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: true
+        - option_text: D
+          is_correct: false
+      - order: 3
+        question_text: District with delayed field reporting
+        options:
+        - option_text: A
+          is_correct: true
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+      - order: 4
+        question_text: District with highest volunteer retention
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: true
+      - order: 5
+        question_text: District where drone mapping began first
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: true
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+      - order: 6
+        question_text: District with the largest school participation
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: true
+        - option_text: D
+          is_correct: false
+    - title: Questions 7-12
+      description: Complete the flow chart below. Write NO MORE THAN TWO WORDS.
+      block_type: flow_chart_completion
+      order: 2
+      flow_chart_completion: Field sampling -> Lab check -> Community briefing -> Action plan
+      questions:
+      - order: 1
+        question_text: First stage after planning
+        answers:
+        - field sampling
+      - order: 2
+        question_text: Stage where toxins were verified
+        answers:
+        - lab check
+      - order: 3
+        question_text: Stage involving local schools
+        answers:
+        - community briefing
+      - order: 4
+        question_text: Final stage before implementation
+        answers:
+        - action plan
+      - order: 5
+        question_text: Tool used for visual mapping
+        answers:
+        - drone survey
+      - order: 6
+        question_text: Data format used in shared reports
+        answers:
+        - open dashboard
+  - title: Part 2 Renewable Energy Storage Strategies - Passage 2
+    passage_number: 2
+    content: Renewable Energy Storage Strategies case study 06, section 2. City planners tested flexible street designs, mixed-use
+      zoning, and community safety audits in selected districts. The text includes policy evidence, implementation outcomes,
+      and stakeholder perspectives.
+    blocks:
+    - title: Questions 13-18
+      description: Choose True, False or Not Given.
+      block_type: true_false_ng
+      order: 1
+      questions:
+      - order: 1
+        question_text: All pilot districts removed car traffic entirely.
+        options:
+        - option_text: true
+          is_correct: false
+        - option_text: false
+          is_correct: true
+        - option_text: Not Given
+          is_correct: false
+      - order: 2
+        question_text: Night lighting quality was measured monthly.
+        options:
+        - option_text: true
+          is_correct: true
+        - option_text: false
+          is_correct: false
+        - option_text: Not Given
+          is_correct: false
+      - order: 3
+        question_text: School routes were excluded from the audit.
+        options:
+        - option_text: true
+          is_correct: false
+        - option_text: false
+          is_correct: true
+        - option_text: Not Given
+          is_correct: false
+      - order: 4
+        question_text: Public consultations were held in all districts.
+        options:
+        - option_text: true
+          is_correct: false
+        - option_text: false
+          is_correct: false
+        - option_text: Not Given
+          is_correct: true
+      - order: 5
+        question_text: Mixed-use zoning included evening services.
+        options:
+        - option_text: true
+          is_correct: true
+        - option_text: false
+          is_correct: false
+        - option_text: Not Given
+          is_correct: false
+      - order: 6
+        question_text: The project was funded by one private donor.
+        options:
+        - option_text: true
+          is_correct: false
+        - option_text: false
+          is_correct: true
+        - option_text: Not Given
+          is_correct: false
+    - title: Questions 19-24
+      description: Complete the notes below. Write ONE WORD ONLY.
+      block_type: note_completion
+      order: 2
+      question_heading: Planning Audit Notes
+      questions:
+      - order: 1
+        question_text: Number of pilot intersections
+        answers:
+        - twelve
+      - order: 2
+        question_text: Main safety indicator
+        answers:
+        - visibility
+      - order: 3
+        question_text: Consultation venue type
+        answers:
+        - school
+      - order: 4
+        question_text: Preferred route for older residents
+        answers:
+        - boulevard
+      - order: 5
+        question_text: Transport mode prioritized in phase two
+        answers:
+        - bus
+      - order: 6
+        question_text: Tool used for citizen feedback
+        answers:
+        - app
+  - title: Part 3 Renewable Energy Storage Strategies - Passage 3
+    passage_number: 3
+    content: Renewable Energy Storage Strategies case study 06, section 3. Public institutions tested AI-assisted workflows
+      for document handling, triage, and service response optimization. The text includes policy evidence, implementation
+      outcomes, and stakeholder perspectives.
+    blocks:
+    - title: Questions 25-30
+      description: Choose the correct letter, A-D.
+      block_type: list_of_options
+      order: 1
+      questions:
+      - order: 1
+        question_text: What was the main reason to run pilot teams first?
+        options:
+        - option_text: A. To avoid all legal review
+          is_correct: false
+        - option_text: B. To measure operational risk safely
+          is_correct: true
+        - option_text: C. To replace all staff quickly
+          is_correct: false
+        - option_text: D. To reduce data quality checks
+          is_correct: false
+      - order: 2
+        question_text: Which process improved response speed most?
+        options:
+        - option_text: A. Manual triage only
+          is_correct: false
+        - option_text: B. AI-supported ticket routing
+          is_correct: true
+        - option_text: C. Removing service categories
+          is_correct: false
+        - option_text: D. Weekly offline updates
+          is_correct: false
+      - order: 3
+        question_text: What remained fully human-led?
+        options:
+        - option_text: A. Final policy decisions
+          is_correct: true
+        - option_text: B. Spam classification
+          is_correct: false
+        - option_text: C. Initial summaries
+          is_correct: false
+        - option_text: D. Form extraction
+          is_correct: false
+      - order: 4
+        question_text: Which control reduced incorrect routing?
+        options:
+        - option_text: A. Lower training frequency
+          is_correct: false
+        - option_text: B. Confidence thresholds
+          is_correct: true
+        - option_text: C. Random assignment
+          is_correct: false
+        - option_text: D. Disabling feedback loops
+          is_correct: false
+      - order: 5
+        question_text: Why was model drift monitoring added?
+        options:
+        - option_text: A. To shorten legal documents
+          is_correct: false
+        - option_text: B. To keep quality stable over time
+          is_correct: true
+        - option_text: C. To increase ticket volume
+          is_correct: false
+        - option_text: D. To remove review teams
+          is_correct: false
+      - order: 6
+        question_text: What was reported by users after rollout?
+        options:
+        - option_text: A. Longer wait times
+          is_correct: false
+        - option_text: B. Clearer status updates
+          is_correct: true
+        - option_text: C. Lower service availability
+          is_correct: false
+        - option_text: D. More form errors
+          is_correct: false
+    - title: Questions 31-36
+      description: Answer the questions below. Write NO MORE THAN TWO WORDS.
+      block_type: short_answers
+      order: 2
+      questions:
+      - order: 1
+        question_text: Which team reviewed exception cases?
+        answers:
+        - quality board
+      - order: 2
+        question_text: What format was used for policy logs?
+        answers:
+        - audit trail
+      - order: 3
+        question_text: Which signal triggered manual escalation?
+        answers:
+        - low confidence
+      - order: 4
+        question_text: What helped reduce duplicate requests?
+        answers:
+        - status portal
+      - order: 5
+        question_text: Which group validated monthly metrics?
+        answers:
+        - service leads
+      - order: 6
+        question_text: What outcome improved in pilot offices?
+        answers:
+        - response time
+- title: Reading Real-Life Test 07
+  description: Academic reading tasks focused on workplace safety in manufacturing.
+  time_limit: 3600
+  is_active: true
+  passages:
+  - title: Part 1 Workplace Safety in Manufacturing - Passage 1
+    passage_number: 1
+    content: Workplace Safety in Manufacturing case study 07, section 1. Archivists in Samarkand developed layered storage
+      systems and cataloging rules to protect manuscripts for centuries. The text includes policy evidence, implementation
+      outcomes, and stakeholder perspectives.
+    blocks:
+    - title: Questions 1-7
+      description: Choose True, False or Not Given.
+      block_type: true_false_ng
+      order: 1
+      questions:
+      - order: 1
+        question_text: The archives accepted only religious texts.
+        options:
+        - option_text: true
+          is_correct: false
+        - option_text: false
+          is_correct: true
+        - option_text: Not Given
+          is_correct: false
+      - order: 2
+        question_text: Humidity control was a key part of preservation.
+        options:
+        - option_text: true
+          is_correct: true
+        - option_text: false
+          is_correct: false
+        - option_text: Not Given
+          is_correct: false
+      - order: 3
+        question_text: Scribes copied all manuscripts at night.
+        options:
+        - option_text: true
+          is_correct: false
+        - option_text: false
+          is_correct: false
+        - option_text: Not Given
+          is_correct: true
+      - order: 4
+        question_text: Clay containers were used in one storage stage.
+        options:
+        - option_text: true
+          is_correct: true
+        - option_text: false
+          is_correct: false
+        - option_text: Not Given
+          is_correct: false
+      - order: 5
+        question_text: The oldest documents were kept near windows.
+        options:
+        - option_text: true
+          is_correct: false
+        - option_text: false
+          is_correct: true
+        - option_text: Not Given
+          is_correct: false
+      - order: 6
+        question_text: Every manuscript had a unique shelf code.
+        options:
+        - option_text: true
+          is_correct: true
+        - option_text: false
+          is_correct: false
+        - option_text: Not Given
+          is_correct: false
+      - order: 7
+        question_text: Water damage was more common than fire damage.
+        options:
+        - option_text: true
+          is_correct: false
+        - option_text: false
+          is_correct: false
+        - option_text: Not Given
+          is_correct: true
+    - title: Questions 8-13
+      description: Complete the table below. Choose NO MORE THAN TWO WORDS from the passage for each answer.
+      block_type: table_completion
+      order: 2
+      table_completion: Century | Main Material | Main Storage Method
+      table_json:
+        header:
+        - Century
+        - Main Material
+        - Main Storage Method
+        rows:
+        - - 13th
+          - paper
+          - ____
+        - - 14th
+          - parchment
+          - ____
+        - - 15th
+          - mixed copies
+          - ____
+      questions:
+      - order: 1
+        question_text: Storage method used in the 13th century
+        answers:
+        - clay box
+      - order: 2
+        question_text: Storage method used in the 14th century
+        answers:
+        - cedar chest
+        - wooden chest
+      - order: 3
+        question_text: Storage method used in the 15th century
+        answers:
+        - sealed shelf
+      - order: 4
+        question_text: Label attached to damaged manuscripts
+        answers:
+        - repair tag
+      - order: 5
+        question_text: Role responsible for final shelf control
+        answers:
+        - chief archivist
+      - order: 6
+        question_text: Material used to wrap fragile pages
+        answers:
+        - silk cloth
+  - title: Part 2 Workplace Safety in Manufacturing - Passage 2
+    passage_number: 2
+    content: Workplace Safety in Manufacturing case study 07, section 2. Regional railway policy combined freight priorities,
+      station modernization, and route planning for trade corridors. The text includes policy evidence, implementation outcomes,
+      and stakeholder perspectives.
+    blocks:
+    - title: Questions 14-18
+      description: Choose the correct heading, A-E, for each paragraph.
+      block_type: matching_headings
+      order: 1
+      list_of_headings: 'A. Safety Standards in Mountain Sections
 
-          - title: Questions 31-36
-            description: Label the diagram. Write NO MORE THAN TWO WORDS for each answer.
-            block_type: diagram_completion
-            order: 2
-            questions:
-              - order: 1
-                question_text: Name of the first support stage
-                answers: [baseline review]
-              - order: 2
-                question_text: Name of the teacher feedback cycle
-                answers: [peer coaching]
-              - order: 3
-                question_text: Name of the digital practice stage
-                answers: [guided practice]
-              - order: 4
-                question_text: Name of the parent alignment stage
-                answers: [family briefing]
-              - order: 5
-                question_text: Name of the progress tracking stage
-                answers: [weekly tracking]
-              - order: 6
-                question_text: Name of the final consolidation stage
-                answers: [term reflection]
+        B. Funding and International Partnerships
 
-  - title: Reading Demo Test 3
-    description: Reading tasks on ecology, civic planning, and technology policy.
-    time_limit: 3600
-    is_active: true
-    passages:
-      - title: Part 1 River Basin Ecology Program
-        passage_number: 1
-        content: The river basin program monitored biodiversity, tracked pollution points, and coordinated cross-district restoration.
-        blocks:
-          - title: Questions 1-6
-            description: Match each finding with the correct district, A-D.
-            block_type: matching_features
-            order: 1
-            questions:
-              - order: 1
-                question_text: District with the fastest sediment decline
-                options:
-                  - option_text: A
-                    is_correct: false
-                  - option_text: B
-                    is_correct: true
-                  - option_text: C
-                    is_correct: false
-                  - option_text: D
-                    is_correct: false
-              - order: 2
-                question_text: District with the largest wetland recovery
-                options:
-                  - option_text: A
-                    is_correct: false
-                  - option_text: B
-                    is_correct: false
-                  - option_text: C
-                    is_correct: true
-                  - option_text: D
-                    is_correct: false
-              - order: 3
-                question_text: District with delayed field reporting
-                options:
-                  - option_text: A
-                    is_correct: true
-                  - option_text: B
-                    is_correct: false
-                  - option_text: C
-                    is_correct: false
-                  - option_text: D
-                    is_correct: false
-              - order: 4
-                question_text: District with highest volunteer retention
-                options:
-                  - option_text: A
-                    is_correct: false
-                  - option_text: B
-                    is_correct: false
-                  - option_text: C
-                    is_correct: false
-                  - option_text: D
-                    is_correct: true
-              - order: 5
-                question_text: District where drone mapping began first
-                options:
-                  - option_text: A
-                    is_correct: false
-                  - option_text: B
-                    is_correct: true
-                  - option_text: C
-                    is_correct: false
-                  - option_text: D
-                    is_correct: false
-              - order: 6
-                question_text: District with the largest school participation
-                options:
-                  - option_text: A
-                    is_correct: false
-                  - option_text: B
-                    is_correct: false
-                  - option_text: C
-                    is_correct: true
-                  - option_text: D
-                    is_correct: false
+        C. Passenger Demand During Holidays
 
-          - title: Questions 7-12
-            description: Complete the flow chart below. Write NO MORE THAN TWO WORDS.
-            block_type: flow_chart_completion
-            order: 2
-            flow_chart_completion: Field sampling -> Lab check -> Community briefing -> Action plan
-            questions:
-              - order: 1
-                question_text: First stage after planning
-                answers: [field sampling]
-              - order: 2
-                question_text: Stage where toxins were verified
-                answers: [lab check]
-              - order: 3
-                question_text: Stage involving local schools
-                answers: [community briefing]
-              - order: 4
-                question_text: Final stage before implementation
-                answers: [action plan]
-              - order: 5
-                question_text: Tool used for visual mapping
-                answers: [drone survey]
-              - order: 6
-                question_text: Data format used in shared reports
-                answers: [open dashboard]
+        D. Digital Control and Dispatching
 
-      - title: Part 2 Civic Planning and Public Space
-        passage_number: 2
-        content: City planners tested flexible street designs, mixed-use zoning, and community safety audits in selected districts.
-        blocks:
-          - title: Questions 13-18
-            description: Choose True, False or Not Given.
-            block_type: true_false_ng
-            order: 1
-            questions:
-              - order: 1
-                question_text: All pilot districts removed car traffic entirely.
-                options:
-                  - option_text: True
-                    is_correct: false
-                  - option_text: False
-                    is_correct: true
-                  - option_text: Not Given
-                    is_correct: false
-              - order: 2
-                question_text: Night lighting quality was measured monthly.
-                options:
-                  - option_text: True
-                    is_correct: true
-                  - option_text: False
-                    is_correct: false
-                  - option_text: Not Given
-                    is_correct: false
-              - order: 3
-                question_text: School routes were excluded from the audit.
-                options:
-                  - option_text: True
-                    is_correct: false
-                  - option_text: False
-                    is_correct: true
-                  - option_text: Not Given
-                    is_correct: false
-              - order: 4
-                question_text: Public consultations were held in all districts.
-                options:
-                  - option_text: True
-                    is_correct: false
-                  - option_text: False
-                    is_correct: false
-                  - option_text: Not Given
-                    is_correct: true
-              - order: 5
-                question_text: Mixed-use zoning included evening services.
-                options:
-                  - option_text: True
-                    is_correct: true
-                  - option_text: False
-                    is_correct: false
-                  - option_text: Not Given
-                    is_correct: false
-              - order: 6
-                question_text: The project was funded by one private donor.
-                options:
-                  - option_text: True
-                    is_correct: false
-                  - option_text: False
-                    is_correct: true
-                  - option_text: Not Given
-                    is_correct: false
+        E. Freight Capacity Strategy
 
-          - title: Questions 19-24
-            description: Complete the notes below. Write ONE WORD ONLY.
-            block_type: note_completion
-            order: 2
-            question_heading: Planning Audit Notes
-            questions:
-              - order: 1
-                question_text: Number of pilot intersections
-                answers: [twelve]
-              - order: 2
-                question_text: Main safety indicator
-                answers: [visibility]
-              - order: 3
-                question_text: Consultation venue type
-                answers: [school]
-              - order: 4
-                question_text: Preferred route for older residents
-                answers: [boulevard]
-              - order: 5
-                question_text: Transport mode prioritized in phase two
-                answers: [bus]
-              - order: 6
-                question_text: Tool used for citizen feedback
-                answers: [app]
+        '
+      questions:
+      - order: 1
+        question_text: Heading for paragraph 1
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+        - option_text: E
+          is_correct: true
+      - order: 2
+        question_text: Heading for paragraph 2
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: true
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+        - option_text: E
+          is_correct: false
+      - order: 3
+        question_text: Heading for paragraph 3
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: true
+        - option_text: E
+          is_correct: false
+      - order: 4
+        question_text: Heading for paragraph 4
+        options:
+        - option_text: A
+          is_correct: true
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+        - option_text: E
+          is_correct: false
+      - order: 5
+        question_text: Heading for paragraph 5
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: true
+        - option_text: D
+          is_correct: false
+        - option_text: E
+          is_correct: false
+    - title: Questions 19-24
+      description: Complete each sentence with NO MORE THAN TWO WORDS.
+      block_type: sentence_completion
+      order: 2
+      questions:
+      - order: 1
+        question_text: Freight priority was increased on the ___ route.
+        answers:
+        - northern corridor
+      - order: 2
+        question_text: The modernization program started with old ___ systems.
+        answers:
+        - signal
+      - order: 3
+        question_text: New platforms reduced average boarding ___ .
+        answers:
+        - time
+      - order: 4
+        question_text: The dispatch center used a shared ___ dashboard.
+        answers:
+        - digital
+      - order: 5
+        question_text: Seasonal demand peaked during the ___ period.
+        answers:
+        - holiday season
+      - order: 6
+        question_text: The pilot route was extended after strong ___ results.
+        answers:
+        - safety
+  - title: Part 3 Workplace Safety in Manufacturing - Passage 3
+    passage_number: 3
+    content: Workplace Safety in Manufacturing case study 07, section 3. Community language initiatives balanced school programs,
+      oral archives, and local media participation. The text includes policy evidence, implementation outcomes, and stakeholder
+      perspectives.
+    blocks:
+    - title: Questions 25-30
+      description: Choose the correct letter, A-D.
+      block_type: list_of_options
+      order: 1
+      questions:
+      - order: 1
+        question_text: What was the first project priority?
+        options:
+        - option_text: A. Produce grammar books only
+          is_correct: false
+        - option_text: B. Train local facilitators
+          is_correct: true
+        - option_text: C. Replace school teachers
+          is_correct: false
+        - option_text: D. Launch national TV content
+          is_correct: false
+      - order: 2
+        question_text: Why were oral interviews recorded?
+        options:
+        - option_text: A. To support lexical archives
+          is_correct: true
+        - option_text: B. To test internet speed
+          is_correct: false
+        - option_text: C. To create exam questions
+          is_correct: false
+        - option_text: D. To replace printed textbooks
+          is_correct: false
+      - order: 3
+        question_text: What limited early participation?
+        options:
+        - option_text: A. Lack of dictionaries
+          is_correct: false
+        - option_text: B. Poor audio quality
+          is_correct: false
+        - option_text: C. Limited evening transport
+          is_correct: true
+        - option_text: D. Low exam scores
+          is_correct: false
+      - order: 4
+        question_text: Which method improved attendance most?
+        options:
+        - option_text: A. Remote-only classes
+          is_correct: false
+        - option_text: B. Weekend family sessions
+          is_correct: true
+        - option_text: C. Written-only tasks
+          is_correct: false
+        - option_text: D. Strict weekly testing
+          is_correct: false
+      - order: 5
+        question_text: What was the main benefit for teachers?
+        options:
+        - option_text: A. Lower workload
+          is_correct: false
+        - option_text: B. Better classroom materials
+          is_correct: true
+        - option_text: C. Fewer students
+          is_correct: false
+        - option_text: D. Shorter semesters
+          is_correct: false
+      - order: 6
+        question_text: Which outcome was reported after one year?
+        options:
+        - option_text: A. Reduced literacy in primary classes
+          is_correct: false
+        - option_text: B. Increased local media usage
+          is_correct: true
+        - option_text: C. Closure of cultural centers
+          is_correct: false
+        - option_text: D. Cancellation of oral archives
+          is_correct: false
+    - title: Questions 31-36
+      description: Answer the questions below. Write NO MORE THAN TWO WORDS for each answer.
+      block_type: short_answers
+      order: 2
+      questions:
+      - order: 1
+        question_text: What type of events attracted older speakers?
+        answers:
+        - story circles
+      - order: 2
+        question_text: What resource was shared between schools?
+        answers:
+        - audio library
+      - order: 3
+        question_text: Who reviewed youth recordings for quality?
+        answers:
+        - language mentors
+      - order: 4
+        question_text: Which media format was added for teenagers?
+        answers:
+        - short podcast
+      - order: 5
+        question_text: What did families request after pilot classes?
+        answers:
+        - extra sessions
+      - order: 6
+        question_text: Which community group led translation efforts?
+        answers:
+        - local volunteers
+- title: Reading Real-Life Test 08
+  description: Academic reading tasks focused on tourism policy and heritage protection.
+  time_limit: 3600
+  is_active: true
+  passages:
+  - title: Part 1 Tourism Policy and Heritage Protection - Passage 1
+    passage_number: 1
+    content: Tourism Policy and Heritage Protection case study 08, section 1. Local clinics and schools coordinated health
+      awareness campaigns using volunteers and mobile support teams. The text includes policy evidence, implementation outcomes,
+      and stakeholder perspectives.
+    blocks:
+    - title: Questions 1-6
+      description: Choose the correct option, A-C.
+      block_type: multiple_choice
+      order: 1
+      questions:
+      - order: 1
+        question_text: Which group launched the campaign first?
+        options:
+        - option_text: A. Local clinics
+          is_correct: true
+        - option_text: B. Private hospitals
+          is_correct: false
+        - option_text: C. University labs
+          is_correct: false
+      - order: 2
+        question_text: What was the campaign's core method?
+        options:
+        - option_text: A. Printed newspapers only
+          is_correct: false
+        - option_text: B. Short in-person sessions
+          is_correct: true
+        - option_text: C. National TV ads only
+          is_correct: false
+      - order: 3
+        question_text: Why were volunteers important?
+        options:
+        - option_text: A. They reduced translation errors
+          is_correct: false
+        - option_text: B. They reached remote families quickly
+          is_correct: true
+        - option_text: C. They replaced all nurses
+          is_correct: false
+      - order: 4
+        question_text: Which issue reduced attendance?
+        options:
+        - option_text: A. Rainy weather
+          is_correct: false
+        - option_text: B. Evening work schedules
+          is_correct: true
+        - option_text: C. Transport strikes
+          is_correct: false
+      - order: 5
+        question_text: What changed after the second month?
+        options:
+        - option_text: A. Session length increased
+          is_correct: false
+        - option_text: B. Mobile teams were introduced
+          is_correct: true
+        - option_text: C. Volunteer numbers dropped
+          is_correct: false
+      - order: 6
+        question_text: What was the final reported effect?
+        options:
+        - option_text: A. Lower participation rates
+          is_correct: false
+        - option_text: B. Better routine check-up coverage
+          is_correct: true
+        - option_text: C. Longer waiting lists
+          is_correct: false
+    - title: Questions 7-12
+      description: Complete the notes. Write ONE WORD ONLY.
+      block_type: note_completion
+      order: 2
+      question_heading: Campaign Timeline
+      questions:
+      - order: 1
+        question_text: Number of pilot districts
+        answers:
+        - four
+      - order: 2
+        question_text: Main channel for reminders
+        answers:
+        - sms
+      - order: 3
+        question_text: Weekly training location
+        answers:
+        - clinic
+      - order: 4
+        question_text: Primary target population
+        answers:
+        - families
+      - order: 5
+        question_text: Key post-session material
+        answers:
+        - leaflet
+      - order: 6
+        question_text: Final review meeting month
+        answers:
+        - november
+  - title: Part 2 Tourism Policy and Heritage Protection - Passage 2
+    passage_number: 2
+    content: Tourism Policy and Heritage Protection case study 08, section 2. A regional open-data initiative improved transparency
+      and allowed local teams to build shared evidence dashboards. The text includes policy evidence, implementation outcomes,
+      and stakeholder perspectives.
+    blocks:
+    - title: Questions 13-18
+      description: Choose the best title, A-D, for each section.
+      block_type: choose_title
+      order: 1
+      questions:
+      - order: 1
+        question_text: Section 1 title
+        options:
+        - option_text: A. Funding Delay
+          is_correct: false
+        - option_text: B. Baseline Data Gap
+          is_correct: true
+        - option_text: C. Teacher Recruitment
+          is_correct: false
+        - option_text: D. Export Growth
+          is_correct: false
+      - order: 2
+        question_text: Section 2 title
+        options:
+        - option_text: A. Team Coordination Model
+          is_correct: true
+        - option_text: B. Rare Disease Trends
+          is_correct: false
+        - option_text: C. Annual Budget Cuts
+          is_correct: false
+        - option_text: D. City Tourism Plan
+          is_correct: false
+      - order: 3
+        question_text: Section 3 title
+        options:
+        - option_text: A. End of Local Access
+          is_correct: false
+        - option_text: B. Privacy Control Layer
+          is_correct: true
+        - option_text: C. Railway Safety Issues
+          is_correct: false
+        - option_text: D. Tax Reform Framework
+          is_correct: false
+      - order: 4
+        question_text: Section 4 title
+        options:
+        - option_text: A. Data Literacy Training
+          is_correct: true
+        - option_text: B. Airport Expansion
+          is_correct: false
+        - option_text: C. River Pollution Source
+          is_correct: false
+        - option_text: D. Museum Financing
+          is_correct: false
+      - order: 5
+        question_text: Section 5 title
+        options:
+        - option_text: A. Research Output Growth
+          is_correct: true
+        - option_text: B. Crop Rotation Failure
+          is_correct: false
+        - option_text: C. Water Price Index
+          is_correct: false
+        - option_text: D. Parking Reform
+          is_correct: false
+      - order: 6
+        question_text: Section 6 title
+        options:
+        - option_text: A. International Conference Plan
+          is_correct: false
+        - option_text: B. Long-term Governance Rules
+          is_correct: true
+        - option_text: C. New Sports Program
+          is_correct: false
+        - option_text: D. Shipping Terminal Design
+          is_correct: false
+    - title: Questions 19-24
+      description: Complete the summary below. Write NO MORE THAN TWO WORDS.
+      block_type: summary_completion
+      order: 2
+      questions:
+      - order: 1
+        question_text: Teams first agreed on common ___ definitions.
+        answers:
+        - indicator
+      - order: 2
+        question_text: Data checks were automated through a ___ pipeline.
+        answers:
+        - validation
+      - order: 3
+        question_text: Access control was improved with role-based ___ .
+        answers:
+        - permissions
+      - order: 4
+        question_text: The dashboard highlighted regional ___ in outcomes.
+        answers:
+        - differences
+      - order: 5
+        question_text: Training sessions included non-technical ___ staff.
+        answers:
+        - public
+      - order: 6
+        question_text: Governance decisions were recorded in shared ___ .
+        answers:
+        - minutes
+  - title: Part 3 Tourism Policy and Heritage Protection - Passage 3
+    passage_number: 3
+    content: Tourism Policy and Heritage Protection case study 08, section 3. Rural schools tested blended learning formats
+      and invested in teacher coaching to improve lesson quality. The text includes policy evidence, implementation outcomes,
+      and stakeholder perspectives.
+    blocks:
+    - title: Questions 25-30
+      description: Choose the correct sentence ending, A-F.
+      block_type: matching_sentence_endings
+      order: 1
+      questions:
+      - order: 1
+        question_text: Teacher coaching worked best when
+        options:
+        - option_text: A. school leaders joined feedback sessions
+          is_correct: true
+        - option_text: B. all lessons were moved online
+          is_correct: false
+        - option_text: C. textbook usage was banned
+          is_correct: false
+        - option_text: D. parents graded homework
+          is_correct: false
+        - option_text: E. class duration was reduced
+          is_correct: false
+        - option_text: F. attendance penalties increased
+          is_correct: false
+      - order: 2
+        question_text: Device-sharing became sustainable after
+        options:
+        - option_text: A. new language exams were introduced
+          is_correct: false
+        - option_text: B. schools created rotating schedules
+          is_correct: true
+        - option_text: C. teachers cancelled practical lessons
+          is_correct: false
+        - option_text: D. private tutors replaced school classes
+          is_correct: false
+        - option_text: E. paper homework was removed
+          is_correct: false
+        - option_text: F. exam dates were postponed
+          is_correct: false
+      - order: 3
+        question_text: Parent trust increased because
+        options:
+        - option_text: A. grading became fully automatic
+          is_correct: false
+        - option_text: B. schools published clear progress reports
+          is_correct: true
+        - option_text: C. attendance was no longer tracked
+          is_correct: false
+        - option_text: D. timetables were hidden
+          is_correct: false
+        - option_text: E. classes were merged permanently
+          is_correct: false
+        - option_text: F. homework was optional
+          is_correct: false
+      - order: 4
+        question_text: Student writing quality improved when
+        options:
+        - option_text: A. internet access was restricted
+          is_correct: false
+        - option_text: B. teachers used structured rubrics
+          is_correct: true
+        - option_text: C. lesson plans were shortened
+          is_correct: false
+        - option_text: D. class size doubled
+          is_correct: false
+        - option_text: E. tests were removed
+          is_correct: false
+        - option_text: F. mobile devices were prohibited
+          is_correct: false
+      - order: 5
+        question_text: Blended learning failed in schools where
+        options:
+        - option_text: A. mentorship time was protected
+          is_correct: false
+        - option_text: B. school internet was unstable
+          is_correct: true
+        - option_text: C. lesson plans were reviewed weekly
+          is_correct: false
+        - option_text: D. student clubs were active
+          is_correct: false
+        - option_text: E. parent meetings were regular
+          is_correct: false
+        - option_text: F. attendance was monitored
+          is_correct: false
+      - order: 6
+        question_text: The final recommendation was to
+        options:
+        - option_text: A. cancel all digital modules
+          is_correct: false
+        - option_text: B. scale coaching with local mentors
+          is_correct: true
+        - option_text: C. replace teachers with recorded videos
+          is_correct: false
+        - option_text: D. stop formative assessment
+          is_correct: false
+        - option_text: E. reduce school terms
+          is_correct: false
+        - option_text: F. focus only on exams
+          is_correct: false
+    - title: Questions 31-36
+      description: Label the diagram. Write NO MORE THAN TWO WORDS for each answer.
+      block_type: diagram_completion
+      order: 2
+      questions:
+      - order: 1
+        question_text: Name of the first support stage
+        answers:
+        - baseline review
+      - order: 2
+        question_text: Name of the teacher feedback cycle
+        answers:
+        - peer coaching
+      - order: 3
+        question_text: Name of the digital practice stage
+        answers:
+        - guided practice
+      - order: 4
+        question_text: Name of the parent alignment stage
+        answers:
+        - family briefing
+      - order: 5
+        question_text: Name of the progress tracking stage
+        answers:
+        - weekly tracking
+      - order: 6
+        question_text: Name of the final consolidation stage
+        answers:
+        - term reflection
+- title: Reading Real-Life Test 09
+  description: Academic reading tasks focused on vocational education reform.
+  time_limit: 3600
+  is_active: true
+  passages:
+  - title: Part 1 Vocational Education Reform - Passage 1
+    passage_number: 1
+    content: Vocational Education Reform case study 09, section 1. The river basin program monitored biodiversity, tracked
+      pollution points, and coordinated cross-district restoration. The text includes policy evidence, implementation outcomes,
+      and stakeholder perspectives.
+    blocks:
+    - title: Questions 1-6
+      description: Match each finding with the correct district, A-D.
+      block_type: matching_features
+      order: 1
+      questions:
+      - order: 1
+        question_text: District with the fastest sediment decline
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: true
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+      - order: 2
+        question_text: District with the largest wetland recovery
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: true
+        - option_text: D
+          is_correct: false
+      - order: 3
+        question_text: District with delayed field reporting
+        options:
+        - option_text: A
+          is_correct: true
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+      - order: 4
+        question_text: District with highest volunteer retention
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: true
+      - order: 5
+        question_text: District where drone mapping began first
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: true
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+      - order: 6
+        question_text: District with the largest school participation
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: true
+        - option_text: D
+          is_correct: false
+    - title: Questions 7-12
+      description: Complete the flow chart below. Write NO MORE THAN TWO WORDS.
+      block_type: flow_chart_completion
+      order: 2
+      flow_chart_completion: Field sampling -> Lab check -> Community briefing -> Action plan
+      questions:
+      - order: 1
+        question_text: First stage after planning
+        answers:
+        - field sampling
+      - order: 2
+        question_text: Stage where toxins were verified
+        answers:
+        - lab check
+      - order: 3
+        question_text: Stage involving local schools
+        answers:
+        - community briefing
+      - order: 4
+        question_text: Final stage before implementation
+        answers:
+        - action plan
+      - order: 5
+        question_text: Tool used for visual mapping
+        answers:
+        - drone survey
+      - order: 6
+        question_text: Data format used in shared reports
+        answers:
+        - open dashboard
+  - title: Part 2 Vocational Education Reform - Passage 2
+    passage_number: 2
+    content: Vocational Education Reform case study 09, section 2. City planners tested flexible street designs, mixed-use
+      zoning, and community safety audits in selected districts. The text includes policy evidence, implementation outcomes,
+      and stakeholder perspectives.
+    blocks:
+    - title: Questions 13-18
+      description: Choose True, False or Not Given.
+      block_type: true_false_ng
+      order: 1
+      questions:
+      - order: 1
+        question_text: All pilot districts removed car traffic entirely.
+        options:
+        - option_text: true
+          is_correct: false
+        - option_text: false
+          is_correct: true
+        - option_text: Not Given
+          is_correct: false
+      - order: 2
+        question_text: Night lighting quality was measured monthly.
+        options:
+        - option_text: true
+          is_correct: true
+        - option_text: false
+          is_correct: false
+        - option_text: Not Given
+          is_correct: false
+      - order: 3
+        question_text: School routes were excluded from the audit.
+        options:
+        - option_text: true
+          is_correct: false
+        - option_text: false
+          is_correct: true
+        - option_text: Not Given
+          is_correct: false
+      - order: 4
+        question_text: Public consultations were held in all districts.
+        options:
+        - option_text: true
+          is_correct: false
+        - option_text: false
+          is_correct: false
+        - option_text: Not Given
+          is_correct: true
+      - order: 5
+        question_text: Mixed-use zoning included evening services.
+        options:
+        - option_text: true
+          is_correct: true
+        - option_text: false
+          is_correct: false
+        - option_text: Not Given
+          is_correct: false
+      - order: 6
+        question_text: The project was funded by one private donor.
+        options:
+        - option_text: true
+          is_correct: false
+        - option_text: false
+          is_correct: true
+        - option_text: Not Given
+          is_correct: false
+    - title: Questions 19-24
+      description: Complete the notes below. Write ONE WORD ONLY.
+      block_type: note_completion
+      order: 2
+      question_heading: Planning Audit Notes
+      questions:
+      - order: 1
+        question_text: Number of pilot intersections
+        answers:
+        - twelve
+      - order: 2
+        question_text: Main safety indicator
+        answers:
+        - visibility
+      - order: 3
+        question_text: Consultation venue type
+        answers:
+        - school
+      - order: 4
+        question_text: Preferred route for older residents
+        answers:
+        - boulevard
+      - order: 5
+        question_text: Transport mode prioritized in phase two
+        answers:
+        - bus
+      - order: 6
+        question_text: Tool used for citizen feedback
+        answers:
+        - app
+  - title: Part 3 Vocational Education Reform - Passage 3
+    passage_number: 3
+    content: Vocational Education Reform case study 09, section 3. Public institutions tested AI-assisted workflows for document
+      handling, triage, and service response optimization. The text includes policy evidence, implementation outcomes, and
+      stakeholder perspectives.
+    blocks:
+    - title: Questions 25-30
+      description: Choose the correct letter, A-D.
+      block_type: list_of_options
+      order: 1
+      questions:
+      - order: 1
+        question_text: What was the main reason to run pilot teams first?
+        options:
+        - option_text: A. To avoid all legal review
+          is_correct: false
+        - option_text: B. To measure operational risk safely
+          is_correct: true
+        - option_text: C. To replace all staff quickly
+          is_correct: false
+        - option_text: D. To reduce data quality checks
+          is_correct: false
+      - order: 2
+        question_text: Which process improved response speed most?
+        options:
+        - option_text: A. Manual triage only
+          is_correct: false
+        - option_text: B. AI-supported ticket routing
+          is_correct: true
+        - option_text: C. Removing service categories
+          is_correct: false
+        - option_text: D. Weekly offline updates
+          is_correct: false
+      - order: 3
+        question_text: What remained fully human-led?
+        options:
+        - option_text: A. Final policy decisions
+          is_correct: true
+        - option_text: B. Spam classification
+          is_correct: false
+        - option_text: C. Initial summaries
+          is_correct: false
+        - option_text: D. Form extraction
+          is_correct: false
+      - order: 4
+        question_text: Which control reduced incorrect routing?
+        options:
+        - option_text: A. Lower training frequency
+          is_correct: false
+        - option_text: B. Confidence thresholds
+          is_correct: true
+        - option_text: C. Random assignment
+          is_correct: false
+        - option_text: D. Disabling feedback loops
+          is_correct: false
+      - order: 5
+        question_text: Why was model drift monitoring added?
+        options:
+        - option_text: A. To shorten legal documents
+          is_correct: false
+        - option_text: B. To keep quality stable over time
+          is_correct: true
+        - option_text: C. To increase ticket volume
+          is_correct: false
+        - option_text: D. To remove review teams
+          is_correct: false
+      - order: 6
+        question_text: What was reported by users after rollout?
+        options:
+        - option_text: A. Longer wait times
+          is_correct: false
+        - option_text: B. Clearer status updates
+          is_correct: true
+        - option_text: C. Lower service availability
+          is_correct: false
+        - option_text: D. More form errors
+          is_correct: false
+    - title: Questions 31-36
+      description: Answer the questions below. Write NO MORE THAN TWO WORDS.
+      block_type: short_answers
+      order: 2
+      questions:
+      - order: 1
+        question_text: Which team reviewed exception cases?
+        answers:
+        - quality board
+      - order: 2
+        question_text: What format was used for policy logs?
+        answers:
+        - audit trail
+      - order: 3
+        question_text: Which signal triggered manual escalation?
+        answers:
+        - low confidence
+      - order: 4
+        question_text: What helped reduce duplicate requests?
+        answers:
+        - status portal
+      - order: 5
+        question_text: Which group validated monthly metrics?
+        answers:
+        - service leads
+      - order: 6
+        question_text: What outcome improved in pilot offices?
+        answers:
+        - response time
+- title: Reading Real-Life Test 10
+  description: Academic reading tasks focused on waste recycling and circular economy.
+  time_limit: 3600
+  is_active: true
+  passages:
+  - title: Part 1 Waste Recycling and Circular Economy - Passage 1
+    passage_number: 1
+    content: Waste Recycling and Circular Economy case study 10, section 1. Archivists in Samarkand developed layered storage
+      systems and cataloging rules to protect manuscripts for centuries. The text includes policy evidence, implementation
+      outcomes, and stakeholder perspectives.
+    blocks:
+    - title: Questions 1-7
+      description: Choose True, False or Not Given.
+      block_type: true_false_ng
+      order: 1
+      questions:
+      - order: 1
+        question_text: The archives accepted only religious texts.
+        options:
+        - option_text: true
+          is_correct: false
+        - option_text: false
+          is_correct: true
+        - option_text: Not Given
+          is_correct: false
+      - order: 2
+        question_text: Humidity control was a key part of preservation.
+        options:
+        - option_text: true
+          is_correct: true
+        - option_text: false
+          is_correct: false
+        - option_text: Not Given
+          is_correct: false
+      - order: 3
+        question_text: Scribes copied all manuscripts at night.
+        options:
+        - option_text: true
+          is_correct: false
+        - option_text: false
+          is_correct: false
+        - option_text: Not Given
+          is_correct: true
+      - order: 4
+        question_text: Clay containers were used in one storage stage.
+        options:
+        - option_text: true
+          is_correct: true
+        - option_text: false
+          is_correct: false
+        - option_text: Not Given
+          is_correct: false
+      - order: 5
+        question_text: The oldest documents were kept near windows.
+        options:
+        - option_text: true
+          is_correct: false
+        - option_text: false
+          is_correct: true
+        - option_text: Not Given
+          is_correct: false
+      - order: 6
+        question_text: Every manuscript had a unique shelf code.
+        options:
+        - option_text: true
+          is_correct: true
+        - option_text: false
+          is_correct: false
+        - option_text: Not Given
+          is_correct: false
+      - order: 7
+        question_text: Water damage was more common than fire damage.
+        options:
+        - option_text: true
+          is_correct: false
+        - option_text: false
+          is_correct: false
+        - option_text: Not Given
+          is_correct: true
+    - title: Questions 8-13
+      description: Complete the table below. Choose NO MORE THAN TWO WORDS from the passage for each answer.
+      block_type: table_completion
+      order: 2
+      table_completion: Century | Main Material | Main Storage Method
+      table_json:
+        header:
+        - Century
+        - Main Material
+        - Main Storage Method
+        rows:
+        - - 13th
+          - paper
+          - ____
+        - - 14th
+          - parchment
+          - ____
+        - - 15th
+          - mixed copies
+          - ____
+      questions:
+      - order: 1
+        question_text: Storage method used in the 13th century
+        answers:
+        - clay box
+      - order: 2
+        question_text: Storage method used in the 14th century
+        answers:
+        - cedar chest
+        - wooden chest
+      - order: 3
+        question_text: Storage method used in the 15th century
+        answers:
+        - sealed shelf
+      - order: 4
+        question_text: Label attached to damaged manuscripts
+        answers:
+        - repair tag
+      - order: 5
+        question_text: Role responsible for final shelf control
+        answers:
+        - chief archivist
+      - order: 6
+        question_text: Material used to wrap fragile pages
+        answers:
+        - silk cloth
+  - title: Part 2 Waste Recycling and Circular Economy - Passage 2
+    passage_number: 2
+    content: Waste Recycling and Circular Economy case study 10, section 2. Regional railway policy combined freight priorities,
+      station modernization, and route planning for trade corridors. The text includes policy evidence, implementation outcomes,
+      and stakeholder perspectives.
+    blocks:
+    - title: Questions 14-18
+      description: Choose the correct heading, A-E, for each paragraph.
+      block_type: matching_headings
+      order: 1
+      list_of_headings: 'A. Safety Standards in Mountain Sections
 
-      - title: Part 3 AI Adoption in Public Services
-        passage_number: 3
-        content: Public institutions tested AI-assisted workflows for document handling, triage, and service response optimization.
-        blocks:
-          - title: Questions 25-30
-            description: Choose the correct letter, A-D.
-            block_type: list_of_options
-            order: 1
-            questions:
-              - order: 1
-                question_text: What was the main reason to run pilot teams first?
-                options:
-                  - option_text: A. To avoid all legal review
-                    is_correct: false
-                  - option_text: B. To measure operational risk safely
-                    is_correct: true
-                  - option_text: C. To replace all staff quickly
-                    is_correct: false
-                  - option_text: D. To reduce data quality checks
-                    is_correct: false
-              - order: 2
-                question_text: Which process improved response speed most?
-                options:
-                  - option_text: A. Manual triage only
-                    is_correct: false
-                  - option_text: B. AI-supported ticket routing
-                    is_correct: true
-                  - option_text: C. Removing service categories
-                    is_correct: false
-                  - option_text: D. Weekly offline updates
-                    is_correct: false
-              - order: 3
-                question_text: What remained fully human-led?
-                options:
-                  - option_text: A. Final policy decisions
-                    is_correct: true
-                  - option_text: B. Spam classification
-                    is_correct: false
-                  - option_text: C. Initial summaries
-                    is_correct: false
-                  - option_text: D. Form extraction
-                    is_correct: false
-              - order: 4
-                question_text: Which control reduced incorrect routing?
-                options:
-                  - option_text: A. Lower training frequency
-                    is_correct: false
-                  - option_text: B. Confidence thresholds
-                    is_correct: true
-                  - option_text: C. Random assignment
-                    is_correct: false
-                  - option_text: D. Disabling feedback loops
-                    is_correct: false
-              - order: 5
-                question_text: Why was model drift monitoring added?
-                options:
-                  - option_text: A. To shorten legal documents
-                    is_correct: false
-                  - option_text: B. To keep quality stable over time
-                    is_correct: true
-                  - option_text: C. To increase ticket volume
-                    is_correct: false
-                  - option_text: D. To remove review teams
-                    is_correct: false
-              - order: 6
-                question_text: What was reported by users after rollout?
-                options:
-                  - option_text: A. Longer wait times
-                    is_correct: false
-                  - option_text: B. Clearer status updates
-                    is_correct: true
-                  - option_text: C. Lower service availability
-                    is_correct: false
-                  - option_text: D. More form errors
-                    is_correct: false
+        B. Funding and International Partnerships
 
-          - title: Questions 31-36
-            description: Answer the questions below. Write NO MORE THAN TWO WORDS.
-            block_type: short_answers
-            order: 2
-            questions:
-              - order: 1
-                question_text: Which team reviewed exception cases?
-                answers: [quality board]
-              - order: 2
-                question_text: What format was used for policy logs?
-                answers: [audit trail]
-              - order: 3
-                question_text: Which signal triggered manual escalation?
-                answers: [low confidence]
-              - order: 4
-                question_text: What helped reduce duplicate requests?
-                answers: [status portal]
-              - order: 5
-                question_text: Which group validated monthly metrics?
-                answers: [service leads]
-              - order: 6
-                question_text: What outcome improved in pilot offices?
-                answers: [response time]
+        C. Passenger Demand During Holidays
+
+        D. Digital Control and Dispatching
+
+        E. Freight Capacity Strategy
+
+        '
+      questions:
+      - order: 1
+        question_text: Heading for paragraph 1
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+        - option_text: E
+          is_correct: true
+      - order: 2
+        question_text: Heading for paragraph 2
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: true
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+        - option_text: E
+          is_correct: false
+      - order: 3
+        question_text: Heading for paragraph 3
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: true
+        - option_text: E
+          is_correct: false
+      - order: 4
+        question_text: Heading for paragraph 4
+        options:
+        - option_text: A
+          is_correct: true
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+        - option_text: E
+          is_correct: false
+      - order: 5
+        question_text: Heading for paragraph 5
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: true
+        - option_text: D
+          is_correct: false
+        - option_text: E
+          is_correct: false
+    - title: Questions 19-24
+      description: Complete each sentence with NO MORE THAN TWO WORDS.
+      block_type: sentence_completion
+      order: 2
+      questions:
+      - order: 1
+        question_text: Freight priority was increased on the ___ route.
+        answers:
+        - northern corridor
+      - order: 2
+        question_text: The modernization program started with old ___ systems.
+        answers:
+        - signal
+      - order: 3
+        question_text: New platforms reduced average boarding ___ .
+        answers:
+        - time
+      - order: 4
+        question_text: The dispatch center used a shared ___ dashboard.
+        answers:
+        - digital
+      - order: 5
+        question_text: Seasonal demand peaked during the ___ period.
+        answers:
+        - holiday season
+      - order: 6
+        question_text: The pilot route was extended after strong ___ results.
+        answers:
+        - safety
+  - title: Part 3 Waste Recycling and Circular Economy - Passage 3
+    passage_number: 3
+    content: Waste Recycling and Circular Economy case study 10, section 3. Community language initiatives balanced school
+      programs, oral archives, and local media participation. The text includes policy evidence, implementation outcomes,
+      and stakeholder perspectives.
+    blocks:
+    - title: Questions 25-30
+      description: Choose the correct letter, A-D.
+      block_type: list_of_options
+      order: 1
+      questions:
+      - order: 1
+        question_text: What was the first project priority?
+        options:
+        - option_text: A. Produce grammar books only
+          is_correct: false
+        - option_text: B. Train local facilitators
+          is_correct: true
+        - option_text: C. Replace school teachers
+          is_correct: false
+        - option_text: D. Launch national TV content
+          is_correct: false
+      - order: 2
+        question_text: Why were oral interviews recorded?
+        options:
+        - option_text: A. To support lexical archives
+          is_correct: true
+        - option_text: B. To test internet speed
+          is_correct: false
+        - option_text: C. To create exam questions
+          is_correct: false
+        - option_text: D. To replace printed textbooks
+          is_correct: false
+      - order: 3
+        question_text: What limited early participation?
+        options:
+        - option_text: A. Lack of dictionaries
+          is_correct: false
+        - option_text: B. Poor audio quality
+          is_correct: false
+        - option_text: C. Limited evening transport
+          is_correct: true
+        - option_text: D. Low exam scores
+          is_correct: false
+      - order: 4
+        question_text: Which method improved attendance most?
+        options:
+        - option_text: A. Remote-only classes
+          is_correct: false
+        - option_text: B. Weekend family sessions
+          is_correct: true
+        - option_text: C. Written-only tasks
+          is_correct: false
+        - option_text: D. Strict weekly testing
+          is_correct: false
+      - order: 5
+        question_text: What was the main benefit for teachers?
+        options:
+        - option_text: A. Lower workload
+          is_correct: false
+        - option_text: B. Better classroom materials
+          is_correct: true
+        - option_text: C. Fewer students
+          is_correct: false
+        - option_text: D. Shorter semesters
+          is_correct: false
+      - order: 6
+        question_text: Which outcome was reported after one year?
+        options:
+        - option_text: A. Reduced literacy in primary classes
+          is_correct: false
+        - option_text: B. Increased local media usage
+          is_correct: true
+        - option_text: C. Closure of cultural centers
+          is_correct: false
+        - option_text: D. Cancellation of oral archives
+          is_correct: false
+    - title: Questions 31-36
+      description: Answer the questions below. Write NO MORE THAN TWO WORDS for each answer.
+      block_type: short_answers
+      order: 2
+      questions:
+      - order: 1
+        question_text: What type of events attracted older speakers?
+        answers:
+        - story circles
+      - order: 2
+        question_text: What resource was shared between schools?
+        answers:
+        - audio library
+      - order: 3
+        question_text: Who reviewed youth recordings for quality?
+        answers:
+        - language mentors
+      - order: 4
+        question_text: Which media format was added for teenagers?
+        answers:
+        - short podcast
+      - order: 5
+        question_text: What did families request after pilot classes?
+        answers:
+        - extra sessions
+      - order: 6
+        question_text: Which community group led translation efforts?
+        answers:
+        - local volunteers

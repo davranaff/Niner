@@ -21,6 +21,7 @@ from app.db.models import (
     ConfirmToken,
     PasswordResetToken,
     RefreshToken,
+    RoleEnum,
     User,
     UserAnalytics,
     UserProfile,
@@ -79,7 +80,14 @@ async def _issue_auth_tokens(
     )
 
 
-async def sign_up(db: AsyncSession, email: str, password: str, first_name: str, last_name: str) -> str:
+async def sign_up(
+    db: AsyncSession,
+    email: str,
+    password: str,
+    first_name: str,
+    last_name: str,
+    role: RoleEnum,
+) -> str:
     normalized_email = email.lower()
 
     existing = await repository.get_user_by_email(db, normalized_email)
@@ -95,6 +103,7 @@ async def sign_up(db: AsyncSession, email: str, password: str, first_name: str, 
         password_hash=hash_password(password),
         first_name=first_name,
         last_name=last_name,
+        role=role,
         is_active=False,
     )
     db.add(user)

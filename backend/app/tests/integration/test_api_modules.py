@@ -11,6 +11,7 @@ async def _auth_headers(client, email: str) -> dict[str, str]:
             "password": "Password123",
             "first_name": "A",
             "last_name": "B",
+            "role": "student",
         },
     )
     token = sign_up.json()["debug_confirmation_token"]

@@ -49,6 +49,7 @@ async def cover_auth_users_profile_dashboard(ctx: CoverageContext) -> None:
             "password": "Password123",
             "first_name": "Flow",
             "last_name": "Coverage",
+            "role": "student",
         },
     )
     confirm_token = sign_up.json()["debug_confirmation_token"]

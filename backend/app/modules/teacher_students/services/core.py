@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
+from urllib.parse import urlencode
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.core.errors import ApiError
 from app.core.pagination import page_response
 from app.core.security import generate_random_token, sha256_token
@@ -33,8 +35,18 @@ async def create_invite(db: AsyncSession, teacher: User) -> dict[str, object]:
     db.add(invite)
     await db.commit()
 
+    query = urlencode(
+        {
+            "token": token,
+            "teacher_id": teacher.id,
+            "teacher_email": teacher.email,
+        }
+    )
+    invite_link = f"{settings.frontend_base_url.rstrip('/')}/teacher-invite?{query}"
+
     return {
         "invite_token": token,
+        "invite_link": invite_link,
         "expires_at": expires_at,
     }
 

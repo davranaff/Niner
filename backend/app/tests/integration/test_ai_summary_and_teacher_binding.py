@@ -1,4 +1,5 @@
 from datetime import UTC, datetime, timedelta
+from urllib.parse import parse_qs, urlparse
 
 import pytest
 from sqlalchemy import select
@@ -154,7 +155,13 @@ async def test_teacher_binding_lifecycle_and_access(client, db_session):
 
     invite = await client.post("/api/v1/teacher/students/invites", headers=teacher_headers)
     assert invite.status_code == 200
-    token = invite.json()["invite_token"]
+    invite_payload = invite.json()
+    token = invite_payload["invite_token"]
+    parsed = urlparse(invite_payload["invite_link"])
+    query = parse_qs(parsed.query)
+    assert query.get("token", [None])[0] == token
+    assert query.get("teacher_id", [None])[0] == str(teacher.id)
+    assert query.get("teacher_email", [None])[0] == teacher.email
 
     accept = await client.post(
         "/api/v1/students/me/teacher/accept-invite",

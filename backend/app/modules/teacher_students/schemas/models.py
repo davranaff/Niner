@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 
 class TeacherInviteOut(BaseModel):
     invite_token: str
+    invite_link: str
     expires_at: datetime
 
 

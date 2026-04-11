@@ -10,6 +10,7 @@ async def test_signup_confirm_signin_refresh_and_me(client):
             "password": "Password123",
             "first_name": "John",
             "last_name": "Doe",
+            "role": "student",
         },
     )
     assert sign_up_response.status_code == 201
@@ -45,6 +46,7 @@ async def test_reset_password_flow(client):
             "password": "Password123",
             "first_name": "Reset",
             "last_name": "User",
+            "role": "student",
         },
     )
     token = sign_up.json()["debug_confirmation_token"]
@@ -72,3 +74,38 @@ async def test_reset_password_flow(client):
 async def test_unauthorized_me(client):
     response = await client.get("/api/v1/users/me")
     assert response.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_signup_teacher_role_is_supported(client):
+    sign_up_response = await client.post(
+        "/api/v1/auth/sign-up",
+        json={
+            "email": "teacher-signup@example.com",
+            "password": "Password123",
+            "first_name": "Dilnoza",
+            "last_name": "Rahimova",
+            "role": "teacher",
+        },
+    )
+    assert sign_up_response.status_code == 201
+    token = sign_up_response.json()["debug_confirmation_token"]
+
+    confirm = await client.post("/api/v1/auth/confirm", json={"token": token})
+    assert confirm.status_code == 200
+    assert confirm.json()["user"]["role"] == "teacher"
+
+
+@pytest.mark.asyncio
+async def test_signup_rejects_non_student_teacher_roles(client):
+    response = await client.post(
+        "/api/v1/auth/sign-up",
+        json={
+            "email": "invalid-role@example.com",
+            "password": "Password123",
+            "first_name": "Role",
+            "last_name": "Tester",
+            "role": "admin",
+        },
+    )
+    assert response.status_code == 422

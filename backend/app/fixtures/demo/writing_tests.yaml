@@ -1,97 +1,167 @@
 tests:
-  - title: Writing Demo Test 1
-    description: Writing tasks on urban mobility and education.
-    time_limit: 3600
-    is_active: true
-    parts:
-      - order: 1
-        task: Summarize the transport usage chart and highlight key trends across age groups.
-        image_url: https://cdn.demo.ielts.uz/writing/task1-chart-1.png
-        file_urls:
-          - https://cdn.demo.ielts.uz/writing/task1-prompt-1.pdf
-      - order: 2
-        task: Some people think large cities improve quality of life, while others disagree. Discuss both views and give your opinion.
-        image_url: null
-        file_urls:
-          - https://cdn.demo.ielts.uz/writing/task2-brief-1.pdf
-
-  - title: Writing Demo Test 2
-    description: Writing tasks on technology and environmental policy.
-    time_limit: 3600
-    is_active: true
-    parts:
-      - order: 1
-        task: Describe the energy consumption table and compare changes between 2010 and 2025.
-        image_url: https://cdn.demo.ielts.uz/writing/task1-table-2.png
-        file_urls:
-          - https://cdn.demo.ielts.uz/writing/task1-prompt-2.pdf
-      - order: 2
-        task: Can online education replace traditional education? Discuss advantages and disadvantages and give your view.
-        image_url: null
-        file_urls:
-          - https://cdn.demo.ielts.uz/writing/task2-brief-2.pdf
-
-  - title: Writing Demo Test 3
-    description: Writing tasks on labor markets and health systems.
-    time_limit: 3600
-    is_active: true
-    parts:
-      - order: 1
-        task: Analyze the employment graph and summarize the key differences among sectors.
-        image_url: https://cdn.demo.ielts.uz/writing/task1-graph-3.png
-        file_urls:
-          - https://cdn.demo.ielts.uz/writing/task1-prompt-3.pdf
-      - order: 2
-        task: To what extent should companies be responsible for employees' work-life balance?
-        image_url: null
-        file_urls:
-          - https://cdn.demo.ielts.uz/writing/task2-brief-3.pdf
-
-  - title: Writing Demo Test 4
-    description: Writing tasks on migration and public services.
-    time_limit: 3600
-    is_active: true
-    parts:
-      - order: 1
-        task: The map shows population movement between districts. Summarize the main changes.
-        image_url: https://cdn.demo.ielts.uz/writing/task1-map-4.png
-        file_urls:
-          - https://cdn.demo.ielts.uz/writing/task1-prompt-4.pdf
-          - https://cdn.demo.ielts.uz/writing/task1-data-4.csv
-      - order: 2
-        task: Some believe governments should spend more on public transport than roads. Discuss both views and give your opinion.
-        image_url: null
-        file_urls:
-          - https://cdn.demo.ielts.uz/writing/task2-brief-4.pdf
-
-  - title: Writing Demo Test 5
-    description: Writing tasks on food systems and climate adaptation.
-    time_limit: 3600
-    is_active: true
-    parts:
-      - order: 1
-        task: The diagram illustrates food supply stages from farms to urban stores. Summarize the process.
-        image_url: https://cdn.demo.ielts.uz/writing/task1-process-5.png
-        file_urls:
-          - https://cdn.demo.ielts.uz/writing/task1-prompt-5.pdf
-      - order: 2
-        task: Should individuals change their lifestyle to address climate change, or is government action more important? Discuss and give your opinion.
-        image_url: null
-        file_urls:
-          - https://cdn.demo.ielts.uz/writing/task2-brief-5.pdf
-
-  - title: Writing Demo Test 6
-    description: Writing tasks on digital services and social policy.
-    time_limit: 3600
-    is_active: true
-    parts:
-      - order: 1
-        task: The bar chart compares digital service usage by age group. Summarize key comparisons.
-        image_url: https://cdn.demo.ielts.uz/writing/task1-bars-6.png
-        file_urls:
-          - https://cdn.demo.ielts.uz/writing/task1-prompt-6.pdf
-      - order: 2
-        task: Some people think social media does more harm than good for young people. To what extent do you agree or disagree?
-        image_url: null
-        file_urls:
-          - https://cdn.demo.ielts.uz/writing/task2-brief-6.pdf
+- title: Writing Real-Life Test 01
+  description: Academic writing tasks based on real-world civic and education themes (01).
+  time_limit: 3600
+  is_active: true
+  parts:
+  - order: 1
+    task: Summarize the line graph showing monthly electricity demand in three regions from January to December.
+    image_url: https://cdn.demo.bandnine.uz/writing/task1/real-life-01.png
+    file_urls:
+    - https://cdn.demo.bandnine.uz/writing/task1/real-life-01.pdf
+    - https://cdn.demo.bandnine.uz/writing/task1/real-life-01-data.csv
+  - order: 2
+    task: Some people think governments should invest more in preventive healthcare than hospital expansion. Discuss both
+      views and give your opinion.
+    image_url: null
+    file_urls:
+    - https://cdn.demo.bandnine.uz/writing/task2/real-life-01.pdf
+- title: Writing Real-Life Test 02
+  description: Academic writing tasks based on real-world civic and education themes (02).
+  time_limit: 3600
+  is_active: true
+  parts:
+  - order: 1
+    task: The table compares household spending categories in 2005 and 2025. Summarize the main changes.
+    image_url: https://cdn.demo.bandnine.uz/writing/task1/real-life-02.png
+    file_urls:
+    - https://cdn.demo.bandnine.uz/writing/task1/real-life-02.pdf
+    - https://cdn.demo.bandnine.uz/writing/task1/real-life-02-data.csv
+  - order: 2
+    task: Many believe remote work improves quality of life, while others argue it harms productivity. Discuss both views
+      and give your opinion.
+    image_url: null
+    file_urls:
+    - https://cdn.demo.bandnine.uz/writing/task2/real-life-02.pdf
+- title: Writing Real-Life Test 03
+  description: Academic writing tasks based on real-world civic and education themes (03).
+  time_limit: 3600
+  is_active: true
+  parts:
+  - order: 1
+    task: The diagram illustrates the process of water purification in a municipal treatment plant. Summarize the process.
+    image_url: https://cdn.demo.bandnine.uz/writing/task1/real-life-03.png
+    file_urls:
+    - https://cdn.demo.bandnine.uz/writing/task1/real-life-03.pdf
+    - https://cdn.demo.bandnine.uz/writing/task1/real-life-03-data.csv
+  - order: 2
+    task: Some think university education should be free for everyone. To what extent do you agree or disagree?
+    image_url: null
+    file_urls:
+    - https://cdn.demo.bandnine.uz/writing/task2/real-life-03.pdf
+- title: Writing Real-Life Test 04
+  description: Academic writing tasks based on real-world civic and education themes (04).
+  time_limit: 3600
+  is_active: true
+  parts:
+  - order: 1
+    task: The bar chart shows internet access rates by age group in four countries. Summarize key comparisons.
+    image_url: https://cdn.demo.bandnine.uz/writing/task1/real-life-04.png
+    file_urls:
+    - https://cdn.demo.bandnine.uz/writing/task1/real-life-04.pdf
+    - https://cdn.demo.bandnine.uz/writing/task1/real-life-04-data.csv
+  - order: 2
+    task: It is argued that cities should limit private car use in central districts. Discuss both views and give your opinion.
+    image_url: null
+    file_urls:
+    - https://cdn.demo.bandnine.uz/writing/task2/real-life-04.pdf
+- title: Writing Real-Life Test 05
+  description: Academic writing tasks based on real-world civic and education themes (05).
+  time_limit: 3600
+  is_active: true
+  parts:
+  - order: 1
+    task: The map compares a coastal town before and after a flood defense project. Summarize the main changes.
+    image_url: https://cdn.demo.bandnine.uz/writing/task1/real-life-05.png
+    file_urls:
+    - https://cdn.demo.bandnine.uz/writing/task1/real-life-05.pdf
+    - https://cdn.demo.bandnine.uz/writing/task1/real-life-05-data.csv
+  - order: 2
+    task: Some people believe children should start learning a foreign language in primary school. Discuss both views and
+      give your opinion.
+    image_url: null
+    file_urls:
+    - https://cdn.demo.bandnine.uz/writing/task2/real-life-05.pdf
+- title: Writing Real-Life Test 06
+  description: Academic writing tasks based on real-world civic and education themes (06).
+  time_limit: 3600
+  is_active: true
+  parts:
+  - order: 1
+    task: The pie charts compare energy sources used in households in 2010 and 2030. Summarize the key trends.
+    image_url: https://cdn.demo.bandnine.uz/writing/task1/real-life-06.png
+    file_urls:
+    - https://cdn.demo.bandnine.uz/writing/task1/real-life-06.pdf
+    - https://cdn.demo.bandnine.uz/writing/task1/real-life-06-data.csv
+  - order: 2
+    task: In many countries, people buy more imported food than local food. Why is this happening, and is it a positive trend?
+    image_url: null
+    file_urls:
+    - https://cdn.demo.bandnine.uz/writing/task2/real-life-06.pdf
+- title: Writing Real-Life Test 07
+  description: Academic writing tasks based on real-world civic and education themes (07).
+  time_limit: 3600
+  is_active: true
+  parts:
+  - order: 1
+    task: The graph shows passenger numbers at a railway station over a week. Summarize the main features.
+    image_url: https://cdn.demo.bandnine.uz/writing/task1/real-life-07.png
+    file_urls:
+    - https://cdn.demo.bandnine.uz/writing/task1/real-life-07.pdf
+    - https://cdn.demo.bandnine.uz/writing/task1/real-life-07-data.csv
+  - order: 2
+    task: Some think social media is the best way to stay informed, while others prefer traditional journalism. Discuss both
+      views and give your opinion.
+    image_url: null
+    file_urls:
+    - https://cdn.demo.bandnine.uz/writing/task2/real-life-07.pdf
+- title: Writing Real-Life Test 08
+  description: Academic writing tasks based on real-world civic and education themes (08).
+  time_limit: 3600
+  is_active: true
+  parts:
+  - order: 1
+    task: The flow chart shows how recycled plastic is turned into consumer products. Summarize the stages.
+    image_url: https://cdn.demo.bandnine.uz/writing/task1/real-life-08.png
+    file_urls:
+    - https://cdn.demo.bandnine.uz/writing/task1/real-life-08.pdf
+    - https://cdn.demo.bandnine.uz/writing/task1/real-life-08-data.csv
+  - order: 2
+    task: Many people say public money should be spent on public transport rather than building new roads. Discuss both views
+      and give your opinion.
+    image_url: null
+    file_urls:
+    - https://cdn.demo.bandnine.uz/writing/task2/real-life-08.pdf
+- title: Writing Real-Life Test 09
+  description: Academic writing tasks based on real-world civic and education themes (09).
+  time_limit: 3600
+  is_active: true
+  parts:
+  - order: 1
+    task: The charts compare modes of commuting in a city between 2012 and 2024. Summarize the key differences.
+    image_url: https://cdn.demo.bandnine.uz/writing/task1/real-life-09.png
+    file_urls:
+    - https://cdn.demo.bandnine.uz/writing/task1/real-life-09.pdf
+    - https://cdn.demo.bandnine.uz/writing/task1/real-life-09-data.csv
+  - order: 2
+    task: Some believe employers should prioritize practical skills over academic qualifications. To what extent do you agree
+      or disagree?
+    image_url: null
+    file_urls:
+    - https://cdn.demo.bandnine.uz/writing/task2/real-life-09.pdf
+- title: Writing Real-Life Test 10
+  description: Academic writing tasks based on real-world civic and education themes (10).
+  time_limit: 3600
+  is_active: true
+  parts:
+  - order: 1
+    task: The table presents workforce distribution across industries in two regions. Summarize the main patterns.
+    image_url: https://cdn.demo.bandnine.uz/writing/task1/real-life-10.png
+    file_urls:
+    - https://cdn.demo.bandnine.uz/writing/task1/real-life-10.pdf
+    - https://cdn.demo.bandnine.uz/writing/task1/real-life-10-data.csv
+  - order: 2
+    task: In large cities, community life is becoming weaker. What are the causes and what solutions can you suggest?
+    image_url: null
+    file_urls:
+    - https://cdn.demo.bandnine.uz/writing/task2/real-life-10.pdf

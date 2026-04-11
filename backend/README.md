@@ -58,6 +58,7 @@ Default demo users (exactly 3):
 - Access token: 15 min
 - Refresh token: 30 days
 - Header: `Authorization: Bearer <access_token>`
+- Sign-up role must be `student` or `teacher`.
 
 ## Worker
 Run background parser worker:

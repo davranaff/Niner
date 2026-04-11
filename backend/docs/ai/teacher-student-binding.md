@@ -10,6 +10,17 @@ Teacher binding controls which teacher can view and trigger AI summaries for a s
 - `DELETE /api/v1/teacher/students/{student_id}`
 - `DELETE /api/v1/students/me/teacher`
 
+## Invite response payload
+`POST /api/v1/teacher/students/invites` returns:
+- `invite_token`
+- `invite_link`
+- `expires_at`
+
+`invite_link` contains query params for frontend onboarding:
+- `token`
+- `teacher_id`
+- `teacher_email`
+
 ## Rules
 - Invite token is one-time and expires in 24 hours.
 - Student can have only one active teacher link.

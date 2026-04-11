@@ -1,5 +1,8 @@
+from typing import Literal
+
 from pydantic import BaseModel, EmailStr, Field
 
+from app.db.models import RoleEnum
 from app.modules.users.schemas import UserPublic
 
 
@@ -8,6 +11,7 @@ class SignUpIn(BaseModel):
     password: str = Field(min_length=8)
     first_name: str = Field(min_length=1, max_length=120)
     last_name: str = Field(min_length=1, max_length=120)
+    role: Literal[RoleEnum.student, RoleEnum.teacher]
 
 
 class ConfirmIn(BaseModel):

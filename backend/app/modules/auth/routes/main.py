@@ -30,6 +30,7 @@ async def sign_up(payload: SignUpIn, db: AsyncSession = Depends(get_db)) -> Sign
         password=payload.password,
         first_name=payload.first_name,
         last_name=payload.last_name,
+        role=payload.role,
     )
     return SignUpOut(
         message="Confirmation email sent",

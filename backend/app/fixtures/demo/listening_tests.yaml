@@ -1,754 +1,2692 @@
 tests:
-  - title: Listening Demo Test 1
-    description: Listening tasks on city services, education, and urban planning.
-    time_limit: 1800
-    is_active: true
-    voice_url: https://cdn.demo.ielts.uz/audio/listening-test-1.mp3
-    parts:
-      - title: Part 1 Daily Service Conversation
-        order: 1
-        blocks:
-          - title: Questions 1-5
-            description: Choose the correct option.
-            block_type: multiple_choice
-            order: 1
-            questions:
-              - order: 1
-                question_text: Which day was the appointment confirmed?
-                options:
-                  - option_text: Monday
-                    is_correct: false
-                  - option_text: Tuesday
-                    is_correct: true
-                  - option_text: Friday
-                    is_correct: false
-              - order: 2
-                question_text: How many tickets were booked?
-                options:
-                  - option_text: Two
-                    is_correct: false
-                  - option_text: Three
-                    is_correct: true
-                  - option_text: Four
-                    is_correct: false
-              - order: 3
-                question_text: Where will they meet first?
-                options:
-                  - option_text: Metro station
-                    is_correct: true
-                  - option_text: City library
-                    is_correct: false
-                  - option_text: Sports center
-                    is_correct: false
-              - order: 4
-                question_text: Which payment method did they choose?
-                options:
-                  - option_text: Card
-                    is_correct: true
-                  - option_text: Cash
-                    is_correct: false
-                  - option_text: Bank transfer
-                    is_correct: false
-              - order: 5
-                question_text: What time does the office close?
-                options:
-                  - option_text: 6:00 PM
-                    is_correct: false
-                  - option_text: 7:00 PM
-                    is_correct: true
-                  - option_text: 8:00 PM
-                    is_correct: false
-
-          - title: Questions 6-8
-            description: Complete the form. Write ONE WORD ONLY.
-            block_type: form_completion
-            order: 2
-            questions:
-              - order: 1
-                question_text: Family name
-                answers: [karimov]
-              - order: 2
-                question_text: Preferred contact channel
-                answers: [email]
-              - order: 3
-                question_text: Department code
-                answers: [north]
-
-      - title: Part 2 Public Event Announcement
-        order: 2
-        blocks:
-          - title: Questions 9-13
-            description: Complete the table. Write ONE WORD ONLY.
-            block_type: table_completion
-            order: 1
-            table_completion: Session | Hall | Theme
-            table_json:
-              header: [Session, Hall, Theme]
-              rows:
-                - [Morning, Hall A, "____"]
-                - [Noon, Hall B, "____"]
-                - [Evening, Hall C, "____"]
-            questions:
-              - order: 1
-                question_text: Theme of the morning session
-                answers: [innovation]
-              - order: 2
-                question_text: Theme of the noon session
-                answers: [mobility]
-              - order: 3
-                question_text: Theme of the evening session
-                answers: [energy]
-              - order: 4
-                question_text: Team responsible for registration desk
-                answers: [volunteers]
-              - order: 5
-                question_text: Last item on the schedule
-                answers: [networking]
-
-      - title: Part 3 Academic Discussion
-        order: 3
-        blocks:
-          - title: Questions 14-18
-            description: Choose the correct letter, A-D.
-            block_type: list_of_options
-            order: 1
-            questions:
-              - order: 1
-                question_text: What was the main objective of the project?
-                options:
-                  - option_text: A. Increase publication count only
-                    is_correct: false
-                  - option_text: B. Improve practical outcomes
-                    is_correct: true
-                  - option_text: C. Reduce classroom time
-                    is_correct: false
-                  - option_text: D. Replace fieldwork with theory
-                    is_correct: false
-              - order: 2
-                question_text: What support was crucial in phase one?
-                options:
-                  - option_text: A. International sponsorship
-                    is_correct: false
-                  - option_text: B. Local grant
-                    is_correct: true
-                  - option_text: C. Private tutoring
-                    is_correct: false
-                  - option_text: D. Export contracts
-                    is_correct: false
-              - order: 3
-                question_text: Which issue delayed early results?
-                options:
-                  - option_text: A. Staff turnover
-                    is_correct: true
-                  - option_text: B. Lack of internet access
-                    is_correct: false
-                  - option_text: C. New legal restrictions
-                    is_correct: false
-                  - option_text: D. Funding freeze
-                    is_correct: false
-              - order: 4
-                question_text: Which metric was tracked weekly?
-                options:
-                  - option_text: A. Attendance
-                    is_correct: false
-                  - option_text: B. Error rate
-                    is_correct: true
-                  - option_text: C. Revenue
-                    is_correct: false
-                  - option_text: D. Exam difficulty
-                    is_correct: false
-              - order: 5
-                question_text: What was shared at the final meeting?
-                options:
-                  - option_text: A. A marketing plan
-                    is_correct: false
-                  - option_text: B. A replication toolkit
-                    is_correct: true
-                  - option_text: C. A staff replacement plan
-                    is_correct: false
-                  - option_text: D. A new pricing model
-                    is_correct: false
-
-          - title: Questions 19-22
-            description: Complete the summary. Write NO MORE THAN TWO WORDS.
-            block_type: summary_completion
-            order: 2
-            questions:
-              - order: 1
-                question_text: The team started with clear project ___ .
-                answers: [goals]
-              - order: 2
-                question_text: The pilot focused on measurable ___ .
-                answers: [outcomes]
-              - order: 3
-                question_text: Findings were shared with neighboring ___ .
-                answers: [schools, regions]
-              - order: 4
-                question_text: The long-term plan included mentor ___ .
-                answers: [training]
-
-      - title: Part 4 Lecture on Urban Design
-        order: 4
-        blocks:
-          - title: Questions 23-27
-            description: Label the map. Choose the correct letter.
-            block_type: map_plan_labelling
-            order: 1
-            questions:
-              - order: 1
-                question_text: Main library label
-                options:
-                  - option_text: A
-                    is_correct: false
-                  - option_text: B
-                    is_correct: true
-                  - option_text: C
-                    is_correct: false
-                  - option_text: D
-                    is_correct: false
-              - order: 2
-                question_text: Laboratory label
-                options:
-                  - option_text: A
-                    is_correct: true
-                  - option_text: B
-                    is_correct: false
-                  - option_text: C
-                    is_correct: false
-                  - option_text: D
-                    is_correct: false
-              - order: 3
-                question_text: Recreation area label
-                options:
-                  - option_text: A
-                    is_correct: false
-                  - option_text: B
-                    is_correct: false
-                  - option_text: C
-                    is_correct: true
-                  - option_text: D
-                    is_correct: false
-              - order: 4
-                question_text: Student services office label
-                options:
-                  - option_text: A
-                    is_correct: false
-                  - option_text: B
-                    is_correct: false
-                  - option_text: C
-                    is_correct: false
-                  - option_text: D
-                    is_correct: true
-              - order: 5
-                question_text: Main entrance label
-                options:
-                  - option_text: A
-                    is_correct: true
-                  - option_text: B
-                    is_correct: false
-                  - option_text: C
-                    is_correct: false
-                  - option_text: D
-                    is_correct: false
-
-          - title: Questions 28-30
-            description: Answer the questions. Write ONE WORD ONLY.
-            block_type: short_answer
-            order: 2
-            questions:
-              - order: 1
-                question_text: Month when construction starts
-                answers: [june]
-              - order: 2
-                question_text: Name of the reporting portal
-                answers: [portal]
-              - order: 3
-                question_text: Department leading site checks
-                answers: [engineering]
-
-  - title: Listening Demo Test 2
-    description: Listening tasks on education management and health communication.
-    time_limit: 1800
-    is_active: true
-    voice_url: https://cdn.demo.ielts.uz/audio/listening-test-2.mp3
-    parts:
-      - title: Part 1 Registration Call
-        order: 1
-        blocks:
-          - title: Questions 1-5
-            description: Choose the correct option.
-            block_type: multiple_choice
-            order: 1
-            questions:
-              - order: 1
-                question_text: What is the registration fee?
-                options:
-                  - option_text: 50,000 UZS
-                    is_correct: false
-                  - option_text: 80,000 UZS
-                    is_correct: true
-                  - option_text: 120,000 UZS
-                    is_correct: false
-              - order: 2
-                question_text: Which day does the course begin?
-                options:
-                  - option_text: Monday
-                    is_correct: true
-                  - option_text: Wednesday
-                    is_correct: false
-                  - option_text: Friday
-                    is_correct: false
-              - order: 3
-                question_text: Which building hosts the classes?
-                options:
-                  - option_text: Building 1
-                    is_correct: false
-                  - option_text: Building 2
-                    is_correct: false
-                  - option_text: Building 3
-                    is_correct: true
-              - order: 4
-                question_text: What time is the first lesson?
-                options:
-                  - option_text: 9:00 AM
-                    is_correct: true
-                  - option_text: 10:00 AM
-                    is_correct: false
-                  - option_text: 11:00 AM
-                    is_correct: false
-              - order: 5
-                question_text: Which document is required on day one?
-                options:
-                  - option_text: Passport
-                    is_correct: false
-                  - option_text: Receipt
-                    is_correct: true
-                  - option_text: CV
-                    is_correct: false
-
-          - title: Questions 6-8
-            description: Complete the notes. Write ONE WORD ONLY.
-            block_type: note_completion
-            order: 2
-            questions:
-              - order: 1
-                question_text: Seminar duration in hours
-                answers: [two]
-              - order: 2
-                question_text: Main method discussed
-                answers: [observation]
-              - order: 3
-                question_text: Final assignment type
-                answers: [report]
-
-      - title: Part 2 School Program Briefing
-        order: 2
-        blocks:
-          - title: Questions 9-13
-            description: Complete each sentence with NO MORE THAN TWO WORDS.
-            block_type: sentence_completion
-            order: 1
-            questions:
-              - order: 1
-                question_text: The pilot started in ___ schools.
-                answers: [public]
-              - order: 2
-                question_text: Teachers received ___ support every week.
-                answers: [mentor]
-              - order: 3
-                question_text: Student feedback was collected through a ___ form.
-                answers: [digital]
-              - order: 4
-                question_text: The curriculum focused on practical ___ skills.
-                answers: [communication]
-              - order: 5
-                question_text: Mid-term review included a parent ___ session.
-                answers: [briefing]
-
-      - title: Part 3 Public Health Interview
-        order: 3
-        blocks:
-          - title: Questions 14-18
-            description: Match the speaker's views to options A-D.
-            block_type: matching
-            order: 1
-            questions:
-              - order: 1
-                question_text: View on local awareness campaigns
-                options:
-                  - option_text: A
-                    is_correct: false
-                  - option_text: B
-                    is_correct: true
-                  - option_text: C
-                    is_correct: false
-                  - option_text: D
-                    is_correct: false
-              - order: 2
-                question_text: View on role of social media
-                options:
-                  - option_text: A
-                    is_correct: true
-                  - option_text: B
-                    is_correct: false
-                  - option_text: C
-                    is_correct: false
-                  - option_text: D
-                    is_correct: false
-              - order: 3
-                question_text: View on volunteer training
-                options:
-                  - option_text: A
-                    is_correct: false
-                  - option_text: B
-                    is_correct: false
-                  - option_text: C
-                    is_correct: true
-                  - option_text: D
-                    is_correct: false
-              - order: 4
-                question_text: View on long-term funding
-                options:
-                  - option_text: A
-                    is_correct: false
-                  - option_text: B
-                    is_correct: false
-                  - option_text: C
-                    is_correct: false
-                  - option_text: D
-                    is_correct: true
-              - order: 5
-                question_text: View on data transparency
-                options:
-                  - option_text: A
-                    is_correct: true
-                  - option_text: B
-                    is_correct: false
-                  - option_text: C
-                    is_correct: false
-                  - option_text: D
-                    is_correct: false
-
-          - title: Questions 19-22
-            description: Complete the summary. Write NO MORE THAN TWO WORDS.
-            block_type: summary_completion
-            order: 2
-            questions:
-              - order: 1
-                question_text: The interview stressed early ___ in schools.
-                answers: [prevention]
-              - order: 2
-                question_text: Volunteer teams used a shared ___ checklist.
-                answers: [safety]
-              - order: 3
-                question_text: Monthly results were presented to local ___ .
-                answers: [authorities]
-              - order: 4
-                question_text: The final recommendation was better ___ planning.
-                answers: [budget]
-
-      - title: Part 4 Research Lecture
-        order: 4
-        blocks:
-          - title: Questions 23-27
-            description: Complete the diagram. Write NO MORE THAN TWO WORDS.
-            block_type: diagram_flowchart_completion
-            order: 1
-            questions:
-              - order: 1
-                question_text: First stage in the framework
-                answers: [needs analysis]
-              - order: 2
-                question_text: Second stage in the framework
-                answers: [pilot design]
-              - order: 3
-                question_text: Third stage in the framework
-                answers: [field testing]
-              - order: 4
-                question_text: Fourth stage in the framework
-                answers: [impact review]
-              - order: 5
-                question_text: Final stage in the framework
-                answers: [scale up]
-
-          - title: Questions 28-30
-            description: Answer each item with ONE WORD ONLY.
-            block_type: short_answer_multiple
-            order: 2
-            questions:
-              - order: 1
-                question_text: Core metric used for comparison
-                answers: [consistency]
-              - order: 2
-                question_text: Source of baseline records
-                answers: [archive]
-              - order: 3
-                question_text: Preferred format for final report
-                answers: [dashboard]
-
-  - title: Listening Demo Test 3
-    description: Listening tasks on logistics, policy meetings, and community projects.
-    time_limit: 1800
-    is_active: true
-    voice_url: https://cdn.demo.ielts.uz/audio/listening-test-3.mp3
-    parts:
-      - title: Part 1 Logistics Hotline
-        order: 1
-        blocks:
-          - title: Questions 1-5
-            description: Choose the correct option.
-            block_type: multiple_choice
-            order: 1
-            questions:
-              - order: 1
-                question_text: Which route is delayed today?
-                options:
-                  - option_text: Route A
-                    is_correct: false
-                  - option_text: Route B
-                    is_correct: true
-                  - option_text: Route C
-                    is_correct: false
-              - order: 2
-                question_text: How long is the delay?
-                options:
-                  - option_text: 10 minutes
-                    is_correct: false
-                  - option_text: 20 minutes
-                    is_correct: true
-                  - option_text: 30 minutes
-                    is_correct: false
-              - order: 3
-                question_text: Where is the temporary stop?
-                options:
-                  - option_text: Central park
-                    is_correct: false
-                  - option_text: City square
-                    is_correct: true
-                  - option_text: Museum road
-                    is_correct: false
-              - order: 4
-                question_text: Which channel gives live updates?
-                options:
-                  - option_text: SMS
-                    is_correct: true
-                  - option_text: TV
-                    is_correct: false
-                  - option_text: Radio
-                    is_correct: false
-              - order: 5
-                question_text: What time does normal service resume?
-                options:
-                  - option_text: 4 PM
-                    is_correct: false
-                  - option_text: 5 PM
-                    is_correct: true
-                  - option_text: 6 PM
-                    is_correct: false
-
-          - title: Questions 6-8
-            description: Complete the form. Write ONE WORD ONLY.
-            block_type: form_completion
-            order: 2
-            questions:
-              - order: 1
-                question_text: Operator name
-                answers: [laylo]
-              - order: 2
-                question_text: Priority status
-                answers: [high]
-              - order: 3
-                question_text: Recovery team location
-                answers: [depot]
-
-      - title: Part 2 Council Update
-        order: 2
-        blocks:
-          - title: Questions 9-13
-            description: Complete the table. Write ONE WORD ONLY.
-            block_type: table_completion
-            order: 1
-            table_completion: Topic | Lead Team | Next Action
-            table_json:
-              header: [Topic, Lead Team, Next Action]
-              rows:
-                - [Traffic safety, Mobility Unit, "____"]
-                - [Waste sorting, Service Unit, "____"]
-                - [Park lighting, Infrastructure Unit, "____"]
-            questions:
-              - order: 1
-                question_text: Next action for traffic safety
-                answers: [audit]
-              - order: 2
-                question_text: Next action for waste sorting
-                answers: [campaign]
-              - order: 3
-                question_text: Next action for park lighting
-                answers: [upgrade]
-              - order: 4
-                question_text: Team responsible for citizen reports
-                answers: [support]
-              - order: 5
-                question_text: Month for public review
-                answers: [september]
-
-      - title: Part 3 Research Roundtable
-        order: 3
-        blocks:
-          - title: Questions 14-18
-            description: Choose the correct letter, A-D.
-            block_type: list_of_options
-            order: 1
-            questions:
-              - order: 1
-                question_text: What was the first challenge discussed?
-                options:
-                  - option_text: A. Low survey response
-                    is_correct: true
-                  - option_text: B. Missing lecture rooms
-                    is_correct: false
-                  - option_text: C. Staff relocation
-                    is_correct: false
-                  - option_text: D. Currency fluctuations
-                    is_correct: false
-              - order: 2
-                question_text: Which method improved participation?
-                options:
-                  - option_text: A. Shorter forms
-                    is_correct: true
-                  - option_text: B. Larger committees
-                    is_correct: false
-                  - option_text: C. More legal notices
-                    is_correct: false
-                  - option_text: D. Weekly exams
-                    is_correct: false
-              - order: 3
-                question_text: What did the team avoid intentionally?
-                options:
-                  - option_text: A. Community interviews
-                    is_correct: false
-                  - option_text: B. Leading questions
-                    is_correct: true
-                  - option_text: C. Pilot testing
-                    is_correct: false
-                  - option_text: D. Data cleaning
-                    is_correct: false
-              - order: 4
-                question_text: Which output was delivered first?
-                options:
-                  - option_text: A. Raw transcripts
-                    is_correct: false
-                  - option_text: B. Interim brief
-                    is_correct: true
-                  - option_text: C. Full thesis
-                    is_correct: false
-                  - option_text: D. Policy law draft
-                    is_correct: false
-              - order: 5
-                question_text: What was the final recommendation?
-                options:
-                  - option_text: A. Expand mentoring network
-                    is_correct: true
-                  - option_text: B. Pause all studies
-                    is_correct: false
-                  - option_text: C. Replace local teams
-                    is_correct: false
-                  - option_text: D. Increase reporting delays
-                    is_correct: false
-
-          - title: Questions 19-22
-            description: Complete the summary. Write NO MORE THAN TWO WORDS.
-            block_type: summary_completion
-            order: 2
-            questions:
-              - order: 1
-                question_text: The session began with a review of ___ data.
-                answers: [baseline]
-              - order: 2
-                question_text: Participants agreed on shared ___ criteria.
-                answers: [quality]
-              - order: 3
-                question_text: A mentor group reviewed every ___ sample.
-                answers: [interview]
-              - order: 4
-                question_text: Final notes were published in a short ___ .
-                answers: [brief]
-
-      - title: Part 4 Community Project Brief
-        order: 4
-        blocks:
-          - title: Questions 23-27
-            description: Label the map. Choose the correct letter.
-            block_type: map_plan_labelling
-            order: 1
-            questions:
-              - order: 1
-                question_text: Health center label
-                options:
-                  - option_text: A
-                    is_correct: false
-                  - option_text: B
-                    is_correct: true
-                  - option_text: C
-                    is_correct: false
-                  - option_text: D
-                    is_correct: false
-              - order: 2
-                question_text: Community hall label
-                options:
-                  - option_text: A
-                    is_correct: false
-                  - option_text: B
-                    is_correct: false
-                  - option_text: C
-                    is_correct: true
-                  - option_text: D
-                    is_correct: false
-              - order: 3
-                question_text: Main parking label
-                options:
-                  - option_text: A
-                    is_correct: true
-                  - option_text: B
-                    is_correct: false
-                  - option_text: C
-                    is_correct: false
-                  - option_text: D
-                    is_correct: false
-              - order: 4
-                question_text: Childcare center label
-                options:
-                  - option_text: A
-                    is_correct: false
-                  - option_text: B
-                    is_correct: false
-                  - option_text: C
-                    is_correct: false
-                  - option_text: D
-                    is_correct: true
-              - order: 5
-                question_text: Bus stop label
-                options:
-                  - option_text: A
-                    is_correct: true
-                  - option_text: B
-                    is_correct: false
-                  - option_text: C
-                    is_correct: false
-                  - option_text: D
-                    is_correct: false
-
-          - title: Questions 28-30
-            description: Answer each item with ONE WORD ONLY.
-            block_type: short_answer
-            order: 2
-            questions:
-              - order: 1
-                question_text: Name of the coordination app
-                answers: [connect]
-              - order: 2
-                question_text: Team conducting evening checks
-                answers: [patrol]
-              - order: 3
-                question_text: Day for weekly status review
-                answers: [friday]
+- title: Listening Real-Life Test 01
+  description: Listening tasks around university orientation and student services.
+  time_limit: 1800
+  is_active: true
+  voice_url: https://cdn.demo.bandnine.uz/audio/listening/real-life-01.mp3
+  parts:
+  - title: Part 1 University Orientation and Student Services
+    order: 1
+    blocks:
+    - title: Questions 1-5
+      description: Choose the correct option.
+      block_type: multiple_choice
+      order: 1
+      questions:
+      - order: 1
+        question_text: Which day was the appointment confirmed?
+        options:
+        - option_text: Monday
+          is_correct: false
+        - option_text: Tuesday
+          is_correct: true
+        - option_text: Friday
+          is_correct: false
+      - order: 2
+        question_text: How many tickets were booked?
+        options:
+        - option_text: Two
+          is_correct: false
+        - option_text: Three
+          is_correct: true
+        - option_text: Four
+          is_correct: false
+      - order: 3
+        question_text: Where will they meet first?
+        options:
+        - option_text: Metro station
+          is_correct: true
+        - option_text: City library
+          is_correct: false
+        - option_text: Sports center
+          is_correct: false
+      - order: 4
+        question_text: Which payment method did they choose?
+        options:
+        - option_text: Card
+          is_correct: true
+        - option_text: Cash
+          is_correct: false
+        - option_text: Bank transfer
+          is_correct: false
+      - order: 5
+        question_text: What time does the office close?
+        options:
+        - option_text: 6:00 PM
+          is_correct: false
+        - option_text: 7:00 PM
+          is_correct: true
+        - option_text: 8:00 PM
+          is_correct: false
+    - title: Questions 6-8
+      description: Complete the form. Write ONE WORD ONLY.
+      block_type: form_completion
+      order: 2
+      questions:
+      - order: 1
+        question_text: Family name
+        answers:
+        - karimov
+      - order: 2
+        question_text: Preferred contact channel
+        answers:
+        - email
+      - order: 3
+        question_text: Department code
+        answers:
+        - north
+  - title: Part 2 University Orientation and Student Services
+    order: 2
+    blocks:
+    - title: Questions 9-13
+      description: Complete the table. Write ONE WORD ONLY.
+      block_type: table_completion
+      order: 1
+      table_completion: Session | Hall | Theme
+      table_json:
+        header:
+        - Session
+        - Hall
+        - Theme
+        rows:
+        - - Morning
+          - Hall A
+          - ____
+        - - Noon
+          - Hall B
+          - ____
+        - - Evening
+          - Hall C
+          - ____
+      questions:
+      - order: 1
+        question_text: Theme of the morning session
+        answers:
+        - innovation
+      - order: 2
+        question_text: Theme of the noon session
+        answers:
+        - mobility
+      - order: 3
+        question_text: Theme of the evening session
+        answers:
+        - energy
+      - order: 4
+        question_text: Team responsible for registration desk
+        answers:
+        - volunteers
+      - order: 5
+        question_text: Last item on the schedule
+        answers:
+        - networking
+  - title: Part 3 University Orientation and Student Services
+    order: 3
+    blocks:
+    - title: Questions 14-18
+      description: Choose the correct letter, A-D.
+      block_type: list_of_options
+      order: 1
+      questions:
+      - order: 1
+        question_text: What was the main objective of the project?
+        options:
+        - option_text: A. Increase publication count only
+          is_correct: false
+        - option_text: B. Improve practical outcomes
+          is_correct: true
+        - option_text: C. Reduce classroom time
+          is_correct: false
+        - option_text: D. Replace fieldwork with theory
+          is_correct: false
+      - order: 2
+        question_text: What support was crucial in phase one?
+        options:
+        - option_text: A. International sponsorship
+          is_correct: false
+        - option_text: B. Local grant
+          is_correct: true
+        - option_text: C. Private tutoring
+          is_correct: false
+        - option_text: D. Export contracts
+          is_correct: false
+      - order: 3
+        question_text: Which issue delayed early results?
+        options:
+        - option_text: A. Staff turnover
+          is_correct: true
+        - option_text: B. Lack of internet access
+          is_correct: false
+        - option_text: C. New legal restrictions
+          is_correct: false
+        - option_text: D. Funding freeze
+          is_correct: false
+      - order: 4
+        question_text: Which metric was tracked weekly?
+        options:
+        - option_text: A. Attendance
+          is_correct: false
+        - option_text: B. Error rate
+          is_correct: true
+        - option_text: C. Revenue
+          is_correct: false
+        - option_text: D. Exam difficulty
+          is_correct: false
+      - order: 5
+        question_text: What was shared at the final meeting?
+        options:
+        - option_text: A. A marketing plan
+          is_correct: false
+        - option_text: B. A replication toolkit
+          is_correct: true
+        - option_text: C. A staff replacement plan
+          is_correct: false
+        - option_text: D. A new pricing model
+          is_correct: false
+    - title: Questions 19-22
+      description: Complete the summary. Write NO MORE THAN TWO WORDS.
+      block_type: summary_completion
+      order: 2
+      questions:
+      - order: 1
+        question_text: The team started with clear project ___ .
+        answers:
+        - goals
+      - order: 2
+        question_text: The pilot focused on measurable ___ .
+        answers:
+        - outcomes
+      - order: 3
+        question_text: Findings were shared with neighboring ___ .
+        answers:
+        - schools
+        - regions
+      - order: 4
+        question_text: The long-term plan included mentor ___ .
+        answers:
+        - training
+  - title: Part 4 University Orientation and Student Services
+    order: 4
+    blocks:
+    - title: Questions 23-27
+      description: Label the map. Choose the correct letter.
+      block_type: map_plan_labelling
+      order: 1
+      questions:
+      - order: 1
+        question_text: Main library label
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: true
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+      - order: 2
+        question_text: Laboratory label
+        options:
+        - option_text: A
+          is_correct: true
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+      - order: 3
+        question_text: Recreation area label
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: true
+        - option_text: D
+          is_correct: false
+      - order: 4
+        question_text: Student services office label
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: true
+      - order: 5
+        question_text: Main entrance label
+        options:
+        - option_text: A
+          is_correct: true
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+    - title: Questions 28-30
+      description: Answer the questions. Write ONE WORD ONLY.
+      block_type: short_answer
+      order: 2
+      questions:
+      - order: 1
+        question_text: Month when construction starts
+        answers:
+        - june
+      - order: 2
+        question_text: Name of the reporting portal
+        answers:
+        - portal
+      - order: 3
+        question_text: Department leading site checks
+        answers:
+        - engineering
+- title: Listening Real-Life Test 02
+  description: Listening tasks around city transport planning workshop.
+  time_limit: 1800
+  is_active: true
+  voice_url: https://cdn.demo.bandnine.uz/audio/listening/real-life-02.mp3
+  parts:
+  - title: Part 1 City Transport Planning Workshop
+    order: 1
+    blocks:
+    - title: Questions 1-5
+      description: Choose the correct option.
+      block_type: multiple_choice
+      order: 1
+      questions:
+      - order: 1
+        question_text: What is the registration fee?
+        options:
+        - option_text: 50,000 UZS
+          is_correct: false
+        - option_text: 80,000 UZS
+          is_correct: true
+        - option_text: 120,000 UZS
+          is_correct: false
+      - order: 2
+        question_text: Which day does the course begin?
+        options:
+        - option_text: Monday
+          is_correct: true
+        - option_text: Wednesday
+          is_correct: false
+        - option_text: Friday
+          is_correct: false
+      - order: 3
+        question_text: Which building hosts the classes?
+        options:
+        - option_text: Building 1
+          is_correct: false
+        - option_text: Building 2
+          is_correct: false
+        - option_text: Building 3
+          is_correct: true
+      - order: 4
+        question_text: What time is the first lesson?
+        options:
+        - option_text: 9:00 AM
+          is_correct: true
+        - option_text: 10:00 AM
+          is_correct: false
+        - option_text: 11:00 AM
+          is_correct: false
+      - order: 5
+        question_text: Which document is required on day one?
+        options:
+        - option_text: Passport
+          is_correct: false
+        - option_text: Receipt
+          is_correct: true
+        - option_text: CV
+          is_correct: false
+    - title: Questions 6-8
+      description: Complete the notes. Write ONE WORD ONLY.
+      block_type: note_completion
+      order: 2
+      questions:
+      - order: 1
+        question_text: Seminar duration in hours
+        answers:
+        - two
+      - order: 2
+        question_text: Main method discussed
+        answers:
+        - observation
+      - order: 3
+        question_text: Final assignment type
+        answers:
+        - report
+  - title: Part 2 City Transport Planning Workshop
+    order: 2
+    blocks:
+    - title: Questions 9-13
+      description: Complete each sentence with NO MORE THAN TWO WORDS.
+      block_type: sentence_completion
+      order: 1
+      questions:
+      - order: 1
+        question_text: The pilot started in ___ schools.
+        answers:
+        - public
+      - order: 2
+        question_text: Teachers received ___ support every week.
+        answers:
+        - mentor
+      - order: 3
+        question_text: Student feedback was collected through a ___ form.
+        answers:
+        - digital
+      - order: 4
+        question_text: The curriculum focused on practical ___ skills.
+        answers:
+        - communication
+      - order: 5
+        question_text: Mid-term review included a parent ___ session.
+        answers:
+        - briefing
+  - title: Part 3 City Transport Planning Workshop
+    order: 3
+    blocks:
+    - title: Questions 14-18
+      description: Match the speaker's views to options A-D.
+      block_type: matching
+      order: 1
+      questions:
+      - order: 1
+        question_text: View on local awareness campaigns
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: true
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+      - order: 2
+        question_text: View on role of social media
+        options:
+        - option_text: A
+          is_correct: true
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+      - order: 3
+        question_text: View on volunteer training
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: true
+        - option_text: D
+          is_correct: false
+      - order: 4
+        question_text: View on long-term funding
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: true
+      - order: 5
+        question_text: View on data transparency
+        options:
+        - option_text: A
+          is_correct: true
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+    - title: Questions 19-22
+      description: Complete the summary. Write NO MORE THAN TWO WORDS.
+      block_type: summary_completion
+      order: 2
+      questions:
+      - order: 1
+        question_text: The interview stressed early ___ in schools.
+        answers:
+        - prevention
+      - order: 2
+        question_text: Volunteer teams used a shared ___ checklist.
+        answers:
+        - safety
+      - order: 3
+        question_text: Monthly results were presented to local ___ .
+        answers:
+        - authorities
+      - order: 4
+        question_text: The final recommendation was better ___ planning.
+        answers:
+        - budget
+  - title: Part 4 City Transport Planning Workshop
+    order: 4
+    blocks:
+    - title: Questions 23-27
+      description: Complete the diagram. Write NO MORE THAN TWO WORDS.
+      block_type: diagram_flowchart_completion
+      order: 1
+      questions:
+      - order: 1
+        question_text: First stage in the framework
+        answers:
+        - needs analysis
+      - order: 2
+        question_text: Second stage in the framework
+        answers:
+        - pilot design
+      - order: 3
+        question_text: Third stage in the framework
+        answers:
+        - field testing
+      - order: 4
+        question_text: Fourth stage in the framework
+        answers:
+        - impact review
+      - order: 5
+        question_text: Final stage in the framework
+        answers:
+        - scale up
+    - title: Questions 28-30
+      description: Answer each item with ONE WORD ONLY.
+      block_type: short_answer_multiple
+      order: 2
+      questions:
+      - order: 1
+        question_text: Core metric used for comparison
+        answers:
+        - consistency
+      - order: 2
+        question_text: Source of baseline records
+        answers:
+        - archive
+      - order: 3
+        question_text: Preferred format for final report
+        answers:
+        - dashboard
+- title: Listening Real-Life Test 03
+  description: Listening tasks around community health outreach program.
+  time_limit: 1800
+  is_active: true
+  voice_url: https://cdn.demo.bandnine.uz/audio/listening/real-life-03.mp3
+  parts:
+  - title: Part 1 Community Health Outreach Program
+    order: 1
+    blocks:
+    - title: Questions 1-5
+      description: Choose the correct option.
+      block_type: multiple_choice
+      order: 1
+      questions:
+      - order: 1
+        question_text: Which route is delayed today?
+        options:
+        - option_text: Route A
+          is_correct: false
+        - option_text: Route B
+          is_correct: true
+        - option_text: Route C
+          is_correct: false
+      - order: 2
+        question_text: How long is the delay?
+        options:
+        - option_text: 10 minutes
+          is_correct: false
+        - option_text: 20 minutes
+          is_correct: true
+        - option_text: 30 minutes
+          is_correct: false
+      - order: 3
+        question_text: Where is the temporary stop?
+        options:
+        - option_text: Central park
+          is_correct: false
+        - option_text: City square
+          is_correct: true
+        - option_text: Museum road
+          is_correct: false
+      - order: 4
+        question_text: Which channel gives live updates?
+        options:
+        - option_text: SMS
+          is_correct: true
+        - option_text: TV
+          is_correct: false
+        - option_text: Radio
+          is_correct: false
+      - order: 5
+        question_text: What time does normal service resume?
+        options:
+        - option_text: 4 PM
+          is_correct: false
+        - option_text: 5 PM
+          is_correct: true
+        - option_text: 6 PM
+          is_correct: false
+    - title: Questions 6-8
+      description: Complete the form. Write ONE WORD ONLY.
+      block_type: form_completion
+      order: 2
+      questions:
+      - order: 1
+        question_text: Operator name
+        answers:
+        - laylo
+      - order: 2
+        question_text: Priority status
+        answers:
+        - high
+      - order: 3
+        question_text: Recovery team location
+        answers:
+        - depot
+  - title: Part 2 Community Health Outreach Program
+    order: 2
+    blocks:
+    - title: Questions 9-13
+      description: Complete the table. Write ONE WORD ONLY.
+      block_type: table_completion
+      order: 1
+      table_completion: Topic | Lead Team | Next Action
+      table_json:
+        header:
+        - Topic
+        - Lead Team
+        - Next Action
+        rows:
+        - - Traffic safety
+          - Mobility Unit
+          - ____
+        - - Waste sorting
+          - Service Unit
+          - ____
+        - - Park lighting
+          - Infrastructure Unit
+          - ____
+      questions:
+      - order: 1
+        question_text: Next action for traffic safety
+        answers:
+        - audit
+      - order: 2
+        question_text: Next action for waste sorting
+        answers:
+        - campaign
+      - order: 3
+        question_text: Next action for park lighting
+        answers:
+        - upgrade
+      - order: 4
+        question_text: Team responsible for citizen reports
+        answers:
+        - support
+      - order: 5
+        question_text: Month for public review
+        answers:
+        - september
+  - title: Part 3 Community Health Outreach Program
+    order: 3
+    blocks:
+    - title: Questions 14-18
+      description: Choose the correct letter, A-D.
+      block_type: list_of_options
+      order: 1
+      questions:
+      - order: 1
+        question_text: What was the first challenge discussed?
+        options:
+        - option_text: A. Low survey response
+          is_correct: true
+        - option_text: B. Missing lecture rooms
+          is_correct: false
+        - option_text: C. Staff relocation
+          is_correct: false
+        - option_text: D. Currency fluctuations
+          is_correct: false
+      - order: 2
+        question_text: Which method improved participation?
+        options:
+        - option_text: A. Shorter forms
+          is_correct: true
+        - option_text: B. Larger committees
+          is_correct: false
+        - option_text: C. More legal notices
+          is_correct: false
+        - option_text: D. Weekly exams
+          is_correct: false
+      - order: 3
+        question_text: What did the team avoid intentionally?
+        options:
+        - option_text: A. Community interviews
+          is_correct: false
+        - option_text: B. Leading questions
+          is_correct: true
+        - option_text: C. Pilot testing
+          is_correct: false
+        - option_text: D. Data cleaning
+          is_correct: false
+      - order: 4
+        question_text: Which output was delivered first?
+        options:
+        - option_text: A. Raw transcripts
+          is_correct: false
+        - option_text: B. Interim brief
+          is_correct: true
+        - option_text: C. Full thesis
+          is_correct: false
+        - option_text: D. Policy law draft
+          is_correct: false
+      - order: 5
+        question_text: What was the final recommendation?
+        options:
+        - option_text: A. Expand mentoring network
+          is_correct: true
+        - option_text: B. Pause all studies
+          is_correct: false
+        - option_text: C. Replace local teams
+          is_correct: false
+        - option_text: D. Increase reporting delays
+          is_correct: false
+    - title: Questions 19-22
+      description: Complete the summary. Write NO MORE THAN TWO WORDS.
+      block_type: summary_completion
+      order: 2
+      questions:
+      - order: 1
+        question_text: The session began with a review of ___ data.
+        answers:
+        - baseline
+      - order: 2
+        question_text: Participants agreed on shared ___ criteria.
+        answers:
+        - quality
+      - order: 3
+        question_text: A mentor group reviewed every ___ sample.
+        answers:
+        - interview
+      - order: 4
+        question_text: Final notes were published in a short ___ .
+        answers:
+        - brief
+  - title: Part 4 Community Health Outreach Program
+    order: 4
+    blocks:
+    - title: Questions 23-27
+      description: Label the map. Choose the correct letter.
+      block_type: map_plan_labelling
+      order: 1
+      questions:
+      - order: 1
+        question_text: Health center label
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: true
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+      - order: 2
+        question_text: Community hall label
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: true
+        - option_text: D
+          is_correct: false
+      - order: 3
+        question_text: Main parking label
+        options:
+        - option_text: A
+          is_correct: true
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+      - order: 4
+        question_text: Childcare center label
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: true
+      - order: 5
+        question_text: Bus stop label
+        options:
+        - option_text: A
+          is_correct: true
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+    - title: Questions 28-30
+      description: Answer each item with ONE WORD ONLY.
+      block_type: short_answer
+      order: 2
+      questions:
+      - order: 1
+        question_text: Name of the coordination app
+        answers:
+        - connect
+      - order: 2
+        question_text: Team conducting evening checks
+        answers:
+        - patrol
+      - order: 3
+        question_text: Day for weekly status review
+        answers:
+        - friday
+- title: Listening Real-Life Test 04
+  description: Listening tasks around research methods seminar.
+  time_limit: 1800
+  is_active: true
+  voice_url: https://cdn.demo.bandnine.uz/audio/listening/real-life-04.mp3
+  parts:
+  - title: Part 1 Research Methods Seminar
+    order: 1
+    blocks:
+    - title: Questions 1-5
+      description: Choose the correct option.
+      block_type: multiple_choice
+      order: 1
+      questions:
+      - order: 1
+        question_text: Which day was the appointment confirmed?
+        options:
+        - option_text: Monday
+          is_correct: false
+        - option_text: Tuesday
+          is_correct: true
+        - option_text: Friday
+          is_correct: false
+      - order: 2
+        question_text: How many tickets were booked?
+        options:
+        - option_text: Two
+          is_correct: false
+        - option_text: Three
+          is_correct: true
+        - option_text: Four
+          is_correct: false
+      - order: 3
+        question_text: Where will they meet first?
+        options:
+        - option_text: Metro station
+          is_correct: true
+        - option_text: City library
+          is_correct: false
+        - option_text: Sports center
+          is_correct: false
+      - order: 4
+        question_text: Which payment method did they choose?
+        options:
+        - option_text: Card
+          is_correct: true
+        - option_text: Cash
+          is_correct: false
+        - option_text: Bank transfer
+          is_correct: false
+      - order: 5
+        question_text: What time does the office close?
+        options:
+        - option_text: 6:00 PM
+          is_correct: false
+        - option_text: 7:00 PM
+          is_correct: true
+        - option_text: 8:00 PM
+          is_correct: false
+    - title: Questions 6-8
+      description: Complete the form. Write ONE WORD ONLY.
+      block_type: form_completion
+      order: 2
+      questions:
+      - order: 1
+        question_text: Family name
+        answers:
+        - karimov
+      - order: 2
+        question_text: Preferred contact channel
+        answers:
+        - email
+      - order: 3
+        question_text: Department code
+        answers:
+        - north
+  - title: Part 2 Research Methods Seminar
+    order: 2
+    blocks:
+    - title: Questions 9-13
+      description: Complete the table. Write ONE WORD ONLY.
+      block_type: table_completion
+      order: 1
+      table_completion: Session | Hall | Theme
+      table_json:
+        header:
+        - Session
+        - Hall
+        - Theme
+        rows:
+        - - Morning
+          - Hall A
+          - ____
+        - - Noon
+          - Hall B
+          - ____
+        - - Evening
+          - Hall C
+          - ____
+      questions:
+      - order: 1
+        question_text: Theme of the morning session
+        answers:
+        - innovation
+      - order: 2
+        question_text: Theme of the noon session
+        answers:
+        - mobility
+      - order: 3
+        question_text: Theme of the evening session
+        answers:
+        - energy
+      - order: 4
+        question_text: Team responsible for registration desk
+        answers:
+        - volunteers
+      - order: 5
+        question_text: Last item on the schedule
+        answers:
+        - networking
+  - title: Part 3 Research Methods Seminar
+    order: 3
+    blocks:
+    - title: Questions 14-18
+      description: Choose the correct letter, A-D.
+      block_type: list_of_options
+      order: 1
+      questions:
+      - order: 1
+        question_text: What was the main objective of the project?
+        options:
+        - option_text: A. Increase publication count only
+          is_correct: false
+        - option_text: B. Improve practical outcomes
+          is_correct: true
+        - option_text: C. Reduce classroom time
+          is_correct: false
+        - option_text: D. Replace fieldwork with theory
+          is_correct: false
+      - order: 2
+        question_text: What support was crucial in phase one?
+        options:
+        - option_text: A. International sponsorship
+          is_correct: false
+        - option_text: B. Local grant
+          is_correct: true
+        - option_text: C. Private tutoring
+          is_correct: false
+        - option_text: D. Export contracts
+          is_correct: false
+      - order: 3
+        question_text: Which issue delayed early results?
+        options:
+        - option_text: A. Staff turnover
+          is_correct: true
+        - option_text: B. Lack of internet access
+          is_correct: false
+        - option_text: C. New legal restrictions
+          is_correct: false
+        - option_text: D. Funding freeze
+          is_correct: false
+      - order: 4
+        question_text: Which metric was tracked weekly?
+        options:
+        - option_text: A. Attendance
+          is_correct: false
+        - option_text: B. Error rate
+          is_correct: true
+        - option_text: C. Revenue
+          is_correct: false
+        - option_text: D. Exam difficulty
+          is_correct: false
+      - order: 5
+        question_text: What was shared at the final meeting?
+        options:
+        - option_text: A. A marketing plan
+          is_correct: false
+        - option_text: B. A replication toolkit
+          is_correct: true
+        - option_text: C. A staff replacement plan
+          is_correct: false
+        - option_text: D. A new pricing model
+          is_correct: false
+    - title: Questions 19-22
+      description: Complete the summary. Write NO MORE THAN TWO WORDS.
+      block_type: summary_completion
+      order: 2
+      questions:
+      - order: 1
+        question_text: The team started with clear project ___ .
+        answers:
+        - goals
+      - order: 2
+        question_text: The pilot focused on measurable ___ .
+        answers:
+        - outcomes
+      - order: 3
+        question_text: Findings were shared with neighboring ___ .
+        answers:
+        - schools
+        - regions
+      - order: 4
+        question_text: The long-term plan included mentor ___ .
+        answers:
+        - training
+  - title: Part 4 Research Methods Seminar
+    order: 4
+    blocks:
+    - title: Questions 23-27
+      description: Label the map. Choose the correct letter.
+      block_type: map_plan_labelling
+      order: 1
+      questions:
+      - order: 1
+        question_text: Main library label
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: true
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+      - order: 2
+        question_text: Laboratory label
+        options:
+        - option_text: A
+          is_correct: true
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+      - order: 3
+        question_text: Recreation area label
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: true
+        - option_text: D
+          is_correct: false
+      - order: 4
+        question_text: Student services office label
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: true
+      - order: 5
+        question_text: Main entrance label
+        options:
+        - option_text: A
+          is_correct: true
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+    - title: Questions 28-30
+      description: Answer the questions. Write ONE WORD ONLY.
+      block_type: short_answer
+      order: 2
+      questions:
+      - order: 1
+        question_text: Month when construction starts
+        answers:
+        - june
+      - order: 2
+        question_text: Name of the reporting portal
+        answers:
+        - portal
+      - order: 3
+        question_text: Department leading site checks
+        answers:
+        - engineering
+- title: Listening Real-Life Test 05
+  description: Listening tasks around library renovation and public access.
+  time_limit: 1800
+  is_active: true
+  voice_url: https://cdn.demo.bandnine.uz/audio/listening/real-life-05.mp3
+  parts:
+  - title: Part 1 Library Renovation and Public Access
+    order: 1
+    blocks:
+    - title: Questions 1-5
+      description: Choose the correct option.
+      block_type: multiple_choice
+      order: 1
+      questions:
+      - order: 1
+        question_text: What is the registration fee?
+        options:
+        - option_text: 50,000 UZS
+          is_correct: false
+        - option_text: 80,000 UZS
+          is_correct: true
+        - option_text: 120,000 UZS
+          is_correct: false
+      - order: 2
+        question_text: Which day does the course begin?
+        options:
+        - option_text: Monday
+          is_correct: true
+        - option_text: Wednesday
+          is_correct: false
+        - option_text: Friday
+          is_correct: false
+      - order: 3
+        question_text: Which building hosts the classes?
+        options:
+        - option_text: Building 1
+          is_correct: false
+        - option_text: Building 2
+          is_correct: false
+        - option_text: Building 3
+          is_correct: true
+      - order: 4
+        question_text: What time is the first lesson?
+        options:
+        - option_text: 9:00 AM
+          is_correct: true
+        - option_text: 10:00 AM
+          is_correct: false
+        - option_text: 11:00 AM
+          is_correct: false
+      - order: 5
+        question_text: Which document is required on day one?
+        options:
+        - option_text: Passport
+          is_correct: false
+        - option_text: Receipt
+          is_correct: true
+        - option_text: CV
+          is_correct: false
+    - title: Questions 6-8
+      description: Complete the notes. Write ONE WORD ONLY.
+      block_type: note_completion
+      order: 2
+      questions:
+      - order: 1
+        question_text: Seminar duration in hours
+        answers:
+        - two
+      - order: 2
+        question_text: Main method discussed
+        answers:
+        - observation
+      - order: 3
+        question_text: Final assignment type
+        answers:
+        - report
+  - title: Part 2 Library Renovation and Public Access
+    order: 2
+    blocks:
+    - title: Questions 9-13
+      description: Complete each sentence with NO MORE THAN TWO WORDS.
+      block_type: sentence_completion
+      order: 1
+      questions:
+      - order: 1
+        question_text: The pilot started in ___ schools.
+        answers:
+        - public
+      - order: 2
+        question_text: Teachers received ___ support every week.
+        answers:
+        - mentor
+      - order: 3
+        question_text: Student feedback was collected through a ___ form.
+        answers:
+        - digital
+      - order: 4
+        question_text: The curriculum focused on practical ___ skills.
+        answers:
+        - communication
+      - order: 5
+        question_text: Mid-term review included a parent ___ session.
+        answers:
+        - briefing
+  - title: Part 3 Library Renovation and Public Access
+    order: 3
+    blocks:
+    - title: Questions 14-18
+      description: Match the speaker's views to options A-D.
+      block_type: matching
+      order: 1
+      questions:
+      - order: 1
+        question_text: View on local awareness campaigns
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: true
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+      - order: 2
+        question_text: View on role of social media
+        options:
+        - option_text: A
+          is_correct: true
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+      - order: 3
+        question_text: View on volunteer training
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: true
+        - option_text: D
+          is_correct: false
+      - order: 4
+        question_text: View on long-term funding
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: true
+      - order: 5
+        question_text: View on data transparency
+        options:
+        - option_text: A
+          is_correct: true
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+    - title: Questions 19-22
+      description: Complete the summary. Write NO MORE THAN TWO WORDS.
+      block_type: summary_completion
+      order: 2
+      questions:
+      - order: 1
+        question_text: The interview stressed early ___ in schools.
+        answers:
+        - prevention
+      - order: 2
+        question_text: Volunteer teams used a shared ___ checklist.
+        answers:
+        - safety
+      - order: 3
+        question_text: Monthly results were presented to local ___ .
+        answers:
+        - authorities
+      - order: 4
+        question_text: The final recommendation was better ___ planning.
+        answers:
+        - budget
+  - title: Part 4 Library Renovation and Public Access
+    order: 4
+    blocks:
+    - title: Questions 23-27
+      description: Complete the diagram. Write NO MORE THAN TWO WORDS.
+      block_type: diagram_flowchart_completion
+      order: 1
+      questions:
+      - order: 1
+        question_text: First stage in the framework
+        answers:
+        - needs analysis
+      - order: 2
+        question_text: Second stage in the framework
+        answers:
+        - pilot design
+      - order: 3
+        question_text: Third stage in the framework
+        answers:
+        - field testing
+      - order: 4
+        question_text: Fourth stage in the framework
+        answers:
+        - impact review
+      - order: 5
+        question_text: Final stage in the framework
+        answers:
+        - scale up
+    - title: Questions 28-30
+      description: Answer each item with ONE WORD ONLY.
+      block_type: short_answer_multiple
+      order: 2
+      questions:
+      - order: 1
+        question_text: Core metric used for comparison
+        answers:
+        - consistency
+      - order: 2
+        question_text: Source of baseline records
+        answers:
+        - archive
+      - order: 3
+        question_text: Preferred format for final report
+        answers:
+        - dashboard
+- title: Listening Real-Life Test 06
+  description: Listening tasks around small business support hotline.
+  time_limit: 1800
+  is_active: true
+  voice_url: https://cdn.demo.bandnine.uz/audio/listening/real-life-06.mp3
+  parts:
+  - title: Part 1 Small Business Support Hotline
+    order: 1
+    blocks:
+    - title: Questions 1-5
+      description: Choose the correct option.
+      block_type: multiple_choice
+      order: 1
+      questions:
+      - order: 1
+        question_text: Which route is delayed today?
+        options:
+        - option_text: Route A
+          is_correct: false
+        - option_text: Route B
+          is_correct: true
+        - option_text: Route C
+          is_correct: false
+      - order: 2
+        question_text: How long is the delay?
+        options:
+        - option_text: 10 minutes
+          is_correct: false
+        - option_text: 20 minutes
+          is_correct: true
+        - option_text: 30 minutes
+          is_correct: false
+      - order: 3
+        question_text: Where is the temporary stop?
+        options:
+        - option_text: Central park
+          is_correct: false
+        - option_text: City square
+          is_correct: true
+        - option_text: Museum road
+          is_correct: false
+      - order: 4
+        question_text: Which channel gives live updates?
+        options:
+        - option_text: SMS
+          is_correct: true
+        - option_text: TV
+          is_correct: false
+        - option_text: Radio
+          is_correct: false
+      - order: 5
+        question_text: What time does normal service resume?
+        options:
+        - option_text: 4 PM
+          is_correct: false
+        - option_text: 5 PM
+          is_correct: true
+        - option_text: 6 PM
+          is_correct: false
+    - title: Questions 6-8
+      description: Complete the form. Write ONE WORD ONLY.
+      block_type: form_completion
+      order: 2
+      questions:
+      - order: 1
+        question_text: Operator name
+        answers:
+        - laylo
+      - order: 2
+        question_text: Priority status
+        answers:
+        - high
+      - order: 3
+        question_text: Recovery team location
+        answers:
+        - depot
+  - title: Part 2 Small Business Support Hotline
+    order: 2
+    blocks:
+    - title: Questions 9-13
+      description: Complete the table. Write ONE WORD ONLY.
+      block_type: table_completion
+      order: 1
+      table_completion: Topic | Lead Team | Next Action
+      table_json:
+        header:
+        - Topic
+        - Lead Team
+        - Next Action
+        rows:
+        - - Traffic safety
+          - Mobility Unit
+          - ____
+        - - Waste sorting
+          - Service Unit
+          - ____
+        - - Park lighting
+          - Infrastructure Unit
+          - ____
+      questions:
+      - order: 1
+        question_text: Next action for traffic safety
+        answers:
+        - audit
+      - order: 2
+        question_text: Next action for waste sorting
+        answers:
+        - campaign
+      - order: 3
+        question_text: Next action for park lighting
+        answers:
+        - upgrade
+      - order: 4
+        question_text: Team responsible for citizen reports
+        answers:
+        - support
+      - order: 5
+        question_text: Month for public review
+        answers:
+        - september
+  - title: Part 3 Small Business Support Hotline
+    order: 3
+    blocks:
+    - title: Questions 14-18
+      description: Choose the correct letter, A-D.
+      block_type: list_of_options
+      order: 1
+      questions:
+      - order: 1
+        question_text: What was the first challenge discussed?
+        options:
+        - option_text: A. Low survey response
+          is_correct: true
+        - option_text: B. Missing lecture rooms
+          is_correct: false
+        - option_text: C. Staff relocation
+          is_correct: false
+        - option_text: D. Currency fluctuations
+          is_correct: false
+      - order: 2
+        question_text: Which method improved participation?
+        options:
+        - option_text: A. Shorter forms
+          is_correct: true
+        - option_text: B. Larger committees
+          is_correct: false
+        - option_text: C. More legal notices
+          is_correct: false
+        - option_text: D. Weekly exams
+          is_correct: false
+      - order: 3
+        question_text: What did the team avoid intentionally?
+        options:
+        - option_text: A. Community interviews
+          is_correct: false
+        - option_text: B. Leading questions
+          is_correct: true
+        - option_text: C. Pilot testing
+          is_correct: false
+        - option_text: D. Data cleaning
+          is_correct: false
+      - order: 4
+        question_text: Which output was delivered first?
+        options:
+        - option_text: A. Raw transcripts
+          is_correct: false
+        - option_text: B. Interim brief
+          is_correct: true
+        - option_text: C. Full thesis
+          is_correct: false
+        - option_text: D. Policy law draft
+          is_correct: false
+      - order: 5
+        question_text: What was the final recommendation?
+        options:
+        - option_text: A. Expand mentoring network
+          is_correct: true
+        - option_text: B. Pause all studies
+          is_correct: false
+        - option_text: C. Replace local teams
+          is_correct: false
+        - option_text: D. Increase reporting delays
+          is_correct: false
+    - title: Questions 19-22
+      description: Complete the summary. Write NO MORE THAN TWO WORDS.
+      block_type: summary_completion
+      order: 2
+      questions:
+      - order: 1
+        question_text: The session began with a review of ___ data.
+        answers:
+        - baseline
+      - order: 2
+        question_text: Participants agreed on shared ___ criteria.
+        answers:
+        - quality
+      - order: 3
+        question_text: A mentor group reviewed every ___ sample.
+        answers:
+        - interview
+      - order: 4
+        question_text: Final notes were published in a short ___ .
+        answers:
+        - brief
+  - title: Part 4 Small Business Support Hotline
+    order: 4
+    blocks:
+    - title: Questions 23-27
+      description: Label the map. Choose the correct letter.
+      block_type: map_plan_labelling
+      order: 1
+      questions:
+      - order: 1
+        question_text: Health center label
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: true
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+      - order: 2
+        question_text: Community hall label
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: true
+        - option_text: D
+          is_correct: false
+      - order: 3
+        question_text: Main parking label
+        options:
+        - option_text: A
+          is_correct: true
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+      - order: 4
+        question_text: Childcare center label
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: true
+      - order: 5
+        question_text: Bus stop label
+        options:
+        - option_text: A
+          is_correct: true
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+    - title: Questions 28-30
+      description: Answer each item with ONE WORD ONLY.
+      block_type: short_answer
+      order: 2
+      questions:
+      - order: 1
+        question_text: Name of the coordination app
+        answers:
+        - connect
+      - order: 2
+        question_text: Team conducting evening checks
+        answers:
+        - patrol
+      - order: 3
+        question_text: Day for weekly status review
+        answers:
+        - friday
+- title: Listening Real-Life Test 07
+  description: Listening tasks around environmental forum announcements.
+  time_limit: 1800
+  is_active: true
+  voice_url: https://cdn.demo.bandnine.uz/audio/listening/real-life-07.mp3
+  parts:
+  - title: Part 1 Environmental Forum Announcements
+    order: 1
+    blocks:
+    - title: Questions 1-5
+      description: Choose the correct option.
+      block_type: multiple_choice
+      order: 1
+      questions:
+      - order: 1
+        question_text: Which day was the appointment confirmed?
+        options:
+        - option_text: Monday
+          is_correct: false
+        - option_text: Tuesday
+          is_correct: true
+        - option_text: Friday
+          is_correct: false
+      - order: 2
+        question_text: How many tickets were booked?
+        options:
+        - option_text: Two
+          is_correct: false
+        - option_text: Three
+          is_correct: true
+        - option_text: Four
+          is_correct: false
+      - order: 3
+        question_text: Where will they meet first?
+        options:
+        - option_text: Metro station
+          is_correct: true
+        - option_text: City library
+          is_correct: false
+        - option_text: Sports center
+          is_correct: false
+      - order: 4
+        question_text: Which payment method did they choose?
+        options:
+        - option_text: Card
+          is_correct: true
+        - option_text: Cash
+          is_correct: false
+        - option_text: Bank transfer
+          is_correct: false
+      - order: 5
+        question_text: What time does the office close?
+        options:
+        - option_text: 6:00 PM
+          is_correct: false
+        - option_text: 7:00 PM
+          is_correct: true
+        - option_text: 8:00 PM
+          is_correct: false
+    - title: Questions 6-8
+      description: Complete the form. Write ONE WORD ONLY.
+      block_type: form_completion
+      order: 2
+      questions:
+      - order: 1
+        question_text: Family name
+        answers:
+        - karimov
+      - order: 2
+        question_text: Preferred contact channel
+        answers:
+        - email
+      - order: 3
+        question_text: Department code
+        answers:
+        - north
+  - title: Part 2 Environmental Forum Announcements
+    order: 2
+    blocks:
+    - title: Questions 9-13
+      description: Complete the table. Write ONE WORD ONLY.
+      block_type: table_completion
+      order: 1
+      table_completion: Session | Hall | Theme
+      table_json:
+        header:
+        - Session
+        - Hall
+        - Theme
+        rows:
+        - - Morning
+          - Hall A
+          - ____
+        - - Noon
+          - Hall B
+          - ____
+        - - Evening
+          - Hall C
+          - ____
+      questions:
+      - order: 1
+        question_text: Theme of the morning session
+        answers:
+        - innovation
+      - order: 2
+        question_text: Theme of the noon session
+        answers:
+        - mobility
+      - order: 3
+        question_text: Theme of the evening session
+        answers:
+        - energy
+      - order: 4
+        question_text: Team responsible for registration desk
+        answers:
+        - volunteers
+      - order: 5
+        question_text: Last item on the schedule
+        answers:
+        - networking
+  - title: Part 3 Environmental Forum Announcements
+    order: 3
+    blocks:
+    - title: Questions 14-18
+      description: Choose the correct letter, A-D.
+      block_type: list_of_options
+      order: 1
+      questions:
+      - order: 1
+        question_text: What was the main objective of the project?
+        options:
+        - option_text: A. Increase publication count only
+          is_correct: false
+        - option_text: B. Improve practical outcomes
+          is_correct: true
+        - option_text: C. Reduce classroom time
+          is_correct: false
+        - option_text: D. Replace fieldwork with theory
+          is_correct: false
+      - order: 2
+        question_text: What support was crucial in phase one?
+        options:
+        - option_text: A. International sponsorship
+          is_correct: false
+        - option_text: B. Local grant
+          is_correct: true
+        - option_text: C. Private tutoring
+          is_correct: false
+        - option_text: D. Export contracts
+          is_correct: false
+      - order: 3
+        question_text: Which issue delayed early results?
+        options:
+        - option_text: A. Staff turnover
+          is_correct: true
+        - option_text: B. Lack of internet access
+          is_correct: false
+        - option_text: C. New legal restrictions
+          is_correct: false
+        - option_text: D. Funding freeze
+          is_correct: false
+      - order: 4
+        question_text: Which metric was tracked weekly?
+        options:
+        - option_text: A. Attendance
+          is_correct: false
+        - option_text: B. Error rate
+          is_correct: true
+        - option_text: C. Revenue
+          is_correct: false
+        - option_text: D. Exam difficulty
+          is_correct: false
+      - order: 5
+        question_text: What was shared at the final meeting?
+        options:
+        - option_text: A. A marketing plan
+          is_correct: false
+        - option_text: B. A replication toolkit
+          is_correct: true
+        - option_text: C. A staff replacement plan
+          is_correct: false
+        - option_text: D. A new pricing model
+          is_correct: false
+    - title: Questions 19-22
+      description: Complete the summary. Write NO MORE THAN TWO WORDS.
+      block_type: summary_completion
+      order: 2
+      questions:
+      - order: 1
+        question_text: The team started with clear project ___ .
+        answers:
+        - goals
+      - order: 2
+        question_text: The pilot focused on measurable ___ .
+        answers:
+        - outcomes
+      - order: 3
+        question_text: Findings were shared with neighboring ___ .
+        answers:
+        - schools
+        - regions
+      - order: 4
+        question_text: The long-term plan included mentor ___ .
+        answers:
+        - training
+  - title: Part 4 Environmental Forum Announcements
+    order: 4
+    blocks:
+    - title: Questions 23-27
+      description: Label the map. Choose the correct letter.
+      block_type: map_plan_labelling
+      order: 1
+      questions:
+      - order: 1
+        question_text: Main library label
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: true
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+      - order: 2
+        question_text: Laboratory label
+        options:
+        - option_text: A
+          is_correct: true
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+      - order: 3
+        question_text: Recreation area label
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: true
+        - option_text: D
+          is_correct: false
+      - order: 4
+        question_text: Student services office label
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: true
+      - order: 5
+        question_text: Main entrance label
+        options:
+        - option_text: A
+          is_correct: true
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+    - title: Questions 28-30
+      description: Answer the questions. Write ONE WORD ONLY.
+      block_type: short_answer
+      order: 2
+      questions:
+      - order: 1
+        question_text: Month when construction starts
+        answers:
+        - june
+      - order: 2
+        question_text: Name of the reporting portal
+        answers:
+        - portal
+      - order: 3
+        question_text: Department leading site checks
+        answers:
+        - engineering
+- title: Listening Real-Life Test 08
+  description: Listening tasks around housing and urban design consultation.
+  time_limit: 1800
+  is_active: true
+  voice_url: https://cdn.demo.bandnine.uz/audio/listening/real-life-08.mp3
+  parts:
+  - title: Part 1 Housing and Urban Design Consultation
+    order: 1
+    blocks:
+    - title: Questions 1-5
+      description: Choose the correct option.
+      block_type: multiple_choice
+      order: 1
+      questions:
+      - order: 1
+        question_text: What is the registration fee?
+        options:
+        - option_text: 50,000 UZS
+          is_correct: false
+        - option_text: 80,000 UZS
+          is_correct: true
+        - option_text: 120,000 UZS
+          is_correct: false
+      - order: 2
+        question_text: Which day does the course begin?
+        options:
+        - option_text: Monday
+          is_correct: true
+        - option_text: Wednesday
+          is_correct: false
+        - option_text: Friday
+          is_correct: false
+      - order: 3
+        question_text: Which building hosts the classes?
+        options:
+        - option_text: Building 1
+          is_correct: false
+        - option_text: Building 2
+          is_correct: false
+        - option_text: Building 3
+          is_correct: true
+      - order: 4
+        question_text: What time is the first lesson?
+        options:
+        - option_text: 9:00 AM
+          is_correct: true
+        - option_text: 10:00 AM
+          is_correct: false
+        - option_text: 11:00 AM
+          is_correct: false
+      - order: 5
+        question_text: Which document is required on day one?
+        options:
+        - option_text: Passport
+          is_correct: false
+        - option_text: Receipt
+          is_correct: true
+        - option_text: CV
+          is_correct: false
+    - title: Questions 6-8
+      description: Complete the notes. Write ONE WORD ONLY.
+      block_type: note_completion
+      order: 2
+      questions:
+      - order: 1
+        question_text: Seminar duration in hours
+        answers:
+        - two
+      - order: 2
+        question_text: Main method discussed
+        answers:
+        - observation
+      - order: 3
+        question_text: Final assignment type
+        answers:
+        - report
+  - title: Part 2 Housing and Urban Design Consultation
+    order: 2
+    blocks:
+    - title: Questions 9-13
+      description: Complete each sentence with NO MORE THAN TWO WORDS.
+      block_type: sentence_completion
+      order: 1
+      questions:
+      - order: 1
+        question_text: The pilot started in ___ schools.
+        answers:
+        - public
+      - order: 2
+        question_text: Teachers received ___ support every week.
+        answers:
+        - mentor
+      - order: 3
+        question_text: Student feedback was collected through a ___ form.
+        answers:
+        - digital
+      - order: 4
+        question_text: The curriculum focused on practical ___ skills.
+        answers:
+        - communication
+      - order: 5
+        question_text: Mid-term review included a parent ___ session.
+        answers:
+        - briefing
+  - title: Part 3 Housing and Urban Design Consultation
+    order: 3
+    blocks:
+    - title: Questions 14-18
+      description: Match the speaker's views to options A-D.
+      block_type: matching
+      order: 1
+      questions:
+      - order: 1
+        question_text: View on local awareness campaigns
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: true
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+      - order: 2
+        question_text: View on role of social media
+        options:
+        - option_text: A
+          is_correct: true
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+      - order: 3
+        question_text: View on volunteer training
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: true
+        - option_text: D
+          is_correct: false
+      - order: 4
+        question_text: View on long-term funding
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: true
+      - order: 5
+        question_text: View on data transparency
+        options:
+        - option_text: A
+          is_correct: true
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+    - title: Questions 19-22
+      description: Complete the summary. Write NO MORE THAN TWO WORDS.
+      block_type: summary_completion
+      order: 2
+      questions:
+      - order: 1
+        question_text: The interview stressed early ___ in schools.
+        answers:
+        - prevention
+      - order: 2
+        question_text: Volunteer teams used a shared ___ checklist.
+        answers:
+        - safety
+      - order: 3
+        question_text: Monthly results were presented to local ___ .
+        answers:
+        - authorities
+      - order: 4
+        question_text: The final recommendation was better ___ planning.
+        answers:
+        - budget
+  - title: Part 4 Housing and Urban Design Consultation
+    order: 4
+    blocks:
+    - title: Questions 23-27
+      description: Complete the diagram. Write NO MORE THAN TWO WORDS.
+      block_type: diagram_flowchart_completion
+      order: 1
+      questions:
+      - order: 1
+        question_text: First stage in the framework
+        answers:
+        - needs analysis
+      - order: 2
+        question_text: Second stage in the framework
+        answers:
+        - pilot design
+      - order: 3
+        question_text: Third stage in the framework
+        answers:
+        - field testing
+      - order: 4
+        question_text: Fourth stage in the framework
+        answers:
+        - impact review
+      - order: 5
+        question_text: Final stage in the framework
+        answers:
+        - scale up
+    - title: Questions 28-30
+      description: Answer each item with ONE WORD ONLY.
+      block_type: short_answer_multiple
+      order: 2
+      questions:
+      - order: 1
+        question_text: Core metric used for comparison
+        answers:
+        - consistency
+      - order: 2
+        question_text: Source of baseline records
+        answers:
+        - archive
+      - order: 3
+        question_text: Preferred format for final report
+        answers:
+        - dashboard
+- title: Listening Real-Life Test 09
+  description: Listening tasks around career fair preparation session.
+  time_limit: 1800
+  is_active: true
+  voice_url: https://cdn.demo.bandnine.uz/audio/listening/real-life-09.mp3
+  parts:
+  - title: Part 1 Career Fair Preparation Session
+    order: 1
+    blocks:
+    - title: Questions 1-5
+      description: Choose the correct option.
+      block_type: multiple_choice
+      order: 1
+      questions:
+      - order: 1
+        question_text: Which route is delayed today?
+        options:
+        - option_text: Route A
+          is_correct: false
+        - option_text: Route B
+          is_correct: true
+        - option_text: Route C
+          is_correct: false
+      - order: 2
+        question_text: How long is the delay?
+        options:
+        - option_text: 10 minutes
+          is_correct: false
+        - option_text: 20 minutes
+          is_correct: true
+        - option_text: 30 minutes
+          is_correct: false
+      - order: 3
+        question_text: Where is the temporary stop?
+        options:
+        - option_text: Central park
+          is_correct: false
+        - option_text: City square
+          is_correct: true
+        - option_text: Museum road
+          is_correct: false
+      - order: 4
+        question_text: Which channel gives live updates?
+        options:
+        - option_text: SMS
+          is_correct: true
+        - option_text: TV
+          is_correct: false
+        - option_text: Radio
+          is_correct: false
+      - order: 5
+        question_text: What time does normal service resume?
+        options:
+        - option_text: 4 PM
+          is_correct: false
+        - option_text: 5 PM
+          is_correct: true
+        - option_text: 6 PM
+          is_correct: false
+    - title: Questions 6-8
+      description: Complete the form. Write ONE WORD ONLY.
+      block_type: form_completion
+      order: 2
+      questions:
+      - order: 1
+        question_text: Operator name
+        answers:
+        - laylo
+      - order: 2
+        question_text: Priority status
+        answers:
+        - high
+      - order: 3
+        question_text: Recovery team location
+        answers:
+        - depot
+  - title: Part 2 Career Fair Preparation Session
+    order: 2
+    blocks:
+    - title: Questions 9-13
+      description: Complete the table. Write ONE WORD ONLY.
+      block_type: table_completion
+      order: 1
+      table_completion: Topic | Lead Team | Next Action
+      table_json:
+        header:
+        - Topic
+        - Lead Team
+        - Next Action
+        rows:
+        - - Traffic safety
+          - Mobility Unit
+          - ____
+        - - Waste sorting
+          - Service Unit
+          - ____
+        - - Park lighting
+          - Infrastructure Unit
+          - ____
+      questions:
+      - order: 1
+        question_text: Next action for traffic safety
+        answers:
+        - audit
+      - order: 2
+        question_text: Next action for waste sorting
+        answers:
+        - campaign
+      - order: 3
+        question_text: Next action for park lighting
+        answers:
+        - upgrade
+      - order: 4
+        question_text: Team responsible for citizen reports
+        answers:
+        - support
+      - order: 5
+        question_text: Month for public review
+        answers:
+        - september
+  - title: Part 3 Career Fair Preparation Session
+    order: 3
+    blocks:
+    - title: Questions 14-18
+      description: Choose the correct letter, A-D.
+      block_type: list_of_options
+      order: 1
+      questions:
+      - order: 1
+        question_text: What was the first challenge discussed?
+        options:
+        - option_text: A. Low survey response
+          is_correct: true
+        - option_text: B. Missing lecture rooms
+          is_correct: false
+        - option_text: C. Staff relocation
+          is_correct: false
+        - option_text: D. Currency fluctuations
+          is_correct: false
+      - order: 2
+        question_text: Which method improved participation?
+        options:
+        - option_text: A. Shorter forms
+          is_correct: true
+        - option_text: B. Larger committees
+          is_correct: false
+        - option_text: C. More legal notices
+          is_correct: false
+        - option_text: D. Weekly exams
+          is_correct: false
+      - order: 3
+        question_text: What did the team avoid intentionally?
+        options:
+        - option_text: A. Community interviews
+          is_correct: false
+        - option_text: B. Leading questions
+          is_correct: true
+        - option_text: C. Pilot testing
+          is_correct: false
+        - option_text: D. Data cleaning
+          is_correct: false
+      - order: 4
+        question_text: Which output was delivered first?
+        options:
+        - option_text: A. Raw transcripts
+          is_correct: false
+        - option_text: B. Interim brief
+          is_correct: true
+        - option_text: C. Full thesis
+          is_correct: false
+        - option_text: D. Policy law draft
+          is_correct: false
+      - order: 5
+        question_text: What was the final recommendation?
+        options:
+        - option_text: A. Expand mentoring network
+          is_correct: true
+        - option_text: B. Pause all studies
+          is_correct: false
+        - option_text: C. Replace local teams
+          is_correct: false
+        - option_text: D. Increase reporting delays
+          is_correct: false
+    - title: Questions 19-22
+      description: Complete the summary. Write NO MORE THAN TWO WORDS.
+      block_type: summary_completion
+      order: 2
+      questions:
+      - order: 1
+        question_text: The session began with a review of ___ data.
+        answers:
+        - baseline
+      - order: 2
+        question_text: Participants agreed on shared ___ criteria.
+        answers:
+        - quality
+      - order: 3
+        question_text: A mentor group reviewed every ___ sample.
+        answers:
+        - interview
+      - order: 4
+        question_text: Final notes were published in a short ___ .
+        answers:
+        - brief
+  - title: Part 4 Career Fair Preparation Session
+    order: 4
+    blocks:
+    - title: Questions 23-27
+      description: Label the map. Choose the correct letter.
+      block_type: map_plan_labelling
+      order: 1
+      questions:
+      - order: 1
+        question_text: Health center label
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: true
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+      - order: 2
+        question_text: Community hall label
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: true
+        - option_text: D
+          is_correct: false
+      - order: 3
+        question_text: Main parking label
+        options:
+        - option_text: A
+          is_correct: true
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+      - order: 4
+        question_text: Childcare center label
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: true
+      - order: 5
+        question_text: Bus stop label
+        options:
+        - option_text: A
+          is_correct: true
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+    - title: Questions 28-30
+      description: Answer each item with ONE WORD ONLY.
+      block_type: short_answer
+      order: 2
+      questions:
+      - order: 1
+        question_text: Name of the coordination app
+        answers:
+        - connect
+      - order: 2
+        question_text: Team conducting evening checks
+        answers:
+        - patrol
+      - order: 3
+        question_text: Day for weekly status review
+        answers:
+        - friday
+- title: Listening Real-Life Test 10
+  description: Listening tasks around museum education audio tour.
+  time_limit: 1800
+  is_active: true
+  voice_url: https://cdn.demo.bandnine.uz/audio/listening/real-life-10.mp3
+  parts:
+  - title: Part 1 Museum Education Audio Tour
+    order: 1
+    blocks:
+    - title: Questions 1-5
+      description: Choose the correct option.
+      block_type: multiple_choice
+      order: 1
+      questions:
+      - order: 1
+        question_text: Which day was the appointment confirmed?
+        options:
+        - option_text: Monday
+          is_correct: false
+        - option_text: Tuesday
+          is_correct: true
+        - option_text: Friday
+          is_correct: false
+      - order: 2
+        question_text: How many tickets were booked?
+        options:
+        - option_text: Two
+          is_correct: false
+        - option_text: Three
+          is_correct: true
+        - option_text: Four
+          is_correct: false
+      - order: 3
+        question_text: Where will they meet first?
+        options:
+        - option_text: Metro station
+          is_correct: true
+        - option_text: City library
+          is_correct: false
+        - option_text: Sports center
+          is_correct: false
+      - order: 4
+        question_text: Which payment method did they choose?
+        options:
+        - option_text: Card
+          is_correct: true
+        - option_text: Cash
+          is_correct: false
+        - option_text: Bank transfer
+          is_correct: false
+      - order: 5
+        question_text: What time does the office close?
+        options:
+        - option_text: 6:00 PM
+          is_correct: false
+        - option_text: 7:00 PM
+          is_correct: true
+        - option_text: 8:00 PM
+          is_correct: false
+    - title: Questions 6-8
+      description: Complete the form. Write ONE WORD ONLY.
+      block_type: form_completion
+      order: 2
+      questions:
+      - order: 1
+        question_text: Family name
+        answers:
+        - karimov
+      - order: 2
+        question_text: Preferred contact channel
+        answers:
+        - email
+      - order: 3
+        question_text: Department code
+        answers:
+        - north
+  - title: Part 2 Museum Education Audio Tour
+    order: 2
+    blocks:
+    - title: Questions 9-13
+      description: Complete the table. Write ONE WORD ONLY.
+      block_type: table_completion
+      order: 1
+      table_completion: Session | Hall | Theme
+      table_json:
+        header:
+        - Session
+        - Hall
+        - Theme
+        rows:
+        - - Morning
+          - Hall A
+          - ____
+        - - Noon
+          - Hall B
+          - ____
+        - - Evening
+          - Hall C
+          - ____
+      questions:
+      - order: 1
+        question_text: Theme of the morning session
+        answers:
+        - innovation
+      - order: 2
+        question_text: Theme of the noon session
+        answers:
+        - mobility
+      - order: 3
+        question_text: Theme of the evening session
+        answers:
+        - energy
+      - order: 4
+        question_text: Team responsible for registration desk
+        answers:
+        - volunteers
+      - order: 5
+        question_text: Last item on the schedule
+        answers:
+        - networking
+  - title: Part 3 Museum Education Audio Tour
+    order: 3
+    blocks:
+    - title: Questions 14-18
+      description: Choose the correct letter, A-D.
+      block_type: list_of_options
+      order: 1
+      questions:
+      - order: 1
+        question_text: What was the main objective of the project?
+        options:
+        - option_text: A. Increase publication count only
+          is_correct: false
+        - option_text: B. Improve practical outcomes
+          is_correct: true
+        - option_text: C. Reduce classroom time
+          is_correct: false
+        - option_text: D. Replace fieldwork with theory
+          is_correct: false
+      - order: 2
+        question_text: What support was crucial in phase one?
+        options:
+        - option_text: A. International sponsorship
+          is_correct: false
+        - option_text: B. Local grant
+          is_correct: true
+        - option_text: C. Private tutoring
+          is_correct: false
+        - option_text: D. Export contracts
+          is_correct: false
+      - order: 3
+        question_text: Which issue delayed early results?
+        options:
+        - option_text: A. Staff turnover
+          is_correct: true
+        - option_text: B. Lack of internet access
+          is_correct: false
+        - option_text: C. New legal restrictions
+          is_correct: false
+        - option_text: D. Funding freeze
+          is_correct: false
+      - order: 4
+        question_text: Which metric was tracked weekly?
+        options:
+        - option_text: A. Attendance
+          is_correct: false
+        - option_text: B. Error rate
+          is_correct: true
+        - option_text: C. Revenue
+          is_correct: false
+        - option_text: D. Exam difficulty
+          is_correct: false
+      - order: 5
+        question_text: What was shared at the final meeting?
+        options:
+        - option_text: A. A marketing plan
+          is_correct: false
+        - option_text: B. A replication toolkit
+          is_correct: true
+        - option_text: C. A staff replacement plan
+          is_correct: false
+        - option_text: D. A new pricing model
+          is_correct: false
+    - title: Questions 19-22
+      description: Complete the summary. Write NO MORE THAN TWO WORDS.
+      block_type: summary_completion
+      order: 2
+      questions:
+      - order: 1
+        question_text: The team started with clear project ___ .
+        answers:
+        - goals
+      - order: 2
+        question_text: The pilot focused on measurable ___ .
+        answers:
+        - outcomes
+      - order: 3
+        question_text: Findings were shared with neighboring ___ .
+        answers:
+        - schools
+        - regions
+      - order: 4
+        question_text: The long-term plan included mentor ___ .
+        answers:
+        - training
+  - title: Part 4 Museum Education Audio Tour
+    order: 4
+    blocks:
+    - title: Questions 23-27
+      description: Label the map. Choose the correct letter.
+      block_type: map_plan_labelling
+      order: 1
+      questions:
+      - order: 1
+        question_text: Main library label
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: true
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+      - order: 2
+        question_text: Laboratory label
+        options:
+        - option_text: A
+          is_correct: true
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+      - order: 3
+        question_text: Recreation area label
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: true
+        - option_text: D
+          is_correct: false
+      - order: 4
+        question_text: Student services office label
+        options:
+        - option_text: A
+          is_correct: false
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: true
+      - order: 5
+        question_text: Main entrance label
+        options:
+        - option_text: A
+          is_correct: true
+        - option_text: B
+          is_correct: false
+        - option_text: C
+          is_correct: false
+        - option_text: D
+          is_correct: false
+    - title: Questions 28-30
+      description: Answer the questions. Write ONE WORD ONLY.
+      block_type: short_answer
+      order: 2
+      questions:
+      - order: 1
+        question_text: Month when construction starts
+        answers:
+        - june
+      - order: 2
+        question_text: Name of the reporting portal
+        answers:
+        - portal
+      - order: 3
+        question_text: Department leading site checks
+        answers:
+        - engineering

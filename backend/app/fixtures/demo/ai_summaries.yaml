@@ -14,6 +14,8 @@ summaries:
       summary_text: "You are improving in skimming, but inference questions still reduce your score."
       timing_analysis:
         overtime_seconds: 0
+      accuracy_analysis:
+        latest_accuracy: 0.78
       action_plan:
         - "Train inference-heavy passages 20 minutes daily."
         - "Review true/false/not given trap patterns."
@@ -26,7 +28,7 @@ summaries:
     attempts_limit: 10
     trigger_email: student.demo@bandnine.uz
     started_at: "2026-04-09T09:10:00Z"
-    stream_text: "Processing listening patterns..."
+    stream_text: "Processing listening patterns and timing behavior..."
 
   - email: student.demo@bandnine.uz
     module: writing
@@ -38,3 +40,78 @@ summaries:
     started_at: "2026-04-10T10:00:00Z"
     finished_at: "2026-04-10T10:00:05Z"
     error_text: "Model timeout while generating writing feedback."
+
+  - email: student.demo@bandnine.uz
+    module: reading
+    source: manual
+    status: done
+    lang: en
+    attempts_limit: 5
+    trigger_email: student.demo@bandnine.uz
+    started_at: "2026-04-10T15:20:00Z"
+    finished_at: "2026-04-10T15:20:07Z"
+    stream_text: "Recent reading attempts show stronger speed but unstable detail matching."
+    result_text: "Recent reading attempts show stronger speed but unstable detail matching."
+    result_json:
+      summary_text: "Recent reading attempts show stronger speed but unstable detail matching."
+      improvement:
+        trend: "up"
+      topic_focus:
+        list:
+          - "detail matching"
+          - "sentence completion"
+
+  - email: student.demo@bandnine.uz
+    module: listening
+    source: manual
+    status: pending
+    lang: en
+    attempts_limit: 10
+    trigger_email: teacher.demo@bandnine.uz
+
+  - email: teacher.demo@bandnine.uz
+    module: writing
+    source: manual
+    status: done
+    lang: en
+    attempts_limit: 10
+    trigger_email: teacher.demo@bandnine.uz
+    started_at: "2026-04-05T07:40:00Z"
+    finished_at: "2026-04-05T07:40:06Z"
+    stream_text: "Your writing structure is strong; lexical range can be expanded in task 2 arguments."
+    result_text: "Your writing structure is strong; lexical range can be expanded in task 2 arguments."
+    result_json:
+      summary_text: "Your writing structure is strong; lexical range can be expanded in task 2 arguments."
+      grammar_focus:
+        list:
+          - "article usage"
+          - "complex sentence accuracy"
+      action_plan:
+        - "Add one cohesion drill after each essay."
+
+  - email: admin.demo@bandnine.uz
+    module: reading
+    source: manual
+    status: done
+    lang: en
+    attempts_limit: 3
+    trigger_email: admin.demo@bandnine.uz
+    started_at: "2026-04-03T06:30:00Z"
+    finished_at: "2026-04-03T06:30:05Z"
+    stream_text: "Stable performance with minor timing spikes in matching sections."
+    result_text: "Stable performance with minor timing spikes in matching sections."
+    result_json:
+      summary_text: "Stable performance with minor timing spikes in matching sections."
+      timing_analysis:
+        overtime_seconds: 0
+
+  - email: teacher.demo@bandnine.uz
+    module: listening
+    source: auto_submit
+    status: failed
+    lang: en
+    attempts_limit: 10
+    trigger_email: teacher.demo@bandnine.uz
+    started_at: "2026-04-06T07:50:00Z"
+    finished_at: "2026-04-06T07:50:04Z"
+    error_text: "Upstream model returned malformed JSON."
