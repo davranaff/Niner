@@ -72,6 +72,20 @@
       "analytics": "Analytics",
       "speaking": "Speaking",
       "speaking_caption": "Tez orada"
+    },
+    "breadcrumbs": {
+      "home": "Bosh sahifa",
+      "test": "Test",
+      "session": "Sessiya",
+      "result": "Natija",
+      "attempt_review": "Urinish",
+      "student": "Talaba",
+      "page": "Sahifa",
+      "not_found": "Sahifa topilmadi",
+      "forbidden": "Kirish taqiqlangan",
+      "server_error": "Server xatosi",
+      "maintenance": "Texnik xizmat",
+      "components_demo": "Komponentlar"
     }
   },
   "pages": {
@@ -324,6 +338,5 @@
         "heatmap_cell_active": "{{date}} · {{minutes}} daqiqa"
       }
     }
-  },
-  "upgrade_to_pro": "Pro ga o'tish"
+  }
 }

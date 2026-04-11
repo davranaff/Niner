@@ -2,6 +2,7 @@ import { lazy, type ReactElement } from 'react';
 import type { RouteObject } from 'react-router-dom';
 
 import { RoleBasedGuard } from 'src/auth/guard';
+import SessionLayout from 'src/layouts/dashboard/session-layout';
 
 const AppsDashboardPage = lazy(() => import('src/pages/apps/student/dashboard'));
 const AppsReadingPage = lazy(() => import('src/pages/apps/student/reading'));
@@ -26,18 +27,22 @@ function studentOnly(element: ReactElement) {
   return <RoleBasedGuard roles={['student']}>{element}</RoleBasedGuard>;
 }
 
+function studentSessionPage(page: ReactElement) {
+  return studentOnly(<SessionLayout>{page}</SessionLayout>);
+}
+
 export const studentAppSessionRoutes: RouteObject[] = [
   {
     path: 'dashboard/reading/tests/:testId/session',
-    element: studentOnly(<AppsReadingSessionPage />),
+    element: studentSessionPage(<AppsReadingSessionPage />),
   },
   {
     path: 'dashboard/listening/tests/:testId/session',
-    element: studentOnly(<AppsListeningSessionPage />),
+    element: studentSessionPage(<AppsListeningSessionPage />),
   },
   {
     path: 'dashboard/writing/tests/:testId/session',
-    element: studentOnly(<AppsWritingSessionPage />),
+    element: studentSessionPage(<AppsWritingSessionPage />),
   },
 ];
 

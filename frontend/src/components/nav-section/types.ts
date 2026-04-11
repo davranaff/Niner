@@ -25,6 +25,8 @@ export type NavItemProps = ListItemButtonProps & {
 export type NavListProps = {
   title: string;
   path: string;
+  /** When true, pathname may extend this path (e.g. /reading/tests/1 highlights Reading). */
+  deepMatch?: boolean;
   icon?: React.ReactElement;
   info?: React.ReactElement;
   caption?: string;

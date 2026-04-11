@@ -2,6 +2,7 @@
 import Stack from '@mui/material/Stack';
 import Container from '@mui/material/Container';
 //
+import AppBreadcrumbs from 'src/components/app-breadcrumbs';
 import { HeaderSimple as Header } from '../_common';
 
 // ----------------------------------------------------------------------
@@ -26,6 +27,7 @@ export default function CompactLayout({ children }: Props) {
             justifyContent: 'center',
           }}
         >
+          <AppBreadcrumbs sx={{ textAlign: 'left', mb: 3 }} />
           {children}
         </Stack>
       </Container>

@@ -72,6 +72,20 @@
       "analytics": "Analytics",
       "speaking": "Speaking",
       "speaking_caption": "Скоро"
+    },
+    "breadcrumbs": {
+      "home": "Главная",
+      "test": "Тест",
+      "session": "Сессия",
+      "result": "Результат",
+      "attempt_review": "Просмотр попытки",
+      "student": "Студент",
+      "page": "Страница",
+      "not_found": "Страница не найдена",
+      "forbidden": "Доступ запрещён",
+      "server_error": "Ошибка сервера",
+      "maintenance": "Технические работы",
+      "components_demo": "Компоненты"
     }
   },
   "pages": {
@@ -324,6 +338,5 @@
         "heatmap_cell_active": "{{date}} · {{minutes}} мин"
       }
     }
-  },
-  "upgrade_to_pro": "Перейти на Pro"
+  }
 }

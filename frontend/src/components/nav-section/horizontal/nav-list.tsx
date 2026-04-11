@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 // @mui
 import Stack from '@mui/material/Stack';
 import { appBarClasses } from '@mui/material/AppBar';
 import Popover, { popoverClasses } from '@mui/material/Popover';
 // routes
 import { usePathname } from 'src/routes/hook';
-import { useActiveLink } from 'src/routes/hook/use-active-link';
+import { useNavActiveLink } from 'src/hooks/use-nav-active-link';
 //
 import { NavListProps, NavConfigProps } from '../types';
 import NavItem from './nav-item';
@@ -23,8 +24,9 @@ export default function NavList({ data, depth, hasChild, config }: NavListRootPr
   const navRef = useRef(null);
 
   const pathname = usePathname();
+  const [searchParams] = useSearchParams();
 
-  const active = useActiveLink(data.path, hasChild);
+  const active = useNavActiveLink(data.path, hasChild, data.deepMatch);
 
   const externalLink = data.path.includes('http');
 
@@ -35,7 +37,7 @@ export default function NavList({ data, depth, hasChild, config }: NavListRootPr
       handleClose();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+  }, [pathname, searchParams]);
 
   useEffect(() => {
     const appBarEl = Array.from(

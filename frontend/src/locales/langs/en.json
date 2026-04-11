@@ -72,6 +72,20 @@
       "analytics": "Analytics",
       "speaking": "Speaking",
       "speaking_caption": "Coming soon"
+    },
+    "breadcrumbs": {
+      "home": "Home",
+      "test": "Test",
+      "session": "Session",
+      "result": "Result",
+      "attempt_review": "Attempt review",
+      "student": "Student",
+      "page": "Page",
+      "not_found": "Page not found",
+      "forbidden": "Access denied",
+      "server_error": "Server error",
+      "maintenance": "Maintenance",
+      "components_demo": "Components"
     }
   },
   "pages": {
@@ -324,6 +338,5 @@
         "heatmap_cell_active": "{{date}} · {{minutes}} min"
       }
     }
-  },
-  "upgrade_to_pro": "Upgrade to Pro"
+  }
 }

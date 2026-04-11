@@ -7,6 +7,7 @@ import IconButton from '@mui/material/IconButton';
 // theme
 import { bgBlur } from 'src/theme/css';
 // hooks
+import { useAppUserProfile } from 'src/hooks/use-app-user-profile';
 import { useOffSetTop } from 'src/hooks/use-off-set-top';
 import { useResponsive } from 'src/hooks/use-responsive';
 // components
@@ -32,6 +33,8 @@ type Props = {
 
 export default function Header({ onOpenNav }: Props) {
   const theme = useTheme();
+
+  const { user } = useAppUserProfile();
 
   const settings = useSettingsContext();
 
@@ -70,7 +73,7 @@ export default function Header({ onOpenNav }: Props) {
 
         <NotificationsPopover />
 
-        <ContactsPopover />
+        {user.role !== 'student' ? <ContactsPopover /> : null}
 
         <SettingsButton />
 

@@ -94,8 +94,8 @@ export function AttemptsTable({
                     component={RouterLink}
                     href={
                       item.status === 'in_progress'
-                        ? getModuleSessionPath(item.module, String(item.testId))
-                        : getModuleAttemptPath(item.module, String(item.id))
+                        ? getModuleSessionPath(item.module, String(item.testId), { fromMyTests: true })
+                        : getModuleAttemptPath(item.module, String(item.id), { fromMyTests: true })
                     }
                     size="small"
                     color="inherit"

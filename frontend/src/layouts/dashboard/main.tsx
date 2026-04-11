@@ -3,6 +3,7 @@ import Box, { BoxProps } from '@mui/material/Box';
 // hooks
 import { useResponsive } from 'src/hooks/use-responsive';
 // components
+import AppBreadcrumbs from 'src/components/app-breadcrumbs';
 import { useSettingsContext } from 'src/components/settings';
 //
 import { HEADER, NAV } from '../config-layout';
@@ -36,6 +37,9 @@ export default function Main({ children, sx, ...other }: BoxProps) {
           }),
         }}
       >
+        <Box sx={{ px: { xs: 2, sm: 3, lg: 5 } }}>
+          <AppBreadcrumbs />
+        </Box>
         {children}
       </Box>
     );
@@ -59,6 +63,9 @@ export default function Main({ children, sx, ...other }: BoxProps) {
       }}
       {...other}
     >
+      <Box sx={{ px: { xs: 2, lg: 0 } }}>
+        <AppBreadcrumbs />
+      </Box>
       {children}
     </Box>
   );

@@ -44,18 +44,21 @@ export function useNavData() {
           {
             title: tx('layout.nav.reading'),
             path: paths.ielts.reading,
+            deepMatch: true,
             icon: ICONS.reading,
             roles: ['student'],
           },
           {
             title: tx('layout.nav.listening'),
             path: paths.ielts.listening,
+            deepMatch: true,
             icon: ICONS.listening,
             roles: ['student'],
           },
           {
             title: tx('layout.nav.writing'),
             path: paths.ielts.writing,
+            deepMatch: true,
             icon: ICONS.writing,
             roles: ['student'],
           },
@@ -80,6 +83,7 @@ export function useNavData() {
           {
             title: tx('layout.nav.students'),
             path: paths.ielts.teacher.students,
+            deepMatch: true,
             icon: ICONS.students,
             roles: ['teacher'],
           },

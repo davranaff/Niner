@@ -8,6 +8,7 @@ import { useResponsive } from 'src/hooks/use-responsive';
 // theme
 import { bgGradient } from 'src/theme/css';
 // components
+import AppBreadcrumbs from 'src/components/app-breadcrumbs';
 import Logo from 'src/components/logo';
 
 // ----------------------------------------------------------------------
@@ -56,6 +57,7 @@ export default function AuthClassicLayout({
         justifyContent: centerContent ? 'center' : 'flex-start',
       }}
     >
+      <AppBreadcrumbs sx={{ mb: 3, alignSelf: 'stretch', textAlign: 'left' }} />
       {children}
     </Stack>
   );
