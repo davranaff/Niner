@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react';
 // routes
 import { useRouter } from 'src/routes/hook';
-import { getDefaultDashboardPath } from 'src/sections/ielts/shared/api/ielts-service';
+import { getDefaultDashboardPath } from 'src/sections/apps/common/api/apps-service';
 //
 import { useAuthContext } from '../hooks';
 
