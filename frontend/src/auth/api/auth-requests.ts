@@ -10,32 +10,7 @@ import type {
   TenantUser,
   TokenPairResponse,
 } from './types';
-
-function normalizeTenantUser(user: BackendAuthUser): TenantUser {
-  const name = [user.firstName, user.lastName].filter(Boolean).join(' ').trim() || user.email;
-
-  return {
-    id: String(user.id),
-    name,
-    email: user.email,
-    role: user.role,
-    tenantId: null,
-    createdAt: user.verifiedAt ?? '',
-    targetBand: null,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    isActive: user.isActive,
-    verifiedAt: user.verifiedAt,
-  };
-}
-
-function normalizeAuthResponse(payload: BackendAuthResponse): TokenPairResponse {
-  return {
-    access: payload.tokens.accessToken,
-    refresh: payload.tokens.refreshToken,
-    user: normalizeTenantUser(payload.user),
-  };
-}
+import { normalizeAuthResponse, normalizeTenantUser } from './utils';
 
 export async function fetchLogin(data: LoginRequest): Promise<TokenPairResponse> {
   const payload = await request<BackendAuthResponse>(
@@ -45,6 +20,21 @@ export async function fetchLogin(data: LoginRequest): Promise<TokenPairResponse>
       data: {
         email: data.email,
         password: data.password,
+      },
+    },
+    true
+  );
+
+  return normalizeAuthResponse(payload);
+}
+
+export async function fetchRefresh(refreshToken: string): Promise<TokenPairResponse> {
+  const payload = await request<BackendAuthResponse>(
+    {
+      method: 'POST',
+      url: AUTH_URLS.refresh,
+      data: {
+        refreshToken,
       },
     },
     true
