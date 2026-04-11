@@ -1,4 +1,4 @@
-import { AUTH_USER_KEY, REFRESH_TOKEN_KEY } from 'src/auth/api/storage-keys';
+import { clearStoredAuthSession } from 'src/auth/api/session';
 
 // ----------------------------------------------------------------------
 
@@ -38,10 +38,7 @@ export const isValidToken = (accessToken: string) => {
 export const setSession = (accessToken: string | null) => {
   if (accessToken) {
     sessionStorage.setItem('accessToken', accessToken);
-  } else {
-    sessionStorage.removeItem('accessToken');
-    sessionStorage.removeItem(REFRESH_TOKEN_KEY);
-    sessionStorage.removeItem(AUTH_USER_KEY);
+    return;
   }
 
   clearStoredAuthSession();
