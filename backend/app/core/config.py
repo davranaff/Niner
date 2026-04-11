@@ -1,9 +1,9 @@
 import json
 from functools import lru_cache
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import Field, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -36,12 +36,14 @@ class Settings(BaseSettings):
     smtp_from_email: str = "noreply@example.com"
 
     frontend_base_url: str = "http://localhost:3000"
-    cors_allow_origins: list[str] = Field(default_factory=lambda: ["http://localhost:3000"])
+    cors_allow_origins: Annotated[list[str], NoDecode] = Field(
+        default_factory=lambda: ["http://localhost:3000"]
+    )
     cors_allow_credentials: bool = True
-    cors_allow_methods: list[str] = Field(
+    cors_allow_methods: Annotated[list[str], NoDecode] = Field(
         default_factory=lambda: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
     )
-    cors_allow_headers: list[str] = Field(default_factory=lambda: ["*"])
+    cors_allow_headers: Annotated[list[str], NoDecode] = Field(default_factory=lambda: ["*"])
 
     openai_api_key: str | None = None
     openai_model: str = "gpt-4.1-mini"
