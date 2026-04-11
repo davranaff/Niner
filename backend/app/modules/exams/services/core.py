@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.errors import ApiError
 from app.core.pagination import serialize_page
 from app.db.models import (
+    AiSummaryModuleEnum,
     FinishReasonEnum,
     ListeningExam,
     ListeningExamQuestionAnswer,
@@ -21,6 +22,7 @@ from app.db.models import (
     WritingExam,
     WritingExamPart,
 )
+from app.modules.ai_summary.services.core import create_auto_summary
 from app.modules.exams import repository
 from app.modules.exams.score import reading_band_score
 from app.modules.exams.services.validation import (
@@ -266,6 +268,16 @@ async def submit_reading_exam(
     exam.finish_reason = _resolve_finish_reason(elapsed_seconds, time_limit_seconds)
     await db.commit()
 
+    try:
+        await create_auto_summary(
+            db,
+            user=user,
+            module=AiSummaryModuleEnum.reading,
+            exam_id=exam.id,
+        )
+    except Exception:  # noqa: BLE001
+        logger.exception("Failed to create reading AI summary job", extra={"exam_id": exam.id})
+
     correct_count = sum(1 for item in output_rows if item["is_correct"])
     return {
         "answers": output_rows,
@@ -349,6 +361,16 @@ async def submit_listening_exam(
     exam.finish_reason = _resolve_finish_reason(elapsed_seconds, time_limit_seconds)
     await db.commit()
 
+    try:
+        await create_auto_summary(
+            db,
+            user=user,
+            module=AiSummaryModuleEnum.listening,
+            exam_id=exam.id,
+        )
+    except Exception:  # noqa: BLE001
+        logger.exception("Failed to create listening AI summary job", extra={"exam_id": exam.id})
+
     correct_count = sum(1 for item in output_rows if item["is_correct"])
     return {
         "answers": output_rows,
@@ -430,6 +452,16 @@ async def submit_writing_exam(
     exam.finish_reason = _resolve_finish_reason(elapsed_seconds, time_limit_seconds)
     await db.commit()
     await db.refresh(exam)
+
+    try:
+        await create_auto_summary(
+            db,
+            user=user,
+            module=AiSummaryModuleEnum.writing,
+            exam_id=exam.id,
+        )
+    except Exception:  # noqa: BLE001
+        logger.exception("Failed to create writing AI summary job", extra={"exam_id": exam.id})
 
     for exam_part_id in exam_part_ids:
         try:

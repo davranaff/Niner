@@ -18,6 +18,7 @@ from app.core.errors import (
 )
 from app.core.logging import configure_logging
 from app.core.middleware import RequestIDMiddleware
+from app.core.openapi import OPENAPI_TAGS
 from app.db.session import SessionLocal
 
 configure_logging()
@@ -35,6 +36,7 @@ app = FastAPI(
     version="1.0.0",
     default_response_class=ORJSONResponse,
     lifespan=lifespan,
+    openapi_tags=OPENAPI_TAGS,
 )
 
 app.add_middleware(
@@ -53,12 +55,12 @@ app.add_exception_handler(Exception, unhandled_exception_handler)
 app.include_router(api_router, prefix=settings.api_prefix)
 
 
-@app.get("/health")
+@app.get("/health", tags=["system"])
 async def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
-@app.get("/readiness")
+@app.get("/readiness", tags=["system"])
 async def readiness() -> dict[str, str]:
     async with SessionLocal() as db:
         await db.execute(text("SELECT 1"))

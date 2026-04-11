@@ -1,10 +1,31 @@
 from __future__ import annotations
 
-from sqlalchemy import select
+from collections.abc import Sequence
+from datetime import datetime
+
+from sqlalchemy import Select, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.pagination import paginate_query
-from app.db.models import UserAnalytics, UserProfile, UserProgress
+from app.db.models import ProgressTestTypeEnum, UserAnalytics, UserProfile, UserProgress
+
+
+def _apply_progress_filters(
+    stmt: Select,
+    *,
+    user_id: int,
+    modules: Sequence[ProgressTestTypeEnum] | None = None,
+    start_at: datetime | None = None,
+    end_at: datetime | None = None,
+) -> Select:
+    filtered_stmt = stmt.where(UserProgress.user_id == user_id)
+    if modules:
+        filtered_stmt = filtered_stmt.where(UserProgress.test_type.in_(modules))
+    if start_at is not None:
+        filtered_stmt = filtered_stmt.where(UserProgress.test_date >= start_at)
+    if end_at is not None:
+        filtered_stmt = filtered_stmt.where(UserProgress.test_date < end_at)
+    return filtered_stmt
 
 
 async def get_profile_by_user_id(db: AsyncSession, user_id: int) -> UserProfile | None:
@@ -47,9 +68,41 @@ async def list_recent_progress(db: AsyncSession, *, user_id: int, limit: int) ->
         await db.execute(
             select(UserProgress)
             .where(UserProgress.user_id == user_id)
-            .order_by(UserProgress.test_date.desc())
+            .order_by(UserProgress.test_date.desc(), UserProgress.id.desc())
             .limit(limit)
         )
     ).scalars()
     return list(rows)
 
+
+async def list_progress_filtered(
+    db: AsyncSession,
+    *,
+    user_id: int,
+    modules: Sequence[ProgressTestTypeEnum] | None = None,
+    start_at: datetime | None = None,
+    end_at: datetime | None = None,
+    offset: int | None = None,
+    limit: int | None = None,
+    descending: bool = True,
+) -> list[UserProgress]:
+    stmt = _apply_progress_filters(
+        select(UserProgress),
+        user_id=user_id,
+        modules=modules,
+        start_at=start_at,
+        end_at=end_at,
+    )
+
+    order_columns = (UserProgress.test_date, UserProgress.id)
+    if descending:
+        stmt = stmt.order_by(*(column.desc() for column in order_columns))
+    else:
+        stmt = stmt.order_by(*order_columns)
+
+    if offset is not None:
+        stmt = stmt.offset(max(0, offset))
+    if limit is not None:
+        stmt = stmt.limit(max(1, limit))
+
+    return list((await db.execute(stmt)).scalars().all())

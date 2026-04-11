@@ -8,6 +8,10 @@ from arq import Retry
 
 from app.core.security import hash_password
 from app.db.models import (
+    AiModuleSummary,
+    AiSummaryModuleEnum,
+    AiSummarySourceEnum,
+    AiSummaryStatusEnum,
     ParseStatusEnum,
     ReadingPassage,
     ReadingQuestionBlock,
@@ -196,3 +200,77 @@ async def test_writing_ai_evaluation_failed_with_retries(db_session, monkeypatch
         assert refreshed is not None
         assert refreshed.score is None
         assert "failed after retries" in (refreshed.corrections or "")
+
+
+@pytest.mark.asyncio
+async def test_ai_summary_worker_pending_to_done(db_session, monkeypatch):
+    user = await _create_user(db_session, "worker-summary-done@example.com")
+    row = AiModuleSummary(
+        user_id=user.id,
+        module=AiSummaryModuleEnum.reading,
+        source=AiSummarySourceEnum.manual,
+        status=AiSummaryStatusEnum.pending,
+        lang="en",
+        attempts_limit=10,
+    )
+    db_session.add(row)
+    await db_session.commit()
+    await db_session.refresh(row)
+
+    async def fake_build(*args, **kwargs):
+        on_token = kwargs["on_token"]
+        await on_token("token-a ")
+        await on_token("token-b")
+        return {
+            "timing_analysis": {"overtime_seconds": 0},
+            "accuracy_analysis": {},
+            "mistake_hotspots": [],
+            "grammar_focus": [],
+            "topic_focus": [],
+            "improvement": {"trend": "stable"},
+            "action_plan": ["step"],
+            "summary_text": "token-a token-b",
+        }
+
+    monkeypatch.setattr(tasks, "build_module_summary", fake_build)
+    await tasks.generate_module_summary({"job_try": 1}, row.id)
+
+    async with SessionLocal() as verify_db:
+        refreshed = await verify_db.get(AiModuleSummary, row.id)
+        assert refreshed is not None
+        assert refreshed.status == AiSummaryStatusEnum.done
+        assert refreshed.stream_text == "token-a token-b"
+        assert refreshed.result_json is not None
+        assert refreshed.result_text == "token-a token-b"
+
+
+@pytest.mark.asyncio
+async def test_ai_summary_worker_failed_with_retries(db_session, monkeypatch):
+    user = await _create_user(db_session, "worker-summary-fail@example.com")
+    row = AiModuleSummary(
+        user_id=user.id,
+        module=AiSummaryModuleEnum.writing,
+        source=AiSummarySourceEnum.manual,
+        status=AiSummaryStatusEnum.pending,
+        lang="en",
+        attempts_limit=10,
+    )
+    db_session.add(row)
+    await db_session.commit()
+    await db_session.refresh(row)
+
+    async def fail_build(*args, **kwargs):
+        raise RuntimeError("summary generation error")
+
+    monkeypatch.setattr(tasks, "build_module_summary", fail_build)
+
+    with pytest.raises(Retry):
+        await tasks.generate_module_summary({"job_try": 1}, row.id)
+
+    await tasks.generate_module_summary({"job_try": 3}, row.id)
+
+    async with SessionLocal() as verify_db:
+        refreshed = await verify_db.get(AiModuleSummary, row.id)
+        assert refreshed is not None
+        assert refreshed.status == AiSummaryStatusEnum.failed
+        assert "summary generation error" in str(refreshed.error_text)

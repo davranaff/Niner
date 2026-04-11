@@ -48,8 +48,55 @@ class AnalyticsOut(BaseModel):
     last_test_date: datetime | None
 
 
-class DashboardOut(BaseModel):
-    user: dict
-    profile: ProfileOut
-    recent_progress: list[ProgressOut]
-    analytics: AnalyticsOut
+class DashboardActivityDayOut(BaseModel):
+    date: date
+    attempts: int
+    total_seconds: int
+    total_minutes: int
+    intensity: int
+
+
+class DashboardActivitySummaryOut(BaseModel):
+    practice_days: int
+    total_attempts: int
+    total_minutes: int
+
+
+class DashboardActivitySettingsOut(BaseModel):
+    year: int
+    available_years: list[int]
+    available_modules: list[ProgressTestTypeEnum]
+    selected_modules: list[ProgressTestTypeEnum]
+
+
+class DashboardActivityOut(BaseModel):
+    year: int
+    settings: DashboardActivitySettingsOut
+    summary: DashboardActivitySummaryOut
+    days: list[DashboardActivityDayOut]
+
+
+class DashboardStatsOut(BaseModel):
+    predicted_overall_band: Decimal
+    total_attempts: int
+    minutes_this_week: int
+    current_streak: int
+
+
+class DashboardAttemptOut(BaseModel):
+    id: int
+    title: str
+    test_date: datetime
+    test_type: ProgressTestTypeEnum
+    band_score: Decimal
+    time_taken_seconds: int | None
+
+
+class DashboardQuickLinkOut(BaseModel):
+    label: str
+    path: str
+    module: ProgressTestTypeEnum | None = None
+
+
+class DashboardQuickLinksOut(BaseModel):
+    items: list[DashboardQuickLinkOut]

@@ -15,3 +15,7 @@ Files:
 - `04-errors-and-pagination.md`: error contract and pagination contract.
 - `05-test-types.md`: all supported task types in reading/listening/writing.
 - `06-endpoints-map.md`: public/admin endpoint map for exam domain.
+
+See also:
+- `../ai/README.md` for AI summary generation/streaming after submit.
+- `../dashboard/README.md` for student dashboard widgets built on exam data.

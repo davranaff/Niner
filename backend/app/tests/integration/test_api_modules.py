@@ -1,4 +1,3 @@
-
 import pytest
 
 from app.db.models import Category, Lesson
@@ -21,7 +20,7 @@ async def _auth_headers(client, email: str) -> dict[str, str]:
 
 
 @pytest.mark.asyncio
-async def test_profile_progress_analytics_dashboard(client, db_session):
+async def test_profile_progress_analytics_and_dashboard_parts(client, db_session):
     headers = await _auth_headers(client, "profile@example.com")
 
     profile = await client.get("/api/v1/profile", headers=headers)
@@ -56,9 +55,21 @@ async def test_profile_progress_analytics_dashboard(client, db_session):
     assert analytics.status_code == 200
     assert analytics.json()["total_tests_taken"] == 1
 
-    dashboard = await client.get("/api/v1/dashboard", headers=headers)
-    assert dashboard.status_code == 200
-    assert dashboard.json()["analytics"]["total_tests_taken"] == 1
+    activity = await client.get("/api/v1/dashboard/activity", headers=headers)
+    assert activity.status_code == 200
+    assert "summary" in activity.json()
+
+    stats = await client.get("/api/v1/dashboard/stats", headers=headers)
+    assert stats.status_code == 200
+    assert stats.json()["total_attempts"] == 1
+
+    history = await client.get("/api/v1/dashboard/history", headers=headers)
+    assert history.status_code == 200
+    assert len(history.json()["items"]) == 1
+
+    quick_links = await client.get("/api/v1/dashboard/quick-links", headers=headers)
+    assert quick_links.status_code == 200
+    assert len(quick_links.json()["items"]) >= 1
 
 
 @pytest.mark.asyncio

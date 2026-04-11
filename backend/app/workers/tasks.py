@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+from datetime import UTC, datetime
 from decimal import ROUND_HALF_UP, Decimal
 from typing import Any
 
@@ -12,12 +13,15 @@ from sqlalchemy.orm import selectinload
 
 from app.core.config import settings
 from app.db.models import (
+    AiModuleSummary,
+    AiSummaryStatusEnum,
     ListeningQuestionBlock,
     ParseStatusEnum,
     ReadingQuestionBlock,
     WritingExamPart,
 )
 from app.db.session import SessionLocal
+from app.modules.ai_summary.services.generator import build_module_summary
 
 logger = logging.getLogger(__name__)
 
@@ -272,3 +276,61 @@ async def evaluate_writing_exam_part(ctx: dict, exam_part_id: int) -> None:
             exam_part.corrections = f"AI evaluation failed after retries: {exc}"
             await db.commit()
             logger.exception("Writing AI evaluation failed", extra={"exam_part_id": exam_part_id})
+
+
+async def generate_module_summary(ctx: dict, summary_id: int) -> None:
+    job_try = int(ctx.get("job_try", 1))
+
+    async with SessionLocal() as db:
+        summary = await db.get(AiModuleSummary, summary_id)
+        if summary is None:
+            logger.warning("AI summary generation skipped, summary not found", extra={"summary_id": summary_id})
+            return
+
+        if summary.status == AiSummaryStatusEnum.done:
+            return
+
+        summary.status = AiSummaryStatusEnum.running
+        summary.error_text = None
+        summary.started_at = summary.started_at or datetime.now(UTC)
+        summary.finished_at = None
+        summary.stream_text = ""
+        await db.commit()
+        await db.refresh(summary)
+
+        token_counter = 0
+
+        async def on_token(token: str) -> None:
+            nonlocal token_counter
+            token_counter += 1
+            summary.stream_text = f"{summary.stream_text or ''}{token}"
+            if token_counter % 8 == 0:
+                await db.commit()
+
+        try:
+            payload = await build_module_summary(
+                db,
+                user_id=summary.user_id,
+                module=summary.module,
+                attempts_limit=summary.attempts_limit,
+                lang=summary.lang,
+                on_token=on_token,
+            )
+
+            summary.result_json = payload
+            summary.result_text = str(payload.get("summary_text") or "")
+            summary.status = AiSummaryStatusEnum.done
+            summary.finished_at = datetime.now(UTC)
+            summary.error_text = None
+            await db.commit()
+        except Exception as exc:  # noqa: BLE001
+            summary.error_text = str(exc)
+            if job_try < 3:
+                summary.status = AiSummaryStatusEnum.pending
+                await db.commit()
+                raise Retry(defer=2**job_try) from exc
+
+            summary.status = AiSummaryStatusEnum.failed
+            summary.finished_at = datetime.now(UTC)
+            await db.commit()
+            logger.exception("AI summary generation failed", extra={"summary_id": summary_id})

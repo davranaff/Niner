@@ -48,6 +48,12 @@ Default demo users (exactly 3):
 - Base prefix: `/api/v1`
 - Swagger: `http://localhost:8000/docs`
 
+## Documentation
+- Docs index: `backend/docs/README.md`
+- Exams: `backend/docs/exams/README.md`
+- AI Summary + Teacher Binding + SSE: `backend/docs/ai/README.md`
+- Dashboard split endpoints: `backend/docs/dashboard/README.md`
+
 ## Auth
 - Access token: 15 min
 - Refresh token: 30 days

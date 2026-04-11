@@ -13,6 +13,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.security import hash_password
 from app.db.base import Base
 from app.db.models import (
+    AiModuleSummary,
+    AiSummaryModuleEnum,
+    AiSummarySourceEnum,
+    AiSummaryStatusEnum,
     Category,
     Lesson,
     ListeningPart,
@@ -29,6 +33,7 @@ from app.db.models import (
     ReadingQuestionOption,
     ReadingTest,
     RoleEnum,
+    TeacherStudentLink,
     User,
     UserAnalytics,
     UserProfile,
@@ -212,6 +217,57 @@ async def seed_progress(db: AsyncSession, users_by_email: dict[str, User]) -> No
                 correct_answers=row.get("correct_answers"),
                 total_questions=row.get("total_questions"),
                 time_taken_seconds=row.get("time_taken_seconds"),
+            )
+        )
+
+
+async def seed_teacher_student_links(db: AsyncSession, users_by_email: dict[str, User]) -> None:
+    payload = _load_fixture("teacher_students.yaml")
+    links = _ensure_list(payload, "links", "teacher_students.yaml")
+
+    for row in links:
+        teacher = _require_user(users_by_email, row["teacher_email"], "teacher_students.links")
+        student = _require_user(users_by_email, row["student_email"], "teacher_students.links")
+        db.add(
+            TeacherStudentLink(
+                teacher_id=teacher.id,
+                student_id=student.id,
+            )
+        )
+
+
+async def seed_ai_summaries(db: AsyncSession, users_by_email: dict[str, User]) -> None:
+    payload = _load_fixture("ai_summaries.yaml")
+    summaries = _ensure_list(payload, "summaries", "ai_summaries.yaml")
+
+    for row in summaries:
+        user = _require_user(users_by_email, row["email"], "ai_summaries.summaries")
+
+        trigger_user_id = None
+        trigger_email = row.get("trigger_email")
+        if trigger_email:
+            trigger_user_id = _require_user(
+                users_by_email,
+                trigger_email,
+                "ai_summaries.summaries",
+            ).id
+
+        db.add(
+            AiModuleSummary(
+                user_id=user.id,
+                module=AiSummaryModuleEnum(str(row["module"])),
+                source=AiSummarySourceEnum(str(row.get("source") or "manual")),
+                status=AiSummaryStatusEnum(str(row.get("status") or "pending")),
+                lang=str(row.get("lang") or "en"),
+                attempts_limit=int(row.get("attempts_limit") or 10),
+                exam_id=row.get("exam_id"),
+                trigger_user_id=trigger_user_id,
+                started_at=_to_datetime(row.get("started_at")),
+                finished_at=_to_datetime(row.get("finished_at")),
+                stream_text=row.get("stream_text"),
+                result_json=row.get("result_json"),
+                result_text=row.get("result_text"),
+                error_text=row.get("error_text"),
             )
         )
 
@@ -464,6 +520,8 @@ async def main() -> None:
             users_by_email = await seed_roles_and_users(db)
             await seed_profiles_and_analytics(db, users_by_email)
             await seed_progress(db, users_by_email)
+            await seed_teacher_student_links(db, users_by_email)
+            await seed_ai_summaries(db, users_by_email)
             await seed_lessons(db)
             await seed_exam_content(db)
             await db.commit()

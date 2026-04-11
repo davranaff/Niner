@@ -1,0 +1,40 @@
+summaries:
+  - email: student.demo@bandnine.uz
+    module: reading
+    source: manual
+    status: done
+    lang: en
+    attempts_limit: 10
+    trigger_email: teacher.demo@bandnine.uz
+    started_at: "2026-04-08T08:05:00Z"
+    finished_at: "2026-04-08T08:05:08Z"
+    stream_text: "You are improving in skimming, but inference questions still reduce your score."
+    result_text: "You are improving in skimming, but inference questions still reduce your score."
+    result_json:
+      summary_text: "You are improving in skimming, but inference questions still reduce your score."
+      timing_analysis:
+        overtime_seconds: 0
+      action_plan:
+        - "Train inference-heavy passages 20 minutes daily."
+        - "Review true/false/not given trap patterns."
+
+  - email: student.demo@bandnine.uz
+    module: listening
+    source: auto_submit
+    status: running
+    lang: en
+    attempts_limit: 10
+    trigger_email: student.demo@bandnine.uz
+    started_at: "2026-04-09T09:10:00Z"
+    stream_text: "Processing listening patterns..."
+
+  - email: student.demo@bandnine.uz
+    module: writing
+    source: auto_submit
+    status: failed
+    lang: en
+    attempts_limit: 10
+    trigger_email: student.demo@bandnine.uz
+    started_at: "2026-04-10T10:00:00Z"
+    finished_at: "2026-04-10T10:00:05Z"
+    error_text: "Model timeout while generating writing feedback."

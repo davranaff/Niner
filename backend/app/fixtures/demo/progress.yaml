@@ -1,44 +1,126 @@
 progress_entries:
+  # Student timeline for dashboard activity, streak, and module filtering demos.
   - email: student.demo@bandnine.uz
-    test_date: "2026-03-15T08:00:00Z"
+    test_date: "2026-01-04T08:10:00Z"
     test_type: reading
     band_score: 6.0
     correct_answers: 24
     total_questions: 40
-    time_taken_seconds: 3460
+    time_taken_seconds: 3520
 
   - email: student.demo@bandnine.uz
-    test_date: "2026-03-19T08:00:00Z"
+    test_date: "2026-01-11T08:20:00Z"
     test_type: listening
-    band_score: 6.5
-    correct_answers: 27
+    band_score: 6.0
+    correct_answers: 25
     total_questions: 40
     time_taken_seconds: 1710
 
   - email: student.demo@bandnine.uz
-    test_date: "2026-03-23T08:00:00Z"
+    test_date: "2026-01-18T08:15:00Z"
     test_type: writing
     band_score: 6.0
     correct_answers: null
     total_questions: null
-    time_taken_seconds: 3580
+    time_taken_seconds: 3490
 
   - email: student.demo@bandnine.uz
-    test_date: "2026-03-28T08:00:00Z"
+    test_date: "2026-01-25T08:10:00Z"
+    test_type: speaking
+    band_score: 6.0
+    correct_answers: null
+    total_questions: null
+    time_taken_seconds: 880
+
+  - email: student.demo@bandnine.uz
+    test_date: "2026-02-03T08:00:00Z"
     test_type: reading
     band_score: 6.5
     correct_answers: 28
     total_questions: 40
-    time_taken_seconds: 3520
+    time_taken_seconds: 3480
 
   - email: student.demo@bandnine.uz
-    test_date: "2026-04-02T08:00:00Z"
+    test_date: "2026-02-09T08:00:00Z"
+    test_type: listening
+    band_score: 6.5
+    correct_answers: 29
+    total_questions: 40
+    time_taken_seconds: 1730
+
+  - email: student.demo@bandnine.uz
+    test_date: "2026-02-15T08:00:00Z"
+    test_type: writing
+    band_score: 6.5
+    correct_answers: null
+    total_questions: null
+    time_taken_seconds: 3550
+
+  - email: student.demo@bandnine.uz
+    test_date: "2026-02-22T08:00:00Z"
+    test_type: speaking
+    band_score: 6.5
+    correct_answers: null
+    total_questions: null
+    time_taken_seconds: 910
+
+  - email: student.demo@bandnine.uz
+    test_date: "2026-03-03T08:00:00Z"
+    test_type: reading
+    band_score: 6.5
+    correct_answers: 29
+    total_questions: 40
+    time_taken_seconds: 3510
+
+  - email: student.demo@bandnine.uz
+    test_date: "2026-03-10T08:00:00Z"
     test_type: listening
     band_score: 7.0
     correct_answers: 31
     total_questions: 40
     time_taken_seconds: 1740
 
+  - email: student.demo@bandnine.uz
+    test_date: "2026-03-17T08:00:00Z"
+    test_type: writing
+    band_score: 6.5
+    correct_answers: null
+    total_questions: null
+    time_taken_seconds: 3590
+
+  - email: student.demo@bandnine.uz
+    test_date: "2026-03-24T08:00:00Z"
+    test_type: speaking
+    band_score: 6.5
+    correct_answers: null
+    total_questions: null
+    time_taken_seconds: 930
+
+  - email: student.demo@bandnine.uz
+    test_date: "2026-04-02T08:00:00Z"
+    test_type: reading
+    band_score: 7.0
+    correct_answers: 31
+    total_questions: 40
+    time_taken_seconds: 3460
+
+  - email: student.demo@bandnine.uz
+    test_date: "2026-04-06T08:00:00Z"
+    test_type: listening
+    band_score: 7.0
+    correct_answers: 32
+    total_questions: 40
+    time_taken_seconds: 1760
+
+  - email: student.demo@bandnine.uz
+    test_date: "2026-04-08T08:00:00Z"
+    test_type: writing
+    band_score: 6.5
+    correct_answers: null
+    total_questions: null
+    time_taken_seconds: 3600
+
+  # Teacher timeline
   - email: teacher.demo@bandnine.uz
     test_date: "2026-03-10T07:30:00Z"
     test_type: reading
@@ -63,6 +145,7 @@ progress_entries:
     total_questions: null
     time_taken_seconds: 3420
 
+  # Admin timeline
   - email: admin.demo@bandnine.uz
     test_date: "2026-03-12T06:45:00Z"
     test_type: reading
