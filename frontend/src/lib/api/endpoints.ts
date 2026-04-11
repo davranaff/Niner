@@ -6,6 +6,7 @@ export const API_ENDPOINTS = {
     signUp: `${API_V1}/auth/sign-up`,
     login: `${API_V1}/auth/login/`,
     signIn: `${API_V1}/auth/sign-in`,
+    confirm: `${API_V1}/auth/confirm`,
     refresh: `${API_V1}/auth/refresh`,
   },
   users: {

@@ -55,12 +55,25 @@ export default function JwtLoginView() {
       <Stack spacing={2} sx={{ mb: 5, position: 'relative' }}>
         <Typography variant="h4">{tx('auth.login.title')}</Typography>
 
-        <Stack direction="row" spacing={0.5}>
-          <Typography variant="body2">{tx('auth.login.new_user')}</Typography>
-
-          <Link component={RouterLink} href={paths.register} variant="subtitle2">
-            {tx('auth.login.create_account')}
-          </Link>
+        <Stack direction="row" spacing={1}>
+          <Button
+            component={RouterLink}
+            href={paths.login}
+            fullWidth
+            variant="contained"
+            color="inherit"
+          >
+            {tx('auth.shared.sign_in')}
+          </Button>
+          <Button
+            component={RouterLink}
+            href={paths.register}
+            fullWidth
+            variant="outlined"
+            color="inherit"
+          >
+            {tx('auth.shared.sign_up')}
+          </Button>
         </Stack>
       </Stack>
 

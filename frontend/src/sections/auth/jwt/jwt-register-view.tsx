@@ -3,8 +3,9 @@ import { useCallback, useState } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
-import Link from '@mui/material/Link';
+import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
+import MenuItem from '@mui/material/MenuItem';
 import Stack from '@mui/material/Stack';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
@@ -20,7 +21,7 @@ import { isTokenPairResponse, useRegisterMutation } from 'src/auth/api';
 import { useLocales } from 'src/locales';
 // components
 import Iconify from 'src/components/iconify';
-import FormProvider, { RHFTextField } from 'src/components/hook-form';
+import FormProvider, { RHFSelect, RHFTextField } from 'src/components/hook-form';
 import { getAuthFormErrorMessage } from 'src/utils/api-error-messages';
 import { createRegisterSchema } from './utils/auth-form-schemas';
 
@@ -30,6 +31,7 @@ type FormValuesProps = {
   firstName: string;
   lastName: string;
   email: string;
+  role: 'student' | 'teacher';
   password: string;
   passwordConfirm: string;
 };
@@ -49,6 +51,7 @@ export default function JwtRegisterView() {
       firstName: '',
       lastName: '',
       email: '',
+      role: 'student',
       password: '',
       passwordConfirm: '',
     },
@@ -66,13 +69,12 @@ export default function JwtRegisterView() {
         setErrorMsg('');
         setSuccessMsg('');
         const payload = await registerMutation.mutateAsync({
-          tenantName: 'IELTS Mock Platform',
           firstName: data.firstName.trim(),
           lastName: data.lastName.trim(),
           email: data.email,
+          role: data.role,
           password: data.password,
           passwordConfirm: data.passwordConfirm,
-          mockRole: 'student',
         });
         if (isTokenPairResponse(payload)) {
           window.location.href = returnTo || paths.afterLogin(payload.user.role);
@@ -91,12 +93,25 @@ export default function JwtRegisterView() {
       <Stack spacing={2} sx={{ mb: 5, position: 'relative' }}>
         <Typography variant="h4">{tx('auth.register.title')}</Typography>
 
-        <Stack direction="row" spacing={0.5}>
-          <Typography variant="body2">{tx('auth.register.have_account')}</Typography>
-
-          <Link href={paths.login} component={RouterLink} variant="subtitle2">
-            {tx('auth.register.sign_in')}
-          </Link>
+        <Stack direction="row" spacing={1}>
+          <Button
+            component={RouterLink}
+            href={paths.login}
+            fullWidth
+            variant="outlined"
+            color="inherit"
+          >
+            {tx('auth.shared.sign_in')}
+          </Button>
+          <Button
+            component={RouterLink}
+            href={paths.register}
+            fullWidth
+            variant="contained"
+            color="inherit"
+          >
+            {tx('auth.shared.sign_up')}
+          </Button>
         </Stack>
       </Stack>
 
@@ -119,6 +134,11 @@ export default function JwtRegisterView() {
           <RHFTextField name="lastName" label={tx('auth.shared.last_name')} />
 
           <RHFTextField name="email" label={tx('auth.shared.email')} />
+
+          <RHFSelect name="role" label={tx('auth.shared.role')}>
+            <MenuItem value="student">{tx('auth.shared.role_student')}</MenuItem>
+            <MenuItem value="teacher">{tx('auth.shared.role_teacher')}</MenuItem>
+          </RHFSelect>
 
           <RHFTextField
             name="password"

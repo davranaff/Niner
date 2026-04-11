@@ -47,7 +47,7 @@ export default function HeaderSimple() {
           }),
         }}
       >
-        <Logo />
+        <Logo variant="full" sx={{ width: 138, height: 'auto' }} />
 
         <Stack direction="row" alignItems="center" spacing={1}>
           <SettingsButton />

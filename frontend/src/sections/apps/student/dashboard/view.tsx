@@ -1,57 +1,119 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { alpha, useTheme } from '@mui/material/styles';
+import Avatar from '@mui/material/Avatar';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
-import Grid from '@mui/material/Grid';
 import Card from '@mui/material/Card';
+import Chip from '@mui/material/Chip';
+import Grid from '@mui/material/Grid';
+import LinearProgress from '@mui/material/LinearProgress';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-import { InsightListCard } from 'src/pages/components/apps';
+import Iconify from 'src/components/iconify';
+import { useAppUserProfile } from 'src/hooks/use-app-user-profile';
 import { useLocales } from 'src/locales';
-import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
+import { fDate } from 'src/utils/format-time';
+import { getModuleAttemptPath } from 'src/sections/apps/common/module-test/utils/module-meta';
 
-import { useStudentDashboardQuery } from 'src/sections/apps/common/api/use-apps';
-import { getModulePath } from 'src/sections/apps/common/module-test/utils/module-meta';
+import { ActivityHeatmap, DashboardHero, StatMiniCard } from './components';
+import type { DashboardModule, DashboardQuickLink } from './api/types';
 import {
-  ActivityHeatmap,
-  DashboardHero,
-  ModuleCard,
-  RecentActivityCard,
-  SkillsProgressCard,
-  StatMiniCard,
-} from './components';
+  useStudentDashboardActivityQuery,
+  useStudentDashboardHistoryQuery,
+  useStudentDashboardQuickLinksQuery,
+  useStudentDashboardStatsQuery,
+} from './api/use-student-dashboard-api';
 import { AppsDashboardSkeleton } from './skeleton';
 
-function dashboardModuleMeta(module: string) {
+type DashboardTranslate = (key: string, options?: Record<string, string | number>) => string;
+const DASHBOARD_MODULE_ORDER: DashboardModule[] = ['reading', 'listening', 'writing', 'speaking'];
+
+const MOCK_PLAN_SNAPSHOT = {
+  name: 'IELTS Focus Plus',
+  monthlyPrice: '$19',
+  attemptsUsed: 17,
+  attemptsLimit: 40,
+  renewalDate: new Date('2026-05-01T00:00:00.000Z').toISOString(),
+};
+
+type PaletteColorKey = 'primary' | 'info' | 'success' | 'warning';
+
+function moduleVisual(module: DashboardModule): { icon: string; colorKey: PaletteColorKey } {
   if (module === 'reading') {
-    return {
-      icon: 'solar:book-bold-duotone',
-      colorKey: 'primary' as const,
-    };
+    return { icon: 'solar:book-bold-duotone', colorKey: 'primary' };
   }
-
   if (module === 'listening') {
-    return {
-      icon: 'solar:headphones-round-bold-duotone',
-      colorKey: 'success' as const,
-    };
+    return { icon: 'solar:headphones-round-bold-duotone', colorKey: 'success' };
   }
-
   if (module === 'writing') {
-    return {
-      icon: 'solar:pen-bold-duotone',
-      colorKey: 'info' as const,
-    };
+    return { icon: 'solar:pen-bold-duotone', colorKey: 'info' };
+  }
+  return { icon: 'solar:microphone-3-bold-duotone', colorKey: 'warning' };
+}
+
+function quickLinkVisual(link: DashboardQuickLink) {
+  if (link.module) {
+    return moduleVisual(link.module);
+  }
+  return { icon: 'solar:user-rounded-bold-duotone', colorKey: 'primary' as const };
+}
+
+function bandChipColor(score: number): 'success' | 'info' | 'warning' | 'error' {
+  if (score >= 7) return 'success';
+  if (score >= 6) return 'info';
+  if (score >= 5) return 'warning';
+  return 'error';
+}
+
+function attemptResultPath(module: DashboardModule, attemptId: number): string | null {
+  if (module === 'speaking') {
+    return null;
+  }
+  return getModuleAttemptPath(module, String(attemptId));
+}
+
+function currentYear() {
+  return new Date().getFullYear();
+}
+
+function moduleLabel(module: DashboardModule, translate: DashboardTranslate) {
+  if (module === 'speaking') {
+    return translate('layout.nav.speaking');
   }
 
-  return {
-    icon: 'solar:microphone-3-bold-duotone',
-    colorKey: 'warning' as const,
-  };
+  return translate(`pages.ielts.${module}.title`);
+}
+
+function quickLinkLabel(link: DashboardQuickLink, translate: DashboardTranslate) {
+  if (link.module) {
+    if (link.module === 'speaking') {
+      return translate('layout.nav.speaking');
+    }
+
+    return translate(`layout.nav.${link.module}`);
+  }
+
+  if (link.path === '/dashboard/profile') {
+    return translate('layout.nav.profile');
+  }
+
+  return link.label;
 }
 
 export default function AppsDashboardView() {
+  const theme = useTheme();
   const { tx, currentLang } = useLocales();
-  const dashboardQuery = useStudentDashboardQuery();
+  const { user } = useAppUserProfile();
+  const [selectedYear, setSelectedYear] = useState<number>(currentYear);
+  const [selectedModules, setSelectedModules] = useState<DashboardModule[]>(DASHBOARD_MODULE_ORDER);
+
+  const statsQuery = useStudentDashboardStatsQuery();
+  const activityQuery = useStudentDashboardActivityQuery(selectedYear, selectedModules);
+  const historyQuery = useStudentDashboardHistoryQuery(4, 0);
+  const quickLinksQuery = useStudentDashboardQuickLinksQuery();
 
   const heatmapCopy = useMemo(
     () => ({
@@ -59,7 +121,6 @@ export default function AppsDashboardView() {
       settingsLabel: String(tx('pages.ielts.analytics.heatmap_settings')),
       less: String(tx('pages.ielts.analytics.heatmap_less')),
       more: String(tx('pages.ielts.analytics.heatmap_more')),
-      learn: String(tx('pages.ielts.analytics.heatmap_learn')),
       rowMon: String(tx('pages.ielts.analytics.heatmap_row_mon')),
       rowWed: String(tx('pages.ielts.analytics.heatmap_row_wed')),
       rowFri: String(tx('pages.ielts.analytics.heatmap_row_fri')),
@@ -70,54 +131,45 @@ export default function AppsDashboardView() {
     [tx]
   );
 
-  if (dashboardQuery.isLoading || !dashboardQuery.data) {
+  const loading =
+    statsQuery.isLoading ||
+    activityQuery.isLoading ||
+    historyQuery.isLoading ||
+    quickLinksQuery.isLoading;
+
+  if (
+    loading ||
+    !statsQuery.data ||
+    !activityQuery.data ||
+    !historyQuery.data ||
+    !quickLinksQuery.data
+  ) {
     return <AppsDashboardSkeleton />;
   }
 
-  const { data } = dashboardQuery;
-  const skillRows = [
-    {
-      key: 'reading',
-      label: tx('pages.ielts.reading.title'),
-      pct: Math.round((data.moduleBands.reading / 9) * 100),
-      barColor: '#2065D1',
-    },
-    {
-      key: 'listening',
-      label: tx('pages.ielts.listening.title'),
-      pct: Math.round((data.moduleBands.listening / 9) * 100),
-      barColor: '#00A76F',
-    },
-    {
-      key: 'writing',
-      label: tx('pages.ielts.writing.title'),
-      pct: Math.round((data.moduleBands.writing / 9) * 100),
-      barColor: '#FFA500',
-    },
-  ];
-
-  const activities = data.recentActivity.map(
-    (activity) => `${activity.title} · ${activity.description}`
+  const studentName = user.displayName || user.email || 'Student';
+  const isSelectedActivityLoaded = activityQuery.data.year === selectedYear && !activityQuery.isFetching;
+  const internalQuickLinks = quickLinksQuery.data.filter((item) => item.path.startsWith('/'));
+  const planProgress = Math.round(
+    (MOCK_PLAN_SNAPSHOT.attemptsUsed / MOCK_PLAN_SNAPSHOT.attemptsLimit) * 100
   );
+  const attemptsRemaining = Math.max(0, MOCK_PLAN_SNAPSHOT.attemptsLimit - MOCK_PLAN_SNAPSHOT.attemptsUsed);
 
   return (
     <Container maxWidth="lg">
       <DashboardHero
-        title={tx('pages.ielts.headline')}
+        title={tx('layout.nav.dashboard')}
         description={tx('pages.ielts.dashboard.subtitle', {
-          name: data.student.name,
-          band: data.estimatedOverallBand.toFixed(1),
+          name: studentName,
+          band: statsQuery.data.estimatedOverallBand.toFixed(1),
         })}
-        demoBadge={tx('pages.ielts.demo_badge')}
       />
-
-      <ActivityHeatmap lang={currentLang.value} copy={heatmapCopy} />
 
       <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid item xs={6} sm={3}>
           <StatMiniCard
             label={tx('pages.ielts.dashboard.estimated_band')}
-            value={data.estimatedOverallBand.toFixed(1)}
+            value={statsQuery.data.estimatedOverallBand.toFixed(1)}
             icon="solar:medal-ribbon-star-bold-duotone"
             colorKey="primary"
           />
@@ -125,7 +177,7 @@ export default function AppsDashboardView() {
         <Grid item xs={6} sm={3}>
           <StatMiniCard
             label={tx('pages.ielts.dashboard.total_attempts')}
-            value={String(data.totalAttempts)}
+            value={String(statsQuery.data.totalAttempts)}
             icon="solar:clipboard-list-bold-duotone"
             colorKey="info"
           />
@@ -133,7 +185,7 @@ export default function AppsDashboardView() {
         <Grid item xs={6} sm={3}>
           <StatMiniCard
             label={tx('pages.ielts.dashboard.study_minutes')}
-            value={String(data.weeklyStudyMinutes)}
+            value={String(statsQuery.data.weeklyStudyMinutes)}
             icon="solar:clock-circle-bold-duotone"
             colorKey="success"
           />
@@ -141,119 +193,105 @@ export default function AppsDashboardView() {
         <Grid item xs={6} sm={3}>
           <StatMiniCard
             label={tx('pages.ielts.dashboard.streak')}
-            value={String(data.currentStreak)}
+            value={String(statsQuery.data.currentStreak)}
             icon="solar:fire-bold-duotone"
             colorKey="warning"
           />
         </Grid>
       </Grid>
 
-      <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} md={7}>
-          <SkillsProgressCard title={tx('pages.ielts.analytics.skills_title')} rows={skillRows} />
-        </Grid>
-        <Grid item xs={12} md={5}>
-          <RecentActivityCard
-            title={tx('pages.ielts.analytics.activity_title')}
-            lines={activities}
-          />
-        </Grid>
-      </Grid>
+      <ActivityHeatmap
+        lang={currentLang.value}
+        year={selectedYear}
+        availableYears={activityQuery.data.availableYears}
+        availableModules={
+          activityQuery.data.availableModules.length
+            ? activityQuery.data.availableModules
+            : DASHBOARD_MODULE_ORDER
+        }
+        selectedModules={selectedModules}
+        onModulesChange={setSelectedModules}
+        allModulesLabel={tx('pages.ielts.shared.all_modules')}
+        moduleLabel={(module) => moduleLabel(module, tx)}
+        practiceDays={isSelectedActivityLoaded ? activityQuery.data.practiceDays : 0}
+        days={isSelectedActivityLoaded ? activityQuery.data.days : []}
+        onYearChange={setSelectedYear}
+        copy={heatmapCopy}
+      />
 
       <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} md={6}>
-          <InsightListCard
-            title={tx('pages.ielts.dashboard.recommended_next')}
-            items={[data.recommendedNextStep]}
-            emptyLabel="-"
-          />
-        </Grid>
-        <Grid item xs={12} md={3}>
-          <InsightListCard
-            title={tx('pages.ielts.dashboard.strongest_area')}
-            items={[tx(`pages.ielts.${data.strongestArea}.title`)]}
-            emptyLabel="-"
-          />
-        </Grid>
-        <Grid item xs={12} md={3}>
-          <InsightListCard
-            title={tx('pages.ielts.dashboard.weakest_area')}
-            items={[tx(`pages.ielts.${data.weakestArea}.title`)]}
-            emptyLabel="-"
-          />
-        </Grid>
-      </Grid>
+        <Grid item xs={12}>
+          <Card
+            variant="outlined"
+            sx={{
+              p: 3,
+              height: 1,
+              borderColor: alpha(theme.palette.info.main, 0.22),
+              bgcolor: alpha(theme.palette.info.main, 0.04),
+            }}
+          >
+            <Stack spacing={2}>
+              <Stack
+                direction={{ xs: 'column', sm: 'row' }}
+                alignItems={{ xs: 'flex-start', sm: 'center' }}
+                justifyContent="space-between"
+                spacing={1}
+              >
+                <Stack spacing={0.5}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                    {tx('pages.ielts.dashboard.plan_title')}
+                  </Typography>
+                  <Typography variant="h6">{MOCK_PLAN_SNAPSHOT.name}</Typography>
+                </Stack>
 
-      <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} md={8}>
-          <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 700 }}>
-            {tx('pages.ielts.modules_title')}
-          </Typography>
-          <Grid container spacing={3}>
-            {data.moduleCards.map((item) => (
-              <Grid key={item.module} item xs={12} md={6}>
-                {(() => {
-                  const meta = dashboardModuleMeta(item.module);
-                  let title = tx('layout.nav.speaking');
-                  let description = tx('pages.ielts.dashboard.speaking_coming_soon');
-                  let badgeLabel = tx('pages.ielts.shared.status_not_started');
+                <Typography variant="h6">{MOCK_PLAN_SNAPSHOT.monthlyPrice}</Typography>
+              </Stack>
 
-                  if (item.module !== 'speaking') {
-                    title = tx(`pages.ielts.${item.module}.title`);
-                    description = tx(`pages.ielts.${item.module}.description`);
-                  }
+              <Box>
+                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 0.75 }}>
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    {tx('pages.ielts.dashboard.plan_attempts', {
+                      used: MOCK_PLAN_SNAPSHOT.attemptsUsed,
+                      limit: MOCK_PLAN_SNAPSHOT.attemptsLimit,
+                    })}
+                  </Typography>
+                  <Chip
+                    size="small"
+                    color="success"
+                    label={`${attemptsRemaining} ${tx('pages.ielts.shared.attempts')}`}
+                    variant="outlined"
+                  />
+                </Stack>
+                <LinearProgress
+                  variant="determinate"
+                  value={planProgress}
+                  color="info"
+                  sx={{ height: 8, borderRadius: 999 }}
+                />
+              </Box>
 
-                  if (item.status === 'coming_soon') {
-                    badgeLabel = tx('layout.nav.speaking_caption');
-                  } else if (item.bestBand) {
-                    badgeLabel = `${tx('pages.ielts.dashboard.best')} ${item.bestBand.toFixed(1)}`;
-                  }
+              <Stack
+                direction={{ xs: 'column', sm: 'row' }}
+                alignItems={{ xs: 'flex-start', sm: 'center' }}
+                justifyContent="space-between"
+                spacing={1}
+              >
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                  {tx('pages.ielts.dashboard.plan_renewal', {
+                    date: fDate(MOCK_PLAN_SNAPSHOT.renewalDate),
+                  })}
+                </Typography>
+                <Button
+                  size="small"
+                  color="inherit"
+                  variant="outlined"
+                  startIcon={<Iconify icon="solar:wallet-money-bold-duotone" width={16} />}
+                  sx={{ textTransform: 'none' }}
+                >
+                  {tx('pages.ielts.shared.details')}
+                </Button>
+              </Stack>
 
-                  return (
-                    <ModuleCard
-                      title={title}
-                      description={description}
-                      icon={meta.icon}
-                      colorKey={meta.colorKey}
-                      href={item.module === 'speaking' ? undefined : getModulePath(item.module)}
-                      actionLabel={
-                        item.module === 'speaking'
-                          ? undefined
-                          : tx('pages.ielts.shared.open_module')
-                      }
-                      badgeLabel={badgeLabel}
-                      disabled={item.status === 'coming_soon'}
-                    />
-                  );
-                })()}
-              </Grid>
-            ))}
-          </Grid>
-        </Grid>
-
-        <Grid item xs={12} md={4}>
-          <Card variant="outlined" sx={{ p: 3, height: 1 }}>
-            <Stack spacing={1.5}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-                {tx('pages.ielts.dashboard.plan_title')}
-              </Typography>
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {data.planSnapshot.name}
-              </Typography>
-              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                {tx('pages.ielts.dashboard.plan_attempts', {
-                  used: data.planSnapshot.attemptsUsed,
-                  limit: data.planSnapshot.attemptsLimit,
-                })}
-              </Typography>
-              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                {tx('pages.ielts.dashboard.plan_renewal', {
-                  date: new Date(data.planSnapshot.renewalDate).toLocaleDateString(),
-                })}
-              </Typography>
-              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                {tx('pages.ielts.dashboard.plan_cta')}
-              </Typography>
             </Stack>
           </Card>
         </Grid>
@@ -262,60 +300,193 @@ export default function AppsDashboardView() {
       <Grid container spacing={3}>
         <Grid item xs={12} md={7}>
           <Card variant="outlined" sx={{ p: 3 }}>
-            <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 700 }}>
-              {tx('pages.ielts.dashboard.recent_attempts')}
-            </Typography>
+            <Stack
+              direction="row"
+              alignItems="center"
+              justifyContent="space-between"
+              sx={{ mb: 2 }}
+            >
+              <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                {tx('pages.ielts.dashboard.recent_attempts')}
+              </Typography>
+              <Chip size="small" label={historyQuery.data.length} variant="outlined" />
+            </Stack>
             <Stack spacing={1.5}>
-              {data.recentAttempts.map((item) => (
-                <Card key={item.attempt.id} variant="outlined" sx={{ p: 2.5 }}>
-                  <Stack
-                    direction={{ xs: 'column', sm: 'row' }}
-                    spacing={1}
-                    justifyContent="space-between"
-                    alignItems={{ xs: 'flex-start', sm: 'center' }}
-                  >
-                    <Stack spacing={0.5}>
-                      <Typography variant="subtitle2">{item.test.title}</Typography>
-                      <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                        {tx(`pages.ielts.${item.attempt.module}.title`)} ·{' '}
-                        {new Date(item.attempt.updatedAt).toLocaleDateString()}
-                      </Typography>
-                    </Stack>
+              {historyQuery.data.length ? (
+                historyQuery.data.map((item) => {
+                  const attemptVisual = moduleVisual(item.testType);
+                  const resultPath = attemptResultPath(item.testType, item.id);
 
-                    <Typography variant="subtitle2">
-                      {item.result
-                        ? item.result.estimatedBand.toFixed(1)
-                        : tx('pages.ielts.shared.status_in_progress')}
-                    </Typography>
-                  </Stack>
-                </Card>
-              ))}
+                  return (
+                    <Box
+                      key={item.id}
+                      sx={{
+                        p: 1.75,
+                        borderRadius: 2,
+                        bgcolor: alpha(theme.palette.background.neutral, 0.2),
+                      }}
+                    >
+                      <Stack
+                        direction="row"
+                        spacing={1.5}
+                        justifyContent="space-between"
+                        alignItems="center"
+                      >
+                        <Stack direction="row" spacing={1.25} alignItems="center" sx={{ minWidth: 0 }}>
+                          <Avatar
+                            sx={{
+                              width: 36,
+                              height: 36,
+                              bgcolor: alpha(theme.palette[attemptVisual.colorKey].main, 0.14),
+                              color: `${attemptVisual.colorKey}.main`,
+                            }}
+                          >
+                            <Iconify icon={attemptVisual.icon} width={18} />
+                          </Avatar>
+
+                          <Stack spacing={0.5} sx={{ minWidth: 0 }}>
+                            <Typography variant="subtitle2" noWrap>
+                              {item.title}
+                            </Typography>
+
+                            <Stack direction="row" spacing={0.75} alignItems="center" flexWrap="wrap">
+                              <Chip
+                                size="small"
+                                label={moduleLabel(item.testType, tx)}
+                                variant="outlined"
+                                sx={{ height: 22 }}
+                              />
+                              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                                {fDate(item.testDate)}
+                              </Typography>
+                              {item.timeTakenSeconds > 0 ? (
+                                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                                  {`${tx('pages.ielts.shared.time_spent')}: ${Math.round(
+                                    item.timeTakenSeconds / 60
+                                  )}m`}
+                                </Typography>
+                              ) : null}
+                            </Stack>
+                          </Stack>
+                        </Stack>
+
+                        <Stack spacing={0.5} alignItems="flex-end">
+                          <Chip
+                            label={item.bandScore.toFixed(1)}
+                            color={bandChipColor(item.bandScore)}
+                            sx={{ minWidth: 56, fontWeight: 700 }}
+                          />
+                          {resultPath ? (
+                            <Button
+                              component={RouterLink}
+                              href={resultPath}
+                              color="inherit"
+                              size="small"
+                              sx={{ textTransform: 'none', minWidth: 0, px: 0.5 }}
+                            >
+                              {tx('pages.ielts.shared.open_result')}
+                            </Button>
+                          ) : null}
+                        </Stack>
+                      </Stack>
+                    </Box>
+                  );
+                })
+              ) : (
+                <Stack spacing={1} alignItems="center" sx={{ py: 2 }}>
+                  <Avatar
+                    sx={{
+                      bgcolor: alpha(theme.palette.info.main, 0.12),
+                      color: 'info.main',
+                    }}
+                  >
+                    <Iconify icon="solar:clipboard-list-bold-duotone" width={20} />
+                  </Avatar>
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    {tx('pages.ielts.dashboard.empty_attempts')}
+                  </Typography>
+                </Stack>
+              )}
             </Stack>
           </Card>
         </Grid>
 
         <Grid item xs={12} md={5}>
           <Card variant="outlined" sx={{ p: 3 }}>
-            <Stack spacing={1.5}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-                {tx('pages.ielts.dashboard.quick_links')}
-              </Typography>
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {tx('pages.ielts.dashboard.quick_links_description')}
-              </Typography>
-              <Stack spacing={1}>
-                <Typography variant="body2">{`• ${tx('layout.nav.reading')} → ${
-                  paths.ielts.reading
-                }`}</Typography>
-                <Typography variant="body2">{`• ${tx('layout.nav.listening')} → ${
-                  paths.ielts.listening
-                }`}</Typography>
-                <Typography variant="body2">{`• ${tx('layout.nav.writing')} → ${
-                  paths.ielts.writing
-                }`}</Typography>
-                <Typography variant="body2">{`• ${tx('layout.nav.profile')} → ${
-                  paths.ielts.profile
-                }`}</Typography>
+            <Stack spacing={1.5} sx={{ height: 1 }}>
+              <Stack direction="row" alignItems="center" justifyContent="space-between">
+                <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                  {tx('pages.ielts.dashboard.quick_links')}
+                </Typography>
+                <Chip size="small" label={internalQuickLinks.length} variant="outlined" />
+              </Stack>
+              <Stack spacing={1.25}>
+                {internalQuickLinks.length ? (
+                  internalQuickLinks.map((item) => {
+                    const linkVisual = quickLinkVisual(item);
+
+                    return (
+                      <Button
+                        key={`${item.path}-${item.label}`}
+                        component={RouterLink}
+                        href={item.path}
+                        color="inherit"
+                        sx={{
+                          width: 1,
+                          borderRadius: 2,
+                          p: 1.5,
+                          textTransform: 'none',
+                          justifyContent: 'space-between',
+                          border: `1px solid ${alpha(theme.palette[linkVisual.colorKey].main, 0.2)}`,
+                          bgcolor: alpha(theme.palette[linkVisual.colorKey].main, 0.05),
+                          transition: theme.transitions.create(['transform', 'background-color'], {
+                            duration: theme.transitions.duration.shorter,
+                          }),
+                          '&:hover': {
+                            transform: 'translateY(-1px)',
+                            bgcolor: alpha(theme.palette[linkVisual.colorKey].main, 0.1),
+                          },
+                        }}
+                      >
+                        <Stack direction="row" spacing={1.25} alignItems="center" sx={{ minWidth: 0 }}>
+                          <Avatar
+                            sx={{
+                              width: 34,
+                              height: 34,
+                              bgcolor: alpha(theme.palette[linkVisual.colorKey].main, 0.14),
+                              color: `${linkVisual.colorKey}.main`,
+                            }}
+                          >
+                            <Iconify icon={linkVisual.icon} width={18} />
+                          </Avatar>
+                          <Stack spacing={0.25} sx={{ minWidth: 0, textAlign: 'left' }}>
+                            <Typography variant="subtitle2" noWrap>
+                              {quickLinkLabel(item, tx)}
+                            </Typography>
+                            <Typography variant="caption" sx={{ color: 'text.secondary' }} noWrap>
+                              {item.path}
+                            </Typography>
+                          </Stack>
+                        </Stack>
+                        <Iconify icon="solar:alt-arrow-right-linear" width={16} />
+                      </Button>
+                    );
+                  })
+                ) : (
+                  <Stack spacing={1} alignItems="center" sx={{ py: 2 }}>
+                    <Avatar
+                      sx={{
+                        bgcolor: alpha(theme.palette.primary.main, 0.12),
+                        color: 'primary.main',
+                      }}
+                    >
+                      <Iconify icon="solar:link-round-angle-bold-duotone" width={20} />
+                    </Avatar>
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                      {tx('pages.ielts.dashboard.empty_quick_links')}
+                    </Typography>
+                  </Stack>
+                )}
               </Stack>
             </Stack>
           </Card>

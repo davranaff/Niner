@@ -4,6 +4,7 @@ import { AUTH_URLS } from './urls';
 import type {
   BackendAuthResponse,
   BackendAuthUser,
+  ConfirmRequest,
   LoginRequest,
   RegisterRequest,
   SignUpResponse,
@@ -53,10 +54,26 @@ export async function fetchRegister(data: RegisterRequest): Promise<SignUpRespon
         lastName: data.lastName,
         email: data.email,
         password: data.password,
+        role: data.role,
       },
     },
     true
   );
+}
+
+export async function fetchConfirm(data: string | ConfirmRequest): Promise<TokenPairResponse> {
+  const token = typeof data === 'string' ? data : data.token;
+
+  const payload = await request<BackendAuthResponse>(
+    {
+      method: 'POST',
+      url: AUTH_URLS.confirm,
+      data: { token },
+    },
+    true
+  );
+
+  return normalizeAuthResponse(payload);
 }
 
 export async function fetchCurrentUser(): Promise<{ user: TenantUser }> {

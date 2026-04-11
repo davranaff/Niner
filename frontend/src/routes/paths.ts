@@ -5,6 +5,8 @@ import type { UserRole } from 'src/auth/api/types'
 export const paths = {
   login: '/login',
   register: '/register',
+  confirm: '/confirm',
+  confirmToken: (token: string) => `/confirm/${token}`,
 
   dashboard: '/dashboard',
 
@@ -52,6 +54,8 @@ export const paths = {
     jwt: {
       login: '/login',
       register: '/register',
+      confirm: '/confirm',
+      confirmToken: (token: string) => `/confirm/${token}`,
     },
   },
 }

@@ -4,6 +4,7 @@ import { API_ENDPOINTS } from 'src/lib/api/endpoints';
 export const AUTH_URLS = {
   login: API_ENDPOINTS.auth.signIn,
   signUp: API_ENDPOINTS.auth.signUp,
+  confirm: API_ENDPOINTS.auth.confirm,
   refresh: API_ENDPOINTS.auth.refresh,
   me: API_ENDPOINTS.users.me,
 } as const;

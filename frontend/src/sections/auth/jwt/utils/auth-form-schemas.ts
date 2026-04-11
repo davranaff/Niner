@@ -20,6 +20,9 @@ export function createRegisterSchema(tx: Translate) {
     email: Yup.string()
       .required(tx('auth.validation.email_required'))
       .email(tx('auth.validation.email_invalid')),
+    role: Yup.string()
+      .oneOf(['student', 'teacher'])
+      .required(tx('auth.validation.role_required')),
     password: Yup.string()
       .required(tx('auth.validation.password_required'))
       .min(8, tx('auth.validation.password_min', { count: 8 })),

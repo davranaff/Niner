@@ -117,7 +117,7 @@ export function createMockAuthResponseFromRegister(data: RegisterRequest): Token
     email: data.email,
     firstName: data.firstName,
     lastName: data.lastName,
-    role: 'student',
+    role: data.role,
   });
 
   return { access, refresh: '', user };

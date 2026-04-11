@@ -4,15 +4,20 @@
   },
   "auth": {
     "shared": {
+      "sign_in": "Login",
+      "sign_up": "Sign up",
       "email": "Email address",
       "password": "Password",
       "confirm_password": "Confirm password",
       "full_name": "Full name",
       "first_name": "First name",
-      "last_name": "Last name"
+      "last_name": "Last name",
+      "role": "I am",
+      "role_student": "Student",
+      "role_teacher": "Teacher"
     },
     "login": {
-      "title": "Sign in to your IELTS workspace",
+      "title": "Sign in",
       "new_user": "New user?",
       "create_account": "Create an account",
       "demo_hint": "Use one of the demo entries below or sign in manually with the mock credentials.",
@@ -23,12 +28,22 @@
       "demo_credentials": "Student demo: student@ieltsmock.dev / demo1234. Teacher demo: teacher@ieltsmock.dev / demo1234."
     },
     "register": {
-      "title": "Create your IELTS mock account",
+      "title": "Create your account",
       "have_account": "Already have an account?",
       "sign_in": "Sign in",
       "submit": "Create account",
-      "terms": "By signing up you agree to the demo Terms of Service and Privacy Policy.",
+      "terms": "By signing up you agree to the Terms of Service and Privacy Policy.",
       "success_check_email": "We sent a confirmation link to your email. Open it to activate your account, then sign in."
+    },
+    "confirm": {
+      "title": "Confirm account",
+      "loading": "We are confirming your account...",
+      "success": "Account confirmed successfully.",
+      "redirecting": "Redirecting to your dashboard...",
+      "invalid": "Confirmation link is invalid.",
+      "expired": "Confirmation link is expired or already used.",
+      "generic_error": "Unable to confirm account. Please try again later.",
+      "go_to_login": "Go to login"
     },
     "validation": {
       "email_required": "Email is required",
@@ -38,13 +53,14 @@
       "full_name_required": "Full name is required",
       "first_name_required": "First name is required",
       "last_name_required": "Last name is required",
+      "role_required": "Choose your role",
       "password_min": "Password must be at least {{count}} characters",
       "passwords_match": "Passwords must match"
     }
   },
   "layout": {
     "nav": {
-      "group": "IELTS mock platform",
+      "group": "Band 9.0",
       "dashboard": "Dashboard",
       "reading": "Reading",
       "listening": "Listening",
@@ -60,8 +76,8 @@
   },
   "pages": {
     "ielts": {
-      "document_title": "IELTS mock platform",
-      "headline": "IELTS mock platform",
+      "document_title": "Band 9.0",
+      "headline": "Band 9.0",
       "subtitle": "Reading, Writing and Listening practice with analytics-ready review.",
       "demo_badge": "Mock MVP",
       "modules_title": "Modules",
@@ -78,10 +94,12 @@
         "plan_title": "Plan snapshot",
         "plan_attempts": "{{used}} of {{limit}} attempts used",
         "plan_renewal": "Renewal placeholder: {{date}}",
+        "plan_unavailable": "Current plan data is not available from the API yet.",
         "plan_cta": "Billing and renewals will connect once backend subscriptions are ready.",
         "recent_attempts": "Recent attempts",
+        "empty_attempts": "No attempts yet.",
         "quick_links": "Quick links",
-        "quick_links_description": "Student essentials inside the MVP shell.",
+        "empty_quick_links": "Quick links are not available yet.",
         "best": "Best"
       },
       "reading": {

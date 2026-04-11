@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from 'src/auth/hooks/use-auth-context';
 import { useMutate } from 'src/hooks/api';
 
-import { fetchLogin, fetchRegister } from './auth-requests';
+import { fetchConfirm, fetchLogin, fetchRegister } from './auth-requests';
 import {
   createMockAuthResponseFromLogin,
   createMockAuthResponseFromRegister,
@@ -11,6 +11,7 @@ import {
   isJwtSignInMock,
 } from '../context/jwt/mock-auth';
 import {
+  type ConfirmRequest,
   type LoginRequest,
   type RegisterMutationResult,
   type RegisterRequest,
@@ -59,6 +60,22 @@ export function useRegisterMutation() {
           syncSessionFromApiResponse(payload);
           queryClient.invalidateQueries();
         }
+      },
+    }
+  );
+}
+
+export function useConfirmMutation() {
+  const { syncSessionFromApiResponse } = useAuthContext();
+  const queryClient = useQueryClient();
+
+  return useMutate<TokenPairResponse, string | ConfirmRequest>(
+    async (data) => fetchConfirm(data),
+    {
+      skipGlobalErrorNotification: true,
+      onSuccess: (payload) => {
+        syncSessionFromApiResponse(payload);
+        queryClient.invalidateQueries();
       },
     }
   );

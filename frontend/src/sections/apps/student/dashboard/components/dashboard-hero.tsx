@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography';
 type DashboardHeroProps = {
   title: string;
   description: string;
-  demoBadge: string;
+  demoBadge?: string;
 };
 
 export function DashboardHero({ title, description, demoBadge }: DashboardHeroProps) {
@@ -18,7 +18,9 @@ export function DashboardHero({ title, description, demoBadge }: DashboardHeroPr
         <Typography variant="h4" component="h1">
           {title}
         </Typography>
-        <Chip label={demoBadge} size="small" color="default" variant="soft" sx={{ height: 26 }} />
+        {demoBadge ? (
+          <Chip label={demoBadge} size="small" color="default" variant="soft" sx={{ height: 26 }} />
+        ) : null}
       </Stack>
       <Typography variant="body2" sx={{ color: 'text.secondary', maxWidth: 720 }}>
         {description}

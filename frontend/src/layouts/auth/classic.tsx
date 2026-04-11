@@ -15,19 +15,30 @@ import Logo from 'src/components/logo';
 type Props = {
   title?: string;
   image?: string;
+  whiteBackground?: boolean;
+  centerContent?: boolean;
   children: React.ReactNode;
 };
 
-export default function AuthClassicLayout({ children, image, title }: Props) {
+export default function AuthClassicLayout({
+  children,
+  image,
+  title,
+  whiteBackground = false,
+  centerContent = false,
+}: Props) {
   const theme = useTheme();
 
   const upMd = useResponsive('up', 'md');
 
   const renderLogo = (
     <Logo
+      variant="full"
       sx={{
         zIndex: 9,
         position: 'absolute',
+        width: { xs: 120, md: 168 },
+        height: 'auto',
         m: { xs: 2, md: 5 },
       }}
     />
@@ -36,11 +47,13 @@ export default function AuthClassicLayout({ children, image, title }: Props) {
   const renderContent = (
     <Stack
       sx={{
+        flexGrow: 1,
         width: 1,
         mx: 'auto',
         maxWidth: 480,
         px: { xs: 2, md: 8 },
-        py: { xs: 15, md: 30 },
+        py: centerContent ? { xs: 6, md: 8 } : { xs: 15, md: 30 },
+        justifyContent: centerContent ? 'center' : 'flex-start',
       }}
     >
       {children}
@@ -54,17 +67,21 @@ export default function AuthClassicLayout({ children, image, title }: Props) {
       justifyContent="center"
       spacing={10}
       sx={{
-        ...bgGradient({
-          color: alpha(
-            theme.palette.background.default,
-            theme.palette.mode === 'light' ? 0.88 : 0.94
-          ),
-          imgUrl: '/assets/background/overlay_2.jpg',
-        }),
+        ...(whiteBackground
+          ? {
+              backgroundColor: theme.palette.common.white,
+            }
+          : bgGradient({
+              color: alpha(
+                theme.palette.background.default,
+                theme.palette.mode === 'light' ? 0.88 : 0.94
+              ),
+              imgUrl: '/assets/background/overlay_2.jpg',
+            })),
       }}
     >
       <Typography variant="h3" sx={{ maxWidth: 480, textAlign: 'center' }}>
-        {title || 'Hi, Welcome back'}
+        {title}
       </Typography>
 
       <Box
@@ -82,6 +99,7 @@ export default function AuthClassicLayout({ children, image, title }: Props) {
       direction="row"
       sx={{
         minHeight: '100vh',
+        backgroundColor: whiteBackground ? theme.palette.common.white : 'transparent',
       }}
     >
       {renderLogo}

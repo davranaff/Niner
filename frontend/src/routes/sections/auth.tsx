@@ -8,6 +8,8 @@ import AuthClassicLayout from 'src/layouts/auth/classic';
 
 const JwtLoginPage = lazy(() => import('src/pages/auth/jwt/login'));
 const JwtRegisterPage = lazy(() => import('src/pages/auth/jwt/register'));
+const JwtConfirmPage = lazy(() => import('src/pages/auth/jwt/confirm'));
+const AUTH_HERO_IMAGE = '/assets/band-nine-hero.png';
 
 // ----------------------------------------------------------------------
 
@@ -16,7 +18,7 @@ export const authRoutes = [
     path: 'login',
     element: (
       <GuestGuard>
-        <AuthClassicLayout>
+        <AuthClassicLayout image={AUTH_HERO_IMAGE} whiteBackground centerContent>
           <JwtLoginPage />
         </AuthClassicLayout>
       </GuestGuard>
@@ -26,10 +28,18 @@ export const authRoutes = [
     path: 'register',
     element: (
       <GuestGuard>
-        <AuthClassicLayout title="Create your store">
+        <AuthClassicLayout image={AUTH_HERO_IMAGE} whiteBackground centerContent>
           <JwtRegisterPage />
         </AuthClassicLayout>
       </GuestGuard>
+    ),
+  },
+  {
+    path: 'confirm/:token',
+    element: (
+      <AuthClassicLayout>
+        <JwtConfirmPage />
+      </AuthClassicLayout>
     ),
   },
 ];

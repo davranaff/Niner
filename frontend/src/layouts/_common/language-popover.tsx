@@ -25,6 +25,10 @@ export default function LanguagePopover() {
     [locales, popover]
   );
 
+  if (locales.allLangs.length <= 1) {
+    return null;
+  }
+
   return (
     <>
       <IconButton

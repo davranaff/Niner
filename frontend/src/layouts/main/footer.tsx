@@ -60,7 +60,7 @@ export default function Footer() {
           textAlign: { xs: 'center', md: 'unset' },
         }}
       >
-        <Logo sx={{ mb: 3 }} />
+        <Logo variant="full" sx={{ mb: 3, width: 168, height: 'auto' }} />
 
         <Grid
           container

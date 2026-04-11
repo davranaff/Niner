@@ -4,15 +4,20 @@
   },
   "auth": {
     "shared": {
+      "sign_in": "Войти",
+      "sign_up": "Регистрация",
       "email": "Email",
       "password": "Пароль",
       "confirm_password": "Подтвердите пароль",
       "full_name": "Полное имя",
       "first_name": "Имя",
-      "last_name": "Фамилия"
+      "last_name": "Фамилия",
+      "role": "Я",
+      "role_student": "Студент",
+      "role_teacher": "Преподаватель"
     },
     "login": {
-      "title": "Вход в IELTS workspace",
+      "title": "Вход",
       "new_user": "Новый пользователь?",
       "create_account": "Создать аккаунт",
       "demo_hint": "Ниже доступны демо-входы для обеих ролей или можно войти вручную с mock-данными.",
@@ -23,12 +28,22 @@
       "demo_credentials": "Student demo: student@ieltsmock.dev / demo1234. Teacher demo: teacher@ieltsmock.dev / demo1234."
     },
     "register": {
-      "title": "Создать IELTS аккаунт",
+      "title": "Создать аккаунт",
       "have_account": "Уже есть аккаунт?",
       "sign_in": "Войти",
       "submit": "Создать аккаунт",
-      "terms": "Регистрируясь, вы соглашаетесь с демо Terms of Service и Privacy Policy.",
+      "terms": "Регистрируясь, вы соглашаетесь с Terms of Service и Privacy Policy.",
       "success_check_email": "Мы отправили ссылку для подтверждения на ваш email. Перейдите по ней, чтобы активировать аккаунт, затем войдите."
+    },
+    "confirm": {
+      "title": "Подтверждение аккаунта",
+      "loading": "Подтверждаем ваш аккаунт...",
+      "success": "Аккаунт успешно подтверждён.",
+      "redirecting": "Перенаправляем в ваш dashboard...",
+      "invalid": "Ссылка подтверждения недействительна.",
+      "expired": "Срок действия ссылки истёк или она уже использована.",
+      "generic_error": "Не удалось подтвердить аккаунт. Попробуйте позже.",
+      "go_to_login": "Перейти ко входу"
     },
     "validation": {
       "email_required": "Email обязателен",
@@ -38,13 +53,14 @@
       "full_name_required": "Полное имя обязательно",
       "first_name_required": "Имя обязательно",
       "last_name_required": "Фамилия обязательна",
+      "role_required": "Выберите роль",
       "password_min": "Пароль должен содержать минимум {{count}} символов",
       "passwords_match": "Пароли должны совпадать"
     }
   },
   "layout": {
     "nav": {
-      "group": "IELTS mock platform",
+      "group": "Band 9.0",
       "dashboard": "Dashboard",
       "reading": "Reading",
       "listening": "Listening",
@@ -60,8 +76,8 @@
   },
   "pages": {
     "ielts": {
-      "document_title": "IELTS mock platform",
-      "headline": "IELTS mock platform",
+      "document_title": "Band 9.0",
+      "headline": "Band 9.0",
       "subtitle": "Практика Reading, Writing и Listening с аналитикой и review.",
       "demo_badge": "Mock MVP",
       "modules_title": "Модули",
@@ -78,10 +94,12 @@
         "plan_title": "Текущий план",
         "plan_attempts": "Использовано {{used}} из {{limit}} попыток",
         "plan_renewal": "Заглушка продления: {{date}}",
+        "plan_unavailable": "Данные по текущему плану пока не доступны в API.",
         "plan_cta": "Оплата и renewal подключатся после backend-интеграции.",
         "recent_attempts": "Последние попытки",
+        "empty_attempts": "Попыток пока нет.",
         "quick_links": "Быстрые ссылки",
-        "quick_links_description": "Ключевые student-экраны внутри MVP.",
+        "empty_quick_links": "Быстрые ссылки пока недоступны.",
         "best": "Best"
       },
       "reading": {

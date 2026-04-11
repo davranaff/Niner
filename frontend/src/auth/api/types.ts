@@ -1,5 +1,6 @@
-/** Active app roles used by the IELTS mock platform. */
+/** Active app roles used by Band 9.0. */
 export type UserRole = 'admin' | 'accountant' | 'student' | 'teacher' | 'user';
+export type RegisterRole = 'student' | 'teacher';
 
 /** Frontend auth user shape stored in session and consumed by the app shell. */
 export type TenantUser = {
@@ -51,6 +52,10 @@ export type LoginRequest = {
   mockRole?: UserRole;
 };
 
+export type ConfirmRequest = {
+  token: string;
+};
+
 /** Backend `SignUpOut` after camelCase transform. */
 export type SignUpResponse = {
   message: string;
@@ -58,7 +63,7 @@ export type SignUpResponse = {
 };
 
 /**
- * Register form + mock payload. Real API uses `firstName`, `lastName`, `email`, `password` only
+ * Register form + mock payload. Real API uses `firstName`, `lastName`, `email`, `password`, `role`
  * (`passwordConfirm` is client-side; optional fields are mock-only).
  */
 export type RegisterRequest = {
@@ -66,6 +71,7 @@ export type RegisterRequest = {
   lastName: string;
   email: string;
   password: string;
+  role: RegisterRole;
   passwordConfirm: string;
   tenantName?: string;
   mockRole?: UserRole;

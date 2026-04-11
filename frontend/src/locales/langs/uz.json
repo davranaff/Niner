@@ -4,15 +4,20 @@
   },
   "auth": {
     "shared": {
+      "sign_in": "Kirish",
+      "sign_up": "Ro'yxatdan o'tish",
       "email": "Email",
       "password": "Parol",
       "confirm_password": "Parolni tasdiqlang",
       "full_name": "To'liq ism",
       "first_name": "Ism",
-      "last_name": "Familiya"
+      "last_name": "Familiya",
+      "role": "Men",
+      "role_student": "Talaba",
+      "role_teacher": "O'qituvchi"
     },
     "login": {
-      "title": "IELTS workspace ga kirish",
+      "title": "Kirish",
       "new_user": "Yangi foydalanuvchi?",
       "create_account": "Akkaunt yaratish",
       "demo_hint": "Quyida ikki rol uchun demo kirishlar bor yoki mock ma'lumotlar bilan qo'lda kirishingiz mumkin.",
@@ -23,12 +28,22 @@
       "demo_credentials": "Student demo: student@ieltsmock.dev / demo1234. Teacher demo: teacher@ieltsmock.dev / demo1234."
     },
     "register": {
-      "title": "IELTS akkaunt yaratish",
+      "title": "akkaunt yaratish",
       "have_account": "Akkauntingiz bormi?",
       "sign_in": "Kirish",
       "submit": "Akkaunt yaratish",
-      "terms": "Ro'yxatdan o'tish orqali demo Terms of Service va Privacy Policy ga rozilik bildirasiz.",
+      "terms": "Ro'yxatdan o'tish orqali Terms of Service va Privacy Policy ga rozilik bildirasiz.",
       "success_check_email": "Tasdiqlash havolasi emailga yuborildi. Akkauntni faollashtirish uchun havolani oching, so'ng kiring."
+    },
+    "confirm": {
+      "title": "Akkauntni tasdiqlash",
+      "loading": "Akkauntingiz tasdiqlanmoqda...",
+      "success": "Akkaunt muvaffaqiyatli tasdiqlandi.",
+      "redirecting": "Dashboard sahifasiga yo'naltirilmoqda...",
+      "invalid": "Tasdiqlash havolasi noto'g'ri.",
+      "expired": "Havola muddati tugagan yoki allaqachon ishlatilgan.",
+      "generic_error": "Akkauntni tasdiqlab bo'lmadi. Keyinroq urinib ko'ring.",
+      "go_to_login": "Kirishga o'tish"
     },
     "validation": {
       "email_required": "Email majburiy",
@@ -38,13 +53,14 @@
       "full_name_required": "To'liq ism majburiy",
       "first_name_required": "Ism majburiy",
       "last_name_required": "Familiya majburiy",
+      "role_required": "Rolni tanlang",
       "password_min": "Parol kamida {{count}} ta belgidan iborat bo'lishi kerak",
       "passwords_match": "Parollar bir xil bo'lishi kerak"
     }
   },
   "layout": {
     "nav": {
-      "group": "IELTS mock platform",
+      "group": "Band 9.0",
       "dashboard": "Dashboard",
       "reading": "Reading",
       "listening": "Listening",
@@ -60,8 +76,8 @@
   },
   "pages": {
     "ielts": {
-      "document_title": "IELTS mock platform",
-      "headline": "IELTS mock platform",
+      "document_title": "Band 9.0",
+      "headline": "Band 9.0",
       "subtitle": "Reading, Writing va Listening amaliyoti analytics va review bilan.",
       "demo_badge": "Mock MVP",
       "modules_title": "Modullar",
@@ -78,10 +94,12 @@
         "plan_title": "Plan snapshot",
         "plan_attempts": "{{limit}} ta urinishdan {{used}} tasi ishlatilgan",
         "plan_renewal": "Renewal placeholder: {{date}}",
+        "plan_unavailable": "Joriy plan ma'lumotlari hozircha API'da yo'q.",
         "plan_cta": "To'lov va renewal backend tayyor bo'lgach ulanadi.",
         "recent_attempts": "So'nggi urinishlar",
+        "empty_attempts": "Hozircha urinishlar yo'q.",
         "quick_links": "Tezkor havolalar",
-        "quick_links_description": "MVP ichidagi asosiy student ekranlar.",
+        "empty_quick_links": "Tezkor havolalar hozircha mavjud emas.",
         "best": "Best"
       },
       "reading": {

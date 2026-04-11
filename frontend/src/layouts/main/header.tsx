@@ -80,7 +80,7 @@ export default function Header() {
               </Link>
             }
           >
-            <Logo />
+            <Logo variant="full" sx={{ width: 138, height: 'auto' }} />
           </Badge>
 
           <Box sx={{ flexGrow: 1 }} />

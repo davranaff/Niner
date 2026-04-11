@@ -27,7 +27,10 @@ export default function AuthModernLayout({ children, image }: Props) {
       }}
     >
       <Logo
+        variant="full"
         sx={{
+          width: { xs: 128, md: 176 },
+          height: 'auto',
           mt: { xs: 2, md: 8 },
           mb: { xs: 10, md: 8 },
         }}
