@@ -15,7 +15,7 @@ import { useRouter } from 'src/routes/hook';
 import { useAppUserProfile } from 'src/hooks/use-app-user-profile';
 // auth
 import { useLogoutMutation } from 'src/auth/api';
-import { getDefaultDashboardPath } from 'src/sections/ielts/shared/api/ielts-service';
+import { getDefaultDashboardPath } from 'src/sections/apps/common/api/apps-service';
 // components
 import { varHover } from 'src/components/animate';
 import { useSnackbar } from 'src/components/snackbar';
