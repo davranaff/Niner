@@ -1,9 +1,9 @@
 import { API_ENDPOINTS } from 'src/lib/api/endpoints';
 
-/** Auth paths aligned with `backend/apps/auth_tenant/urls.py`. */
+/** Auth paths aligned with FastAPI auth/users routes. */
 export const AUTH_URLS = {
-  login: API_ENDPOINTS.auth.login,
-  register: API_ENDPOINTS.auth.register,
+  login: API_ENDPOINTS.auth.signIn,
+  signUp: API_ENDPOINTS.auth.signUp,
   refresh: API_ENDPOINTS.auth.refresh,
-  me: API_ENDPOINTS.auth.me,
+  me: API_ENDPOINTS.users.me,
 } as const;

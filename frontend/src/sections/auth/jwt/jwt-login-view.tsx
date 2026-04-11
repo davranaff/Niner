@@ -1,5 +1,4 @@
 import { useForm } from 'react-hook-form';
-import { useCallback, useState } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -11,49 +10,38 @@ import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import InputAdornment from '@mui/material/InputAdornment';
-// routes
-import { paths } from 'src/routes/paths';
-import { useSearchParams } from 'src/routes/hook';
-import { RouterLink } from 'src/routes/components';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
-import { useLoginMutation } from 'src/auth/api';
+// routes
+import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
+// auth
 import { useLocales } from 'src/locales';
 // components
 import Iconify from 'src/components/iconify';
 import FormProvider, { RHFTextField } from 'src/components/hook-form';
-import { getAuthFormErrorMessage } from 'src/utils/api-error-messages';
-import { isJwtAuthMock } from 'src/auth/context/jwt/mock-auth';
+import { useJwtLogin, type JwtLoginFormValues } from './hooks/use-jwt-login';
 import { createLoginSchema } from './utils/auth-form-schemas';
 
 // ----------------------------------------------------------------------
 
-type FormValuesProps = {
-  email: string;
-  password: string;
-};
-
-const STUDENT_DEMO = {
-  email: 'student@ieltsmock.dev',
-  password: 'demo1234',
-};
-
-const TEACHER_DEMO = {
-  email: 'teacher@ieltsmock.dev',
-  password: 'demo1234',
-};
-
 export default function JwtLoginView() {
   const { tx } = useLocales();
-  const loginMutation = useLoginMutation();
   const password = useBoolean();
-  const [errorMsg, setErrorMsg] = useState('');
-  const searchParams = useSearchParams();
-  const returnTo = searchParams.get('returnTo');
+  const {
+    errorMsg,
+    setErrorMsg,
+    loginMutation,
+    signInIsMock,
+    studentDemo,
+    onSubmit,
+    onDemoLogin,
+  } = useJwtLogin();
 
-  const methods = useForm<FormValuesProps>({
+  const methods = useForm<JwtLoginFormValues>({
     resolver: yupResolver(createLoginSchema(tx)),
-    defaultValues: STUDENT_DEMO,
+    defaultValues: studentDemo,
+    mode: 'onChange',
   });
 
   const {
@@ -62,51 +50,9 @@ export default function JwtLoginView() {
     formState: { isSubmitting },
   } = methods;
 
-  const handleSuccessRedirect = useCallback(
-    (role: 'student' | 'teacher') => {
-      window.location.href = returnTo || paths.afterLogin(role);
-    },
-    [returnTo]
-  );
-
-  const onSubmit = useCallback(
-    async (data: FormValuesProps) => {
-      try {
-        setErrorMsg('');
-        const payload = await loginMutation.mutateAsync({
-          email: data.email,
-          password: data.password,
-        });
-        handleSuccessRedirect(payload.user.role);
-      } catch (error) {
-        setErrorMsg(getAuthFormErrorMessage(error, 'login'));
-      }
-    },
-    [handleSuccessRedirect, loginMutation]
-  );
-
-  const handleDemoLogin = useCallback(
-    async (role: 'student' | 'teacher') => {
-      const demo = role === 'teacher' ? TEACHER_DEMO : STUDENT_DEMO;
-      reset(demo);
-
-      try {
-        setErrorMsg('');
-        const payload = await loginMutation.mutateAsync({
-          ...demo,
-          mockRole: role,
-        });
-        handleSuccessRedirect(payload.user.role);
-      } catch (error) {
-        setErrorMsg(getAuthFormErrorMessage(error, 'login'));
-      }
-    },
-    [handleSuccessRedirect, loginMutation, reset]
-  );
-
   return (
-    <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
-      <Stack spacing={2} sx={{ mb: 5 }}>
+    <>
+      <Stack spacing={2} sx={{ mb: 5, position: 'relative' }}>
         <Typography variant="h4">{tx('auth.login.title')}</Typography>
 
         <Stack direction="row" spacing={0.5}>
@@ -118,7 +64,7 @@ export default function JwtLoginView() {
         </Stack>
       </Stack>
 
-      {isJwtAuthMock() ? (
+      {signInIsMock ? (
         <Alert severity="info" sx={{ mb: 3 }}>
           <Stack spacing={1.5}>
             <Typography variant="body2">{tx('auth.login.demo_hint')}</Typography>
@@ -126,7 +72,7 @@ export default function JwtLoginView() {
               <Button
                 variant="contained"
                 color="inherit"
-                onClick={() => handleDemoLogin('student')}
+                onClick={() => onDemoLogin('student', reset)}
                 disabled={loginMutation.isPending}
               >
                 {tx('auth.login.student_demo')}
@@ -134,7 +80,7 @@ export default function JwtLoginView() {
               <Button
                 variant="outlined"
                 color="inherit"
-                onClick={() => handleDemoLogin('teacher')}
+                onClick={() => onDemoLogin('teacher', reset)}
                 disabled={loginMutation.isPending}
               >
                 {tx('auth.login.teacher_demo')}
@@ -144,47 +90,49 @@ export default function JwtLoginView() {
         </Alert>
       ) : null}
 
-      <Stack spacing={2.5}>
-        {!!errorMsg && (
-          <Alert severity="error" onClose={() => setErrorMsg('')}>
-            {errorMsg}
-          </Alert>
-        )}
+      <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
+        <Stack spacing={2.5}>
+          {!!errorMsg && (
+            <Alert severity="error" onClose={() => setErrorMsg('')}>
+              {errorMsg}
+            </Alert>
+          )}
 
-        <RHFTextField name="email" label={tx('auth.shared.email')} />
+          <RHFTextField name="email" label={tx('auth.shared.email')} />
 
-        <RHFTextField
-          name="password"
-          label={tx('auth.shared.password')}
-          type={password.value ? 'text' : 'password'}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton onClick={password.onToggle} edge="end">
-                  <Iconify icon={password.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
+          <RHFTextField
+            name="password"
+            label={tx('auth.shared.password')}
+            type={password.value ? 'text' : 'password'}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={password.onToggle} edge="end">
+                    <Iconify icon={password.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
 
-        <Link variant="body2" color="inherit" underline="always" sx={{ alignSelf: 'flex-end' }}>
-          {tx('auth.login.forgot')}
-        </Link>
+          <Link variant="body2" color="inherit" underline="always" sx={{ alignSelf: 'flex-end' }}>
+            {tx('auth.login.forgot')}
+          </Link>
 
-        <LoadingButton
-          fullWidth
-          color="inherit"
-          size="large"
-          type="submit"
-          variant="contained"
-          loading={isSubmitting || loginMutation.isPending}
-        >
-          {tx('auth.login.submit')}
-        </LoadingButton>
-      </Stack>
+          <LoadingButton
+            fullWidth
+            color="inherit"
+            size="large"
+            type="submit"
+            variant="contained"
+            loading={isSubmitting || loginMutation.isPending}
+          >
+            {tx('auth.login.submit')}
+          </LoadingButton>
+        </Stack>
+      </FormProvider>
 
-      {isJwtAuthMock() ? (
+      {signInIsMock ? (
         <>
           <Divider sx={{ my: 3 }} />
           <Typography variant="caption" sx={{ color: 'text.secondary' }}>
@@ -192,6 +140,6 @@ export default function JwtLoginView() {
           </Typography>
         </>
       ) : null}
-    </FormProvider>
+    </>
   );
 }

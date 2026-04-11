@@ -7,7 +7,9 @@
       "email": "Email",
       "password": "Пароль",
       "confirm_password": "Подтвердите пароль",
-      "full_name": "Полное имя"
+      "full_name": "Полное имя",
+      "first_name": "Имя",
+      "last_name": "Фамилия"
     },
     "login": {
       "title": "Вход в IELTS workspace",
@@ -24,9 +26,9 @@
       "title": "Создать IELTS аккаунт",
       "have_account": "Уже есть аккаунт?",
       "sign_in": "Войти",
-      "target_band": "Целевой band",
       "submit": "Создать аккаунт",
-      "terms": "Регистрируясь, вы соглашаетесь с демо Terms of Service и Privacy Policy."
+      "terms": "Регистрируясь, вы соглашаетесь с демо Terms of Service и Privacy Policy.",
+      "success_check_email": "Мы отправили ссылку для подтверждения на ваш email. Перейдите по ней, чтобы активировать аккаунт, затем войдите."
     },
     "validation": {
       "email_required": "Email обязателен",
@@ -34,11 +36,10 @@
       "password_required": "Пароль обязателен",
       "confirm_password_required": "Подтверждение пароля обязательно",
       "full_name_required": "Полное имя обязательно",
+      "first_name_required": "Имя обязательно",
+      "last_name_required": "Фамилия обязательна",
       "password_min": "Пароль должен содержать минимум {{count}} символов",
-      "passwords_match": "Пароли должны совпадать",
-      "target_band_required": "Целевой band обязателен",
-      "target_band_min": "Целевой band должен быть не ниже 4.5",
-      "target_band_max": "Целевой band не должен превышать 9.0"
+      "passwords_match": "Пароли должны совпадать"
     }
   },
   "layout": {
