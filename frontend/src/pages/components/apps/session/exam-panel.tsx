@@ -6,8 +6,8 @@ import { alpha } from '@mui/material/styles';
 import type { SxProps, Theme } from '@mui/material/styles';
 
 type ExamPanelProps = {
-  title: string;
-  meta?: string;
+  title: ReactNode;
+  meta?: ReactNode;
   actions?: ReactNode;
   footer?: ReactNode;
   children: ReactNode;
@@ -16,6 +16,24 @@ type ExamPanelProps = {
 };
 
 export function ExamPanel({ title, meta, actions, footer, children, sx, bodySx }: ExamPanelProps) {
+  const titleNode =
+    typeof title === 'string' ? (
+      <Typography noWrap variant="subtitle2" sx={{ fontWeight: 800, color: 'common.black' }}>
+        {title}
+      </Typography>
+    ) : (
+      title
+    );
+
+  const metaNode =
+    typeof meta === 'string' ? (
+      <Typography noWrap variant="caption" sx={{ color: 'text.secondary' }}>
+        {meta}
+      </Typography>
+    ) : (
+      meta
+    );
+
   return (
     <Box
       sx={[
@@ -47,14 +65,8 @@ export function ExamPanel({ title, meta, actions, footer, children, sx, bodySx }
         })}
       >
         <Box sx={{ minWidth: 0 }}>
-          <Typography noWrap variant="subtitle2" sx={{ fontWeight: 800, color: 'common.black' }}>
-            {title}
-          </Typography>
-          {meta ? (
-            <Typography noWrap variant="caption" sx={{ color: 'text.secondary' }}>
-              {meta}
-            </Typography>
-          ) : null}
+          {titleNode}
+          {meta ? metaNode : null}
         </Box>
 
         {actions ? <Box sx={{ flexShrink: 0 }}>{actions}</Box> : null}
