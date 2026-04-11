@@ -4,7 +4,7 @@ import { paths } from 'src/routes/paths';
 //
 import { mainRoutes } from './main';
 import { authRoutes } from './auth';
-import { dashboardRoutes } from './dashboard';
+import { appsRoutes } from './apps';
 import { componentsRoutes } from './components';
 
 // App route table (root → JWT login).
@@ -19,7 +19,7 @@ export default function Router() {
     },
 
     ...authRoutes,
-    ...dashboardRoutes,
+    ...appsRoutes,
 
     // Main routes
     ...mainRoutes,

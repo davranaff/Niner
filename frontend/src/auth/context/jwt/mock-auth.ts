@@ -9,7 +9,7 @@ import { HOST_API } from 'src/config-global';
 import {
   findMockUserByEmail,
   registerMockStudent,
-} from 'src/sections/ielts/shared/api/ielts-service';
+} from 'src/sections/apps/common/api/apps-service';
 
 // ----------------------------------------------------------------------
 
