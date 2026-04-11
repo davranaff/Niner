@@ -46,6 +46,10 @@ function toBaseError(error: unknown): BaseError {
   return synthetic;
 }
 
+function isCanceledRequest(error: BaseError) {
+  return error.code === 'ERR_CANCELED' || error.name === 'CanceledError' || axios.isCancel(error);
+}
+
 type QueryOptionsWithLegacyOnError<TQueryFnData> = Omit<
   UseQueryOptions<TQueryFnData, BaseError>,
   'queryKey' | 'queryFn'
@@ -98,6 +102,10 @@ function useErrorHandler(onError?: (err: BaseError) => void) {
   return useCallback(
     (error: BaseError) => {
       onError?.(error);
+
+      if (isCanceledRequest(error)) {
+        return;
+      }
 
       if (error.response === undefined || error.response.status === 0) {
         enqueueSnackbar('Проверьте интернет соединение', { variant: 'error' });
