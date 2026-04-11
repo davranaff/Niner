@@ -75,10 +75,12 @@ export function ExamShell({
         <Box
           component="header"
           sx={(theme) => ({
-            height: 72,
+            minHeight: 72,
             px: { xs: 2, md: 2.5 },
+            py: { xs: 1.25, md: 0 },
             display: 'flex',
-            alignItems: 'center',
+            flexDirection: { xs: 'column', md: 'row' },
+            alignItems: { xs: 'stretch', md: 'center' },
             justifyContent: 'space-between',
             gap: 2,
             borderBottom: `1px solid ${alpha(theme.palette.common.black, 0.12)}`,
@@ -113,7 +115,15 @@ export function ExamShell({
             </Box>
           </Stack>
 
-          <Stack direction="row" spacing={1} alignItems="center" useFlexGap flexWrap="wrap">
+          <Stack
+            direction="row"
+            spacing={1}
+            alignItems="center"
+            justifyContent={{ xs: 'space-between', md: 'flex-end' }}
+            useFlexGap
+            flexWrap="wrap"
+            sx={{ width: { xs: '100%', md: 'auto' } }}
+          >
             <Button variant="outlined" onClick={onDecreaseFontSize} sx={actionButtonSx}>
               A-
             </Button>

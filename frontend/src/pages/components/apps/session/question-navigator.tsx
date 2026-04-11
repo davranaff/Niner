@@ -16,7 +16,14 @@ type QuestionNavigatorProps = {
 
 export function QuestionNavigator({ items, onSelect }: QuestionNavigatorProps) {
   return (
-    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(38px, 38px))',
+        justifyContent: 'flex-start',
+        gap: 1,
+      }}
+    >
       {items.map((item) => {
         let borderColor = (theme: Theme) => alpha(theme.palette.common.black, 0.12);
         let backgroundColor = (theme: Theme) => alpha(theme.palette.common.white, 0.4);
@@ -40,6 +47,9 @@ export function QuestionNavigator({ items, onSelect }: QuestionNavigatorProps) {
               border: `1px solid ${borderColor(theme)}`,
               bgcolor: backgroundColor(theme),
               color: item.active ? theme.palette.common.white : theme.palette.common.black,
+              transition: theme.transitions.create(['background-color', 'border-color'], {
+                duration: theme.transitions.duration.shorter,
+              }),
             })}
           >
             <Typography variant="caption" sx={{ fontWeight: 800 }}>
