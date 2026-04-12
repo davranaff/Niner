@@ -8,6 +8,7 @@ from app.modules.lessons.api import router as lessons_router
 from app.modules.listening.api import router as listening_router
 from app.modules.profile.api import router as profile_router
 from app.modules.reading.api import router as reading_router
+from app.modules.speaking.api import router as speaking_router
 from app.modules.teacher_students.api import router as teacher_students_router
 from app.modules.users.api import router as users_router
 from app.modules.writing.api import router as writing_router
@@ -18,6 +19,7 @@ api_router.include_router(users_router)
 api_router.include_router(reading_router)
 api_router.include_router(listening_router)
 api_router.include_router(writing_router)
+api_router.include_router(speaking_router)
 api_router.include_router(exams_router)
 api_router.include_router(profile_router)
 api_router.include_router(lessons_router)

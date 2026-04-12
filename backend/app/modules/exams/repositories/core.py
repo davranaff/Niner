@@ -18,6 +18,9 @@ from app.db.models import (
     ReadingQuestion,
     ReadingQuestionBlock,
     ReadingTest,
+    SpeakingExam,
+    SpeakingPart,
+    SpeakingTest,
     WritingExam,
     WritingExamPart,
     WritingTest,
@@ -34,6 +37,10 @@ async def get_listening_test(db: AsyncSession, test_id: int) -> ListeningTest | 
 
 async def get_writing_test(db: AsyncSession, test_id: int) -> WritingTest | None:
     return await db.get(WritingTest, test_id)
+
+
+async def get_speaking_test(db: AsyncSession, test_id: int) -> SpeakingTest | None:
+    return await db.get(SpeakingTest, test_id)
 
 
 async def get_reading_exam_with_relations(db: AsyncSession, exam_id: int) -> ReadingExam | None:
@@ -85,6 +92,19 @@ async def get_writing_exam_with_relations(db: AsyncSession, exam_id: int) -> Wri
         .options(
             selectinload(WritingExam.writing_test).selectinload(WritingTest.writing_parts),
             selectinload(WritingExam.writing_parts).selectinload(WritingExamPart.part),
+        )
+    )
+    return (await db.execute(stmt)).scalar_one_or_none()
+
+
+async def get_speaking_exam_with_relations(db: AsyncSession, exam_id: int) -> SpeakingExam | None:
+    stmt = (
+        select(SpeakingExam)
+        .where(SpeakingExam.id == exam_id)
+        .options(
+            selectinload(SpeakingExam.speaking_test)
+            .selectinload(SpeakingTest.parts)
+            .selectinload(SpeakingPart.questions),
         )
     )
     return (await db.execute(stmt)).scalar_one_or_none()
@@ -178,6 +198,22 @@ async def list_user_writing_exams(
     )
 
 
+async def list_user_speaking_exams(
+    db: AsyncSession,
+    *,
+    user_id: int,
+    offset: int,
+    limit: int,
+) -> list[SpeakingExam]:
+    return await paginate_query(
+        db,
+        select(SpeakingExam).where(SpeakingExam.user_id == user_id),
+        SpeakingExam.id,
+        limit,
+        offset,
+    )
+
+
 async def list_all_user_reading_exams_with_relations(
     db: AsyncSession,
     *,
@@ -221,6 +257,21 @@ async def list_all_user_writing_exams_with_relations(
         .options(
             selectinload(WritingExam.writing_test),
             selectinload(WritingExam.writing_parts),
+        )
+    )
+    return list((await db.execute(stmt)).scalars().all())
+
+
+async def list_all_user_speaking_exams_with_relations(
+    db: AsyncSession,
+    *,
+    user_id: int,
+) -> list[SpeakingExam]:
+    stmt = (
+        select(SpeakingExam)
+        .where(SpeakingExam.user_id == user_id)
+        .options(
+            selectinload(SpeakingExam.speaking_test),
         )
     )
     return list((await db.execute(stmt)).scalars().all())

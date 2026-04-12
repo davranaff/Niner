@@ -5,6 +5,7 @@ OPENAPI_TAGS = [
     {"name": "reading", "description": "Public reading tests catalog."},
     {"name": "listening", "description": "Public listening tests catalog."},
     {"name": "writing", "description": "Public writing tests catalog."},
+    {"name": "speaking", "description": "Public speaking tests catalog and realtime helpers."},
     {"name": "exams", "description": "Exam lifecycle: create, start, submit, and history."},
     {"name": "profile", "description": "User profile endpoints."},
     {"name": "progress", "description": "Progress entries and progress history."},

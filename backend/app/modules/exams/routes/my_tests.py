@@ -11,7 +11,7 @@ from app.modules.exams.schemas import StudentAttemptListOut
 
 router = APIRouter()
 
-ExamKind = Literal["reading", "listening", "writing"]
+ExamKind = Literal["reading", "listening", "writing", "speaking"]
 ExamAttemptStatus = Literal["in_progress", "completed", "terminated"]
 
 

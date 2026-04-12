@@ -1,0 +1,408 @@
+tests:
+  - slug: speaking-test-01
+    title: Full Speaking Mock 01
+    description: Balanced interview with a personal Part 1, an event-based Part 2 cue card, and analytical Part 3 follow-up discussion.
+    level: Academic
+    duration_minutes: 14
+    is_active: true
+    instructions:
+      - Use a stable microphone in a quiet room.
+      - Keep the exam page in focus for the full session.
+      - Respond naturally without waiting for submit prompts.
+      - If the examiner speaks, listen. If you interrupt, the turn will switch.
+    scoring_focus:
+      - Fluency and coherence across all three parts.
+      - Lexical range for everyday and abstract topics.
+      - Grammatical control under realtime speaking conditions.
+      - Pronunciation clarity and consistent pacing.
+    parts:
+      - part_id: part1
+        order: 1
+        title: Part 1. Introduction and interview
+        examiner_guidance: Short personal questions with quick turn exchange.
+        duration_minutes: 5
+        questions:
+          - question_code: p1-q1
+            order: 1
+            short_label: Work or study
+            prompt: Good morning. Could you tell me your full name, and do you work or are you a student?
+            expected_answer_seconds: 24
+            rephrase_prompt: Could you tell me your full name, and whether you work or study?
+            follow_ups:
+              - What do you enjoy most about that?
+              - Why did you choose that?
+          - question_code: p1-q2
+            order: 2
+            short_label: Hometown
+            prompt: Let us talk about your hometown. What do you like most about living there?
+            expected_answer_seconds: 26
+            rephrase_prompt: What do you like most about your hometown?
+            follow_ups:
+              - What part of it do you like best?
+              - Has it changed much over time?
+          - question_code: p1-q3
+            order: 3
+            short_label: Daily routine
+            prompt: How different is your routine now from what it was a year ago?
+            expected_answer_seconds: 28
+            rephrase_prompt: Is your routine the same as it was a year ago?
+            follow_ups:
+              - What usually takes most of your time?
+              - Would you like to change that routine?
+          - question_code: p1-q4
+            order: 4
+            short_label: Technology
+            prompt: Do you use technology differently for work or study than you do in your free time?
+            expected_answer_seconds: 28
+            rephrase_prompt: Do you use technology in different ways for work and for relaxing?
+            follow_ups:
+              - What kind of technology do you use most?
+              - Has that changed recently?
+          - question_code: p1-q5
+            order: 5
+            short_label: Evenings
+            prompt: What do you usually do in the evening after work or study?
+            expected_answer_seconds: 26
+            rephrase_prompt: What do you usually do in the evening?
+            follow_ups:
+              - Do you usually do that alone or with other people?
+              - Has that changed recently?
+          - question_code: p1-q6
+            order: 6
+            short_label: Photos
+            prompt: Do you enjoy taking photos, or do you prefer just looking at them?
+            expected_answer_seconds: 26
+            rephrase_prompt: Do you enjoy taking photos?
+            follow_ups:
+              - What do you usually take photos of?
+              - Did you enjoy that as a child?
+      - part_id: part2
+        order: 2
+        title: Part 2. Individual long turn
+        examiner_guidance: One-minute preparation followed by a longer answer.
+        duration_minutes: 4
+        questions:
+          - question_code: p2-q1
+            order: 1
+            short_label: Helped someone under pressure
+            prompt: I am going to give you a topic and I would like you to talk about it for one to two minutes after one minute of preparation.
+            expected_answer_seconds: 100
+            rephrase_prompt: Describe a time when you helped someone under pressure.
+            follow_ups:
+              - Can you say a little more about what happened after that?
+            cue_card:
+              topic: Describe a time when you helped someone under pressure.
+              prompt: "You should say:"
+              bullet_points:
+                - who the person was
+                - what the situation was
+                - what you did to help
+                - and explain why that experience stayed with you
+              note_prompt: Write short keywords only. Keep your notes private and concise.
+              preparation_seconds: 60
+              target_answer_seconds: 120
+      - part_id: part3
+        order: 3
+        title: Part 3. Two-way discussion
+        examiner_guidance: Abstract follow-up questions linked to the cue card topic.
+        duration_minutes: 5
+        questions:
+          - question_code: p3-q1
+            order: 1
+            short_label: Helping culture
+            prompt: In general, what encourages people to help others in difficult situations?
+            expected_answer_seconds: 42
+            rephrase_prompt: What usually encourages people to help others in difficult situations?
+            follow_ups:
+              - Why do you think that is?
+              - What about in your country?
+          - question_code: p3-q2
+            order: 2
+            short_label: Professional support
+            prompt: Do you think professional support is more reliable than informal help from friends or family?
+            expected_answer_seconds: 48
+            rephrase_prompt: Is professional support usually more reliable than help from friends or family?
+            follow_ups:
+              - Why do you think so?
+              - Does that depend on the situation?
+          - question_code: p3-q3
+            order: 3
+            short_label: Modern communities
+            prompt: How has modern technology changed the way communities respond when people need help?
+            expected_answer_seconds: 48
+            rephrase_prompt: How has technology changed the way communities respond when people need help?
+            follow_ups:
+              - Has that been mostly positive?
+              - How might this change in the future?
+
+  - slug: speaking-test-02
+    title: Full Speaking Mock 02
+    description: Daily-life emphasis with a place-based cue card and broader discussion about public spaces.
+    level: General
+    duration_minutes: 14
+    is_active: true
+    instructions:
+      - Use a stable microphone in a quiet room.
+      - Keep the exam page in focus for the full session.
+      - Respond naturally without waiting for submit prompts.
+      - If the examiner speaks, listen. If you interrupt, the turn will switch.
+    scoring_focus:
+      - Fluency and coherence across all three parts.
+      - Lexical range for everyday and abstract topics.
+      - Grammatical control under realtime speaking conditions.
+      - Pronunciation clarity and consistent pacing.
+    parts:
+      - part_id: part1
+        order: 1
+        title: Part 1. Introduction and interview
+        examiner_guidance: Short personal questions with quick turn exchange.
+        duration_minutes: 5
+        questions:
+          - question_code: g1-q1
+            order: 1
+            short_label: Weekends
+            prompt: Do you usually prefer a busy weekend or a quiet one?
+            expected_answer_seconds: 24
+            rephrase_prompt: Do you prefer busy weekends or quiet ones?
+            follow_ups:
+              - Why is that?
+              - Has that always been true for you?
+          - question_code: g1-q2
+            order: 2
+            short_label: Neighbours
+            prompt: Would you say you know your neighbours well, or do people keep more distance now?
+            expected_answer_seconds: 26
+            rephrase_prompt: Do people know their neighbours well where you live?
+            follow_ups:
+              - Why do you think that is?
+              - Was it different in the past?
+          - question_code: g1-q3
+            order: 3
+            short_label: Reading habits
+            prompt: What kind of things do you prefer to read when you want to learn something quickly?
+            expected_answer_seconds: 28
+            rephrase_prompt: What do you usually read when you need information quickly?
+            follow_ups:
+              - Why do you prefer that?
+              - Do you still read in the same way as before?
+          - question_code: g1-q4
+            order: 4
+            short_label: Public transport
+            prompt: How important is public transport in your daily routine?
+            expected_answer_seconds: 28
+            rephrase_prompt: How important is public transport in your everyday life?
+            follow_ups:
+              - How often do you use it?
+              - Would you like it to improve?
+          - question_code: g1-q5
+            order: 5
+            short_label: Shopping
+            prompt: Do you prefer doing most of your shopping online or in person?
+            expected_answer_seconds: 26
+            rephrase_prompt: Do you prefer shopping online or in person?
+            follow_ups:
+              - Why is that?
+              - Has your habit changed over time?
+          - question_code: g1-q6
+            order: 6
+            short_label: Parks
+            prompt: Do you think parks and open spaces are important in a city?
+            expected_answer_seconds: 26
+            rephrase_prompt: Are parks and open spaces important in a city?
+            follow_ups:
+              - How often do you go to places like that?
+              - Were they important to you as a child?
+      - part_id: part2
+        order: 2
+        title: Part 2. Individual long turn
+        examiner_guidance: One-minute preparation followed by a longer answer.
+        duration_minutes: 4
+        questions:
+          - question_code: g2-q1
+            order: 1
+            short_label: Public place you value
+            prompt: I am going to give you a topic and I would like you to talk about it for one to two minutes after one minute of preparation.
+            expected_answer_seconds: 100
+            rephrase_prompt: Describe a public place in your city that you value highly.
+            follow_ups:
+              - Can you tell me a little more about why it matters?
+            cue_card:
+              topic: Describe a public place in your city that you value highly.
+              prompt: "You should say:"
+              bullet_points:
+                - where it is
+                - what people do there
+                - how often you go there
+                - and explain why it matters to local people
+              note_prompt: Capture only key nouns and examples you want to include.
+              preparation_seconds: 60
+              target_answer_seconds: 120
+      - part_id: part3
+        order: 3
+        title: Part 3. Two-way discussion
+        examiner_guidance: Abstract follow-up questions linked to the cue card topic.
+        duration_minutes: 5
+        questions:
+          - question_code: g3-q1
+            order: 1
+            short_label: Urban planning
+            prompt: Why do some cities create attractive public areas while others struggle to maintain them?
+            expected_answer_seconds: 42
+            rephrase_prompt: Why do some cities create attractive public places more successfully than others?
+            follow_ups:
+              - What factors are most important?
+              - Does government policy matter most here?
+          - question_code: g3-q2
+            order: 2
+            short_label: Social effect
+            prompt: How can well-designed public places affect the relationships between different groups in society?
+            expected_answer_seconds: 48
+            rephrase_prompt: How can good public places affect relationships between different groups in society?
+            follow_ups:
+              - Why can that happen?
+              - Is that more important in large cities?
+          - question_code: g3-q3
+            order: 3
+            short_label: Digital alternatives
+            prompt: Do online spaces reduce the importance of physical public places, or do they serve different needs?
+            expected_answer_seconds: 48
+            rephrase_prompt: Do online spaces reduce the importance of real public places, or do they serve different needs?
+            follow_ups:
+              - Why do you think that?
+              - How may this change in the future?
+
+  - slug: speaking-test-03
+    title: Full Speaking Mock 03
+    description: Routine and wellbeing theme with a health-focused cue card and broader discussion about lifestyle choices.
+    level: Academic
+    duration_minutes: 14
+    is_active: true
+    instructions:
+      - Use a stable microphone in a quiet room.
+      - Keep the exam page in focus for the full session.
+      - Respond naturally without waiting for submit prompts.
+      - If the examiner speaks, listen. If you interrupt, the turn will switch.
+    scoring_focus:
+      - Fluency and coherence across all three parts.
+      - Lexical range for everyday and abstract topics.
+      - Grammatical control under realtime speaking conditions.
+      - Pronunciation clarity and consistent pacing.
+    parts:
+      - part_id: part1
+        order: 1
+        title: Part 1. Introduction and interview
+        examiner_guidance: Short personal questions with quick turn exchange.
+        duration_minutes: 5
+        questions:
+          - question_code: h1-q1
+            order: 1
+            short_label: Morning routine
+            prompt: Let us begin with your daily routine. What is the first thing you usually do in the morning?
+            expected_answer_seconds: 24
+            rephrase_prompt: What do you usually do first in the morning?
+            follow_ups:
+              - Has this routine changed recently?
+              - Why do you start your day that way?
+          - question_code: h1-q2
+            order: 2
+            short_label: Exercise habits
+            prompt: Do you do any regular exercise during the week?
+            expected_answer_seconds: 26
+            rephrase_prompt: Do you exercise regularly?
+            follow_ups:
+              - What type of exercise do you prefer?
+              - What makes it difficult to stay consistent?
+          - question_code: h1-q3
+            order: 3
+            short_label: Sleep
+            prompt: How satisfied are you with your sleep schedule at the moment?
+            expected_answer_seconds: 28
+            rephrase_prompt: Are you satisfied with your current sleep schedule?
+            follow_ups:
+              - What usually affects your sleep quality?
+              - Would you like to change this routine?
+          - question_code: h1-q4
+            order: 4
+            short_label: Healthy food
+            prompt: How easy is it for you to eat healthy food on a typical working day?
+            expected_answer_seconds: 28
+            rephrase_prompt: Is it easy for you to eat healthy food on a normal day?
+            follow_ups:
+              - What is the biggest challenge?
+              - Has your diet changed over the last year?
+          - question_code: h1-q5
+            order: 5
+            short_label: Breaks
+            prompt: Do you usually take short breaks while studying or working?
+            expected_answer_seconds: 26
+            rephrase_prompt: Do you take regular breaks during work or study?
+            follow_ups:
+              - Why are those breaks important?
+              - What do you usually do during a break?
+          - question_code: h1-q6
+            order: 6
+            short_label: Stress
+            prompt: What do you usually do when you feel stressed?
+            expected_answer_seconds: 26
+            rephrase_prompt: How do you usually deal with stress?
+            follow_ups:
+              - Does this method always work for you?
+              - Did you manage stress the same way in the past?
+      - part_id: part2
+        order: 2
+        title: Part 2. Individual long turn
+        examiner_guidance: One-minute preparation followed by a longer answer.
+        duration_minutes: 4
+        questions:
+          - question_code: h2-q1
+            order: 1
+            short_label: Habit that improved your wellbeing
+            prompt: I am going to give you a topic and I would like you to talk about it for one to two minutes after one minute of preparation.
+            expected_answer_seconds: 100
+            rephrase_prompt: Describe a habit you developed that improved your wellbeing.
+            follow_ups:
+              - Can you explain a little more about the long-term effect?
+            cue_card:
+              topic: Describe a habit you developed that improved your wellbeing.
+              prompt: "You should say:"
+              bullet_points:
+                - when you started this habit
+                - what exactly you did
+                - what was difficult at the beginning
+                - and explain how it changed your daily life
+              note_prompt: Write brief keywords only. Focus on sequence and one concrete example.
+              preparation_seconds: 60
+              target_answer_seconds: 120
+      - part_id: part3
+        order: 3
+        title: Part 3. Two-way discussion
+        examiner_guidance: Abstract follow-up questions linked to the cue card topic.
+        duration_minutes: 5
+        questions:
+          - question_code: h3-q1
+            order: 1
+            short_label: Public health behaviour
+            prompt: Why do many people know what is healthy but still struggle to change their habits?
+            expected_answer_seconds: 42
+            rephrase_prompt: Why is it hard for many people to change unhealthy habits, even when they know the benefits?
+            follow_ups:
+              - What role does motivation play?
+              - Are social factors more important?
+          - question_code: h3-q2
+            order: 2
+            short_label: Schools and habits
+            prompt: How can schools help young people build healthy routines early in life?
+            expected_answer_seconds: 48
+            rephrase_prompt: What can schools do to help students build healthy habits?
+            follow_ups:
+              - Which school practices are most effective?
+              - Should families or schools lead this process?
+          - question_code: h3-q3
+            order: 3
+            short_label: Workplace wellbeing
+            prompt: Do you think employers should be responsible for supporting employees' wellbeing?
+            expected_answer_seconds: 48
+            rephrase_prompt: Should employers take responsibility for staff wellbeing?
+            follow_ups:
+              - What level of support is reasonable?
+              - Could this become more important in the future?

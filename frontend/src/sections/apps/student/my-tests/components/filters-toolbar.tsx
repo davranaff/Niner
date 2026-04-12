@@ -66,6 +66,7 @@ export function FiltersToolbar({
             <MenuItem value="reading">{tx('pages.ielts.reading.title')}</MenuItem>
             <MenuItem value="listening">{tx('pages.ielts.listening.title')}</MenuItem>
             <MenuItem value="writing">{tx('pages.ielts.writing.title')}</MenuItem>
+            <MenuItem value="speaking">{tx('pages.ielts.speaking.title')}</MenuItem>
           </TextField>
 
           <TextField

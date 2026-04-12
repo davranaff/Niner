@@ -9,7 +9,7 @@ import { isBreadcrumbFromMyTests, isStudentModuleAttemptOrSessionPath } from 'sr
 
 /**
  * Sidebar / nav active state: when opening attempt or session from My tests (`bc_from=my-tests`),
- * highlight My tests instead of the Reading/Listening/Writing parent.
+ * highlight My tests instead of the module parent.
  */
 export function useNavActiveLink(path: string, hasChild: boolean, deepMatch?: boolean): boolean {
   const pathname = usePathname();
@@ -31,7 +31,8 @@ export function useNavActiveLink(path: string, hasChild: boolean, deepMatch?: bo
     deepMatch &&
     ((path === paths.ielts.reading && pathname.startsWith('/dashboard/reading/')) ||
       (path === paths.ielts.listening && pathname.startsWith('/dashboard/listening/')) ||
-      (path === paths.ielts.writing && pathname.startsWith('/dashboard/writing/')))
+      (path === paths.ielts.writing && pathname.startsWith('/dashboard/writing/')) ||
+      (path === paths.ielts.speaking && pathname.startsWith('/dashboard/speaking/')))
   ) {
     return false;
   }

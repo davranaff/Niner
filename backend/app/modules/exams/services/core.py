@@ -18,6 +18,7 @@ from app.db.models import (
     ReadingExam,
     ReadingExamQuestionAnswer,
     ReadingQuestion,
+    SpeakingExam,
     User,
     WritingExam,
     WritingExamPart,
@@ -32,11 +33,27 @@ from app.modules.exams.services.validation import (
 )
 from app.modules.listening.service import question_numbering as listening_question_numbering
 from app.modules.reading.service import question_numbering as reading_question_numbering
+from app.modules.speaking.schemas import (
+    LiveServerEvent,
+    SpeakingAttemptOut,
+    SpeakingAttemptStatus,
+    SpeakingConnectionState,
+    SpeakingExaminerDecisionIn,
+    SpeakingExaminerDecisionOut,
+    SpeakingSessionState,
+    SpeakingSessionStatus,
+    SpeakingSpeaker,
+    SpeakingTestDetail,
+)
+from app.modules.speaking.services.examiner import decide_examiner_turn
+from app.modules.speaking.services.realtime import speaking_realtime_hub
+from app.modules.speaking.services.result_builder import build_result as build_speaking_result
+from app.modules.speaking.services.core import serialize_speaking_test_detail
 from app.workers.queue import enqueue_writing_evaluation
 
 logger = logging.getLogger(__name__)
 
-ExamKind = Literal["reading", "listening", "writing"]
+ExamKind = Literal["reading", "listening", "writing", "speaking"]
 ExamAttemptStatus = Literal["in_progress", "completed", "terminated"]
 
 DEFAULT_STUDENT_ATTEMPTS_ORDERING = "-updated_at"
@@ -111,13 +128,24 @@ async def _get_writing_exam_owned(db: AsyncSession, exam_id: int, user_id: int) 
     return exam
 
 
+async def _get_speaking_exam_owned(db: AsyncSession, exam_id: int, user_id: int) -> SpeakingExam:
+    exam = await repository.get_speaking_exam_with_relations(db, exam_id)
+    if exam is None:
+        raise ApiError(code="exam_not_found", message="Speaking exam not found", status_code=404)
+    if exam.user_id != user_id:
+        raise ApiError(code="forbidden", message="Cannot access exam owned by another user", status_code=403)
+    return exam
+
+
 def _serialize_exam_summary(kind: ExamKind, exam: Any) -> dict[str, Any]:
     if kind == "reading":
         test_id = exam.reading_test_id
     elif kind == "listening":
         test_id = exam.listening_test_id
-    else:
+    elif kind == "writing":
         test_id = exam.writing_test_id
+    else:
+        test_id = exam.speaking_test_id
 
     return {
         "id": exam.id,
@@ -158,6 +186,17 @@ def _calculate_writing_estimated_band(parts: list[WritingExamPart]) -> float | N
     return float(average)
 
 
+def _calculate_speaking_estimated_band(exam: SpeakingExam) -> float | None:
+    if not exam.result_json:
+        return None
+
+    try:
+        band = exam.result_json.get("overall_band")
+        return float(band) if band is not None else None
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def _serialize_student_attempt_item(kind: ExamKind, exam: Any) -> dict[str, Any]:
     if kind == "reading":
         test = exam.reading_test
@@ -167,17 +206,21 @@ def _serialize_student_attempt_item(kind: ExamKind, exam: Any) -> dict[str, Any]
         test = exam.listening_test
         test_id = exam.listening_test_id
         estimated_band = _calculate_reading_or_listening_estimated_band(exam.question_answers)
-    else:
+    elif kind == "writing":
         test = exam.writing_test
         test_id = exam.writing_test_id
         estimated_band = _calculate_writing_estimated_band(exam.writing_parts)
+    else:
+        test = exam.speaking_test
+        test_id = exam.speaking_test_id
+        estimated_band = _calculate_speaking_estimated_band(exam)
 
     return {
         "id": exam.id,
         "kind": kind,
         "test_id": test_id,
         "test_title": test.title,
-        "time_limit": int(test.time_limit),
+        "time_limit": int(test.time_limit) if hasattr(test, "time_limit") else int(test.duration_minutes * 60),
         "status": _resolve_attempt_status(exam),
         "finish_reason": exam.finish_reason.value if exam.finish_reason else None,
         "started_at": exam.started_at,
@@ -234,11 +277,22 @@ async def create_exam(db: AsyncSession, user: User, kind: ExamKind, test_id: int
         if not test:
             raise ApiError(code="listening_test_not_found", message="Listening test not found", status_code=404)
         exam = ListeningExam(user_id=user.id, listening_test_id=test_id)
-    else:
+    elif kind == "writing":
         test = await repository.get_writing_test(db, test_id)
         if not test:
             raise ApiError(code="writing_test_not_found", message="Writing test not found", status_code=404)
         exam = WritingExam(user_id=user.id, writing_test_id=test_id)
+    else:
+        test = await repository.get_speaking_test(db, test_id)
+        if not test:
+            raise ApiError(code="speaking_test_not_found", message="Speaking test not found", status_code=404)
+        exam = SpeakingExam(
+            user_id=user.id,
+            speaking_test_id=test_id,
+            current_part_id="part1",
+            current_question_index=0,
+            note_draft="",
+        )
 
     db.add(exam)
     await db.commit()
@@ -251,11 +305,16 @@ async def start_exam(db: AsyncSession, user: User, kind: ExamKind, exam_id: int)
         exam = await _get_reading_exam_owned(db, exam_id, user.id)
     elif kind == "listening":
         exam = await _get_listening_exam_owned(db, exam_id, user.id)
-    else:
+    elif kind == "writing":
         exam = await _get_writing_exam_owned(db, exam_id, user.id)
+    else:
+        exam = await _get_speaking_exam_owned(db, exam_id, user.id)
 
     if exam.started_at is None:
         exam.started_at = datetime.now(UTC)
+        if kind == "speaking":
+            exam.session_status = "connected"
+            exam.connection_state = "connected"
         await db.commit()
 
     return _serialize_exam_summary(kind, exam)
@@ -600,6 +659,7 @@ async def get_my_exams(
     reading_offset: int,
     listening_offset: int,
     writing_offset: int,
+    speaking_offset: int,
     limit: int,
 ) -> dict[str, Any]:
     reading_rows = await repository.list_user_reading_exams(
@@ -618,6 +678,12 @@ async def get_my_exams(
         db,
         user_id=user.id,
         offset=writing_offset,
+        limit=limit,
+    )
+    speaking_rows = await repository.list_user_speaking_exams(
+        db,
+        user_id=user.id,
+        offset=speaking_offset,
         limit=limit,
     )
 
@@ -639,6 +705,12 @@ async def get_my_exams(
             serializer=lambda exam: _serialize_exam_summary("writing", exam),
             limit=limit,
             offset=writing_offset,
+        ).model_dump(),
+        "speaking": serialize_page(
+            speaking_rows,
+            serializer=lambda exam: _serialize_exam_summary("speaking", exam),
+            limit=limit,
+            offset=speaking_offset,
         ).model_dump(),
     }
 
@@ -668,6 +740,10 @@ async def list_student_attempts(
         writing_rows = await repository.list_all_user_writing_exams_with_relations(db, user_id=user.id)
         rows.extend(_serialize_student_attempt_item("writing", exam) for exam in writing_rows)
 
+    if module in {None, "speaking"}:
+        speaking_rows = await repository.list_all_user_speaking_exams_with_relations(db, user_id=user.id)
+        rows.extend(_serialize_student_attempt_item("speaking", exam) for exam in speaking_rows)
+
     filtered_rows = [row for row in rows if _matches_student_attempt_search(row, search)]
     if status is not None:
         filtered_rows = [row for row in filtered_rows if row["status"] == status]
@@ -684,3 +760,260 @@ async def list_student_attempts(
         "limit": normalized_limit,
         "offset": normalized_offset,
     }
+
+
+def _normalize_iso(value: datetime | None, fallback: datetime) -> str:
+    target = value or fallback
+    if target.tzinfo is None:
+        target = target.replace(tzinfo=UTC)
+    return target.astimezone(UTC).isoformat()
+
+
+def _safe_list_of_dict(value: Any) -> list[dict[str, Any]]:
+    if not isinstance(value, list):
+        return []
+
+    output: list[dict[str, Any]] = []
+    for item in value:
+        if isinstance(item, dict):
+            output.append(item)
+    return output
+
+
+def _build_speaking_session_from_exam(exam: SpeakingExam) -> SpeakingSessionState:
+    test_payload = serialize_speaking_test_detail(exam.speaking_test)
+    test_detail = SpeakingTestDetail.model_validate(test_payload)
+
+    first_part_id = test_detail.parts[0].id.value if test_detail.parts else "part1"
+
+    raw_payload = {
+        "id": str(exam.id),
+        "test_id": exam.speaking_test_id,
+        "attempt_id": f"speaking-attempt-{exam.id}",
+        "title": exam.speaking_test.title,
+        "status": exam.session_status,
+        "connection_state": exam.connection_state,
+        "current_speaker": exam.current_speaker,
+        "current_part_id": exam.current_part_id or first_part_id,
+        "current_question_index": exam.current_question_index,
+        "asked_question_ids": list(exam.asked_question_ids or []),
+        "note_draft": exam.note_draft or "",
+        "started_at": _normalize_iso(exam.started_at, exam.created_at),
+        "updated_at": _normalize_iso(exam.updated_at, exam.created_at),
+        "completed_at": _normalize_iso(exam.finished_at, exam.created_at) if exam.finished_at else None,
+        "elapsed_seconds": int(exam.elapsed_seconds or 0),
+        "prep_remaining_seconds": int(exam.prep_remaining_seconds or 0),
+        "transcript_segments": _safe_list_of_dict(exam.transcript_segments),
+        "turns": _safe_list_of_dict(exam.turns),
+        "integrity_events": _safe_list_of_dict(exam.integrity_events),
+        "result": exam.result_json,
+    }
+    return SpeakingSessionState.model_validate(raw_payload)
+
+
+def _apply_speaking_session_to_exam(exam: SpeakingExam, session: SpeakingSessionState) -> None:
+    exam.session_status = session.status.value
+    exam.connection_state = session.connection_state.value
+    exam.current_speaker = session.current_speaker.value
+    exam.current_part_id = session.current_part_id.value
+    exam.current_question_index = session.current_question_index
+    exam.asked_question_ids = list(session.asked_question_ids)
+    exam.note_draft = session.note_draft
+    exam.elapsed_seconds = session.elapsed_seconds
+    exam.prep_remaining_seconds = session.prep_remaining_seconds
+    exam.transcript_segments = [segment.model_dump(mode="json") for segment in session.transcript_segments]
+    exam.turns = [turn.model_dump(mode="json") for turn in session.turns]
+    exam.integrity_events = [event.model_dump(mode="json") for event in session.integrity_events]
+    exam.result_json = session.result.model_dump(mode="json") if session.result else None
+
+
+async def get_speaking_exam_session_owned(
+    db: AsyncSession,
+    user: User,
+    exam_id: int,
+) -> dict[str, Any]:
+    exam = await _get_speaking_exam_owned(db, exam_id, user.id)
+    return _build_speaking_session_from_exam(exam).model_dump(mode="json")
+
+
+async def persist_speaking_exam_session(
+    db: AsyncSession,
+    user: User,
+    exam_id: int,
+    session: SpeakingSessionState,
+) -> dict[str, Any]:
+    exam = await _get_speaking_exam_owned(db, exam_id, user.id)
+
+    if session.id != str(exam_id):
+        raise ApiError(code="exam_session_mismatch", message="Speaking session id mismatch", status_code=400)
+    if session.test_id != exam.speaking_test_id:
+        raise ApiError(code="exam_session_mismatch", message="Speaking test id mismatch", status_code=400)
+
+    if exam.started_at is None:
+        exam.started_at = datetime.now(UTC)
+
+    _apply_speaking_session_to_exam(exam, session)
+
+    if session.status in {SpeakingSessionStatus.finished, SpeakingSessionStatus.terminated} and exam.finished_at is None:
+        exam.finished_at = datetime.now(UTC)
+        exam.finish_reason = (
+            FinishReasonEnum.completed
+            if session.status == SpeakingSessionStatus.finished
+            else FinishReasonEnum.left
+        )
+
+    await db.commit()
+    await db.refresh(exam)
+
+    await speaking_realtime_hub.emit(
+        exam.id,
+        LiveServerEvent(
+            type="server.session.persisted",
+            exam_id=exam.id,
+            message="Speaking session snapshot stored on backend.",
+            payload={"status": exam.session_status, "connection": exam.connection_state},
+        ),
+    )
+
+    return _build_speaking_session_from_exam(exam).model_dump(mode="json")
+
+
+async def decide_speaking_examiner_turn(
+    db: AsyncSession,
+    user: User,
+    exam_id: int,
+    payload: SpeakingExaminerDecisionIn,
+) -> dict[str, Any]:
+    exam = await _get_speaking_exam_owned(db, exam_id, user.id)
+    if payload.session.test_id != exam.speaking_test_id:
+        raise ApiError(code="exam_session_mismatch", message="Speaking test id mismatch", status_code=400)
+
+    test_payload = serialize_speaking_test_detail(exam.speaking_test)
+    test_detail = SpeakingTestDetail.model_validate(test_payload)
+
+    decision = await decide_examiner_turn(payload, test_detail)
+    return SpeakingExaminerDecisionOut.model_validate(decision).model_dump(mode="json")
+
+
+async def finalize_speaking_exam(
+    db: AsyncSession,
+    user: User,
+    exam_id: int,
+    session: SpeakingSessionState,
+) -> dict[str, Any]:
+    exam = await _get_speaking_exam_owned(db, exam_id, user.id)
+    if session.id != str(exam.id):
+        raise ApiError(code="exam_session_mismatch", message="Speaking session id mismatch", status_code=400)
+
+    test_payload = serialize_speaking_test_detail(exam.speaking_test)
+    test_detail = SpeakingTestDetail.model_validate(test_payload)
+
+    session_copy = session.model_copy(deep=True)
+    if session_copy.result is None:
+        session_copy.result = build_speaking_result(session_copy, test_detail)
+
+    completed_at_dt = datetime.now(UTC)
+    if session_copy.completed_at is None:
+        session_copy.completed_at = completed_at_dt.isoformat()
+
+    if session_copy.status not in {SpeakingSessionStatus.finished, SpeakingSessionStatus.terminated}:
+        session_copy.status = SpeakingSessionStatus.finished
+
+    session_copy.connection_state = SpeakingConnectionState.disconnected
+    session_copy.current_speaker = SpeakingSpeaker.none
+
+    _apply_speaking_session_to_exam(exam, session_copy)
+
+    if exam.started_at is None:
+        exam.started_at = completed_at_dt
+    exam.finished_at = completed_at_dt
+    exam.finish_reason = (
+        FinishReasonEnum.left
+        if session_copy.status == SpeakingSessionStatus.terminated
+        else _resolve_finish_reason(
+            session_copy.elapsed_seconds,
+            int(exam.speaking_test.duration_minutes * 60),
+        )
+    )
+
+    await db.commit()
+    await db.refresh(exam)
+
+    attempt_status = (
+        SpeakingAttemptStatus.suspicious
+        if session_copy.integrity_events
+        else SpeakingAttemptStatus.completed
+    )
+
+    attempt = SpeakingAttemptOut(
+        id=f"speaking-attempt-{exam.id}",
+        exam_id=exam.id,
+        session_id=str(exam.id),
+        test_id=exam.speaking_test_id,
+        title=exam.speaking_test.title,
+        started_at=_normalize_iso(exam.started_at, exam.created_at),
+        completed_at=_normalize_iso(exam.finished_at, exam.created_at),
+        duration_seconds=session_copy.elapsed_seconds,
+        overall_band=session_copy.result.overall_band if session_copy.result else None,
+        criteria=session_copy.result.criteria if session_copy.result else [],
+        status=attempt_status,
+        integrity_events=session_copy.integrity_events,
+        result=session_copy.result,
+        transcript_segments=session_copy.transcript_segments,
+        question_ids=session_copy.asked_question_ids,
+    )
+
+    await speaking_realtime_hub.emit(
+        exam.id,
+        LiveServerEvent(
+            type="server.session.finalized",
+            exam_id=exam.id,
+            message="Speaking session finalized and attempt stored.",
+            payload={"attemptId": attempt.id, "overallBand": attempt.overall_band},
+        ),
+    )
+
+    return attempt.model_dump(mode="json")
+
+
+async def get_speaking_exam_session(exam_id: int, db: AsyncSession) -> dict[str, Any] | None:
+    exam = await repository.get_speaking_exam_with_relations(db, exam_id)
+    if exam is None:
+        return None
+    return _build_speaking_session_from_exam(exam).model_dump(mode="json")
+
+
+async def persist_speaking_session_payload(
+    exam_id: int,
+    session: SpeakingSessionState,
+    db: AsyncSession,
+) -> None:
+    exam = await repository.get_speaking_exam_with_relations(db, exam_id)
+    if exam is None:
+        return
+
+    _apply_speaking_session_to_exam(exam, session)
+    await db.commit()
+
+
+async def mark_speaking_session_terminated(exam_id: int, db: AsyncSession) -> None:
+    exam = await repository.get_speaking_exam_with_relations(db, exam_id)
+    if exam is None:
+        return
+
+    exam.session_status = "terminated"
+    exam.connection_state = "disconnected"
+    if exam.finished_at is None:
+        exam.finished_at = datetime.now(UTC)
+    if exam.finish_reason is None:
+        exam.finish_reason = FinishReasonEnum.left
+    await db.commit()
+
+
+async def mark_speaking_connection_disconnected(exam_id: int, db: AsyncSession) -> None:
+    exam = await repository.get_speaking_exam_with_relations(db, exam_id)
+    if exam is None:
+        return
+
+    exam.connection_state = "disconnected"
+    await db.commit()

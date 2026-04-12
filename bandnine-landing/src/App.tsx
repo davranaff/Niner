@@ -228,27 +228,76 @@ function App() {
     offset: ['start start', 'end end'],
   })
 
-  const chaosOpacity = useTransform(pressureProgress, [0, 0.42, 0.62], [1, 0.78, 0])
-  const fluentOpacity = useTransform(pressureProgress, [0.34, 0.62, 1], [0, 0.74, 1])
-  const pressureEngineScale = useTransform(pressureProgress, [0, 0.44, 1], [0.92, 1, 1.03])
-  const pressureEngineRotate = useTransform(pressureProgress, [0, 1], [5, -2.2])
-  const trajectoryLength = useTransform(pressureProgress, [0, 1], [0.05, 1])
-  const signalX = useTransform(pressureProgress, [0, 1], ['12%', '84%'])
-  const signalY = useTransform(pressureProgress, [0, 1], ['74%', '18%'])
-  const liveBand = useTransform(pressureProgress, [0, 1], [5.1, 8.95])
-  const liveConfidence = useTransform(pressureProgress, [0, 1], [18, 97])
+  const pressureProgressSmooth = useSpring(pressureProgress, {
+    stiffness: shouldReduceMotion ? 220 : 58,
+    damping: shouldReduceMotion ? 48 : 22,
+    mass: 0.86,
+  })
+
+  const chaosOpacity = useTransform(pressureProgressSmooth, [0, 0.42, 0.62], [1, 0.78, 0])
+  const fluentOpacity = useTransform(pressureProgressSmooth, [0.34, 0.62, 1], [0, 0.74, 1])
+  const pressureEngineScaleRaw = useTransform(pressureProgressSmooth, [0, 0.44, 1], [0.9, 1, 1.03])
+  const pressureEngineRotateRaw = useTransform(pressureProgressSmooth, [0, 1], [5.6, -1.8])
+  const pressureEngineLiftRaw = useTransform(pressureProgressSmooth, [0, 0.5, 1], [34, 0, -12])
+  const pressureEngineTiltXRaw = useTransform(pressureProgressSmooth, [0, 0.5, 1], [2.8, 0.2, -0.9])
+  const pressureEngineTiltYRaw = useTransform(pressureProgressSmooth, [0, 0.5, 1], [-5.4, -1.2, 2.1])
+  const pressureEngineScale = useSpring(pressureEngineScaleRaw, { stiffness: 84, damping: 24, mass: 0.78 })
+  const pressureEngineRotate = useSpring(pressureEngineRotateRaw, {
+    stiffness: 84,
+    damping: 24,
+    mass: 0.78,
+  })
+  const pressureEngineLift = useSpring(pressureEngineLiftRaw, { stiffness: 84, damping: 24, mass: 0.82 })
+  const pressureEngineTiltX = useSpring(pressureEngineTiltXRaw, { stiffness: 84, damping: 24, mass: 0.82 })
+  const pressureEngineTiltY = useSpring(pressureEngineTiltYRaw, { stiffness: 84, damping: 24, mass: 0.82 })
+  const pressureAuraOpacity = useTransform(
+    pressureProgressSmooth,
+    [0, 0.26, 0.6, 1],
+    [0.1, 0.35, 0.5, 0.24],
+  )
+  const pressureAuraY = useTransform(pressureProgressSmooth, [0, 1], [28, -20])
+  const pressureRingRotate = useTransform(pressureProgressSmooth, [0, 1], [-10, 12])
+  const pressureRingScale = useTransform(pressureProgressSmooth, [0, 1], [0.92, 1.06])
+  const pressureGlassOpacity = useTransform(
+    pressureProgressSmooth,
+    [0, 0.5, 1],
+    [0.18, 0.42, 0.3],
+  )
+  const trajectoryLength = useTransform(pressureProgressSmooth, [0, 1], [0.05, 1])
+  const signalX = useTransform(pressureProgressSmooth, [0, 1], ['12%', '84%'])
+  const signalY = useTransform(pressureProgressSmooth, [0, 1], ['74%', '18%'])
+  const liveBand = useTransform(pressureProgressSmooth, [0, 1], [5.1, 8.95])
+  const liveConfidence = useTransform(pressureProgressSmooth, [0, 1], [18, 97])
 
   const { scrollYProgress: examinerProgress } = useScroll({
     target: examinerSectionRef,
     offset: ['start start', 'end end'],
   })
 
-  const examinerYRaw = useTransform(examinerProgress, [0, 1], [74, -18])
-  const examinerRotateRaw = useTransform(examinerProgress, [0, 1], [3.4, -1.2])
-  const examinerScaleRaw = useTransform(examinerProgress, [0, 1], [0.97, 1])
-  const examinerHeightRaw = useTransform(examinerProgress, [0, 1], [560, 724])
+  const examinerProgressSmooth = useSpring(examinerProgress, {
+    stiffness: shouldReduceMotion ? 220 : 64,
+    damping: shouldReduceMotion ? 48 : 24,
+    mass: 0.9,
+  })
+
+  const examinerYRaw = useTransform(examinerProgressSmooth, [0, 1], [76, -14])
+  const examinerRotateXRaw = useTransform(examinerProgressSmooth, [0, 1], [4.2, -1.1])
+  const examinerRotateYRaw = useTransform(examinerProgressSmooth, [0, 1], [-5.2, 2.3])
+  const examinerScaleRaw = useTransform(examinerProgressSmooth, [0, 1], [0.965, 1.012])
+  const chamberGridY = useTransform(examinerProgressSmooth, [0, 1], [24, -18])
+  const chamberGridOpacity = useTransform(examinerProgressSmooth, [0, 0.36, 1], [0.2, 0.34, 0.28])
+  const chamberOrbitRotate = useTransform(examinerProgressSmooth, [0, 1], [-9, 12])
+  const chamberOrbitOpacity = useTransform(examinerProgressSmooth, [0, 0.4, 1], [0.1, 0.28, 0.2])
+  const chamberSheenX = useTransform(examinerProgressSmooth, [0, 1], ['-26%', '78%'])
+  const chamberSheenY = useTransform(examinerProgressSmooth, [0, 1], ['-18%', '8%'])
+  const chamberSheenOpacity = useTransform(examinerProgressSmooth, [0, 0.46, 1], [0.08, 0.26, 0.18])
   const examinerY = useSpring(examinerYRaw, { stiffness: 96, damping: 28, mass: 0.72 })
-  const examinerRotate = useSpring(examinerRotateRaw, {
+  const examinerRotateX = useSpring(examinerRotateXRaw, {
+    stiffness: 96,
+    damping: 28,
+    mass: 0.72,
+  })
+  const examinerRotateY = useSpring(examinerRotateYRaw, {
     stiffness: 96,
     damping: 28,
     mass: 0.72,
@@ -258,28 +307,25 @@ function App() {
     damping: 28,
     mass: 0.72,
   })
-  const examinerHeight = useSpring(examinerHeightRaw, {
-    stiffness: 96,
-    damping: 30,
-    mass: 0.74,
-  })
-  const examinerGlow = useTransform(examinerProgress, [0, 1], [0.22, 0.86])
+  const examinerGlow = useTransform(examinerProgressSmooth, [0, 1], [0.22, 0.86])
   const stepSignal = useTransform(
-    examinerProgress,
+    examinerProgressSmooth,
     [0, 0.22, 0.42, 0.64, 0.82, 1],
     [0, 1, 2, 3, 4, 4],
   )
-  const interruptionMeter = useTransform(examinerProgress, [0, 1], ['24%', '94%'])
-  const interruptionNeedle = useTransform(examinerProgress, [0, 1], ['15%', '87%'])
-  const followupOpacity = useTransform(examinerProgress, [0.38, 0.68, 1], [0, 0.92, 1])
-  const followupY = useTransform(examinerProgress, [0.38, 0.68, 1], [16, 0, -2])
+  const interruptionMeter = useTransform(examinerProgressSmooth, [0, 1], ['24%', '94%'])
+  const interruptionNeedle = useTransform(examinerProgressSmooth, [0, 1], ['15%', '87%'])
+  const followupOpacity = useTransform(examinerProgressSmooth, [0.38, 0.68, 1], [0, 0.92, 1])
+  const followupY = useTransform(examinerProgressSmooth, [0.38, 0.68, 1], [16, 0, -2])
 
   useMotionValueEvent(liveBand, 'change', (latest) => {
-    setBandScore(Number(latest.toFixed(1)))
+    const normalized = Number(latest.toFixed(1))
+    setBandScore((previous) => (previous === normalized ? previous : normalized))
   })
 
   useMotionValueEvent(liveConfidence, 'change', (latest) => {
-    setConfidence(Math.round(latest))
+    const normalized = Math.round(latest)
+    setConfidence((previous) => (previous === normalized ? previous : normalized))
   })
 
   useMotionValueEvent(stepSignal, 'change', (latest) => {
@@ -287,7 +333,7 @@ function App() {
       0,
       Math.min(examinerConversation.length - 1, Math.floor(latest)),
     )
-    setExaminerStep(normalized)
+    setExaminerStep((previous) => (previous === normalized ? previous : normalized))
   })
 
   useEffect(() => {
@@ -430,16 +476,24 @@ function App() {
     event.preventDefault()
     setActiveSection(href)
 
+    const targetElement = document.querySelector(href)
+    const targetY =
+      targetElement instanceof HTMLElement
+        ? targetElement.getBoundingClientRect().top + window.scrollY - 104
+        : null
+
     if (lenisRef.current) {
+      const distance = targetY === null ? window.innerHeight : Math.abs(targetY - window.scrollY)
+      const adaptiveDuration = Math.min(3.35, Math.max(1.3, (distance / window.innerHeight) * 0.5))
+
       lenisRef.current.scrollTo(href, {
-        duration: 1.45,
+        duration: adaptiveDuration,
         offset: -104,
         easing: (time) => 1 - Math.pow(1 - time, 3.2),
       })
       return
     }
 
-    const targetElement = document.querySelector(href)
     if (targetElement instanceof HTMLElement) {
       targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
@@ -757,8 +811,17 @@ function App() {
 
               <motion.div
                 className="trajectory-engine"
-                style={{ scale: pressureEngineScale, rotate: pressureEngineRotate }}
+                style={{
+                  y: pressureEngineLift,
+                  scale: pressureEngineScale,
+                  rotate: pressureEngineRotate,
+                  rotateX: pressureEngineTiltX,
+                  rotateY: pressureEngineTiltY,
+                }}
               >
+                <motion.div className="trajectory-aurora" style={{ opacity: pressureAuraOpacity, y: pressureAuraY }} />
+                <motion.div className="trajectory-rings" style={{ rotate: pressureRingRotate, scale: pressureRingScale }} />
+                <motion.div className="trajectory-glass-plane" style={{ opacity: pressureGlassOpacity }} />
                 <div className="trajectory-grid" />
                 <svg
                   className="trajectory-svg"
@@ -825,12 +888,18 @@ function App() {
                 className="exam-chamber"
                 style={{
                   y: examinerY,
-                  rotateX: examinerRotate,
+                  rotateX: examinerRotateX,
+                  rotateY: examinerRotateY,
                   scale: examinerScale,
-                  height: examinerHeight,
                 }}
               >
                 <motion.div className="exam-chamber-glow" style={{ opacity: examinerGlow }} />
+                <motion.div className="exam-depth-grid" style={{ y: chamberGridY, opacity: chamberGridOpacity }} />
+                <motion.div className="exam-orbit" style={{ rotate: chamberOrbitRotate, opacity: chamberOrbitOpacity }} />
+                <motion.div
+                  className="exam-sheen"
+                  style={{ x: chamberSheenX, y: chamberSheenY, opacity: chamberSheenOpacity }}
+                />
 
                 <div className="exam-header">
                   <p className="exam-mode-pill">
@@ -866,18 +935,23 @@ function App() {
                   </div>
 
                   <div className="transcript-stack">
-                    {examinerConversation.slice(0, examinerStep + 1).map((item, index) => (
+                    {examinerConversation.map((item, index) => {
+                      const isVisible = index <= examinerStep
+
+                      return (
                       <motion.article
                         key={`${item.role}-${item.marker}-${item.text}`}
-                        className={`transcript-slab ${item.tone}`}
-                        layout
-                        initial={{ opacity: 0, y: 18 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        className={`transcript-slab ${item.tone} ${isVisible ? 'is-active' : 'is-muted'}`}
+                        initial={false}
+                        animate={
+                          isVisible
+                            ? { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }
+                            : { opacity: 0.24, y: 12, scale: 0.985, filter: 'blur(1.6px)' }
+                        }
                         transition={{
-                          duration: 0.38,
-                          delay: 0.04 * index,
+                          duration: shouldReduceMotion ? 0.01 : 0.56,
+                          delay: shouldReduceMotion ? 0 : 0.045 * index,
                           ease: [0.22, 1, 0.36, 1],
-                          layout: { duration: 0.3, ease: [0.22, 1, 0.36, 1] },
                         }}
                       >
                         <header>
@@ -886,7 +960,8 @@ function App() {
                         </header>
                         <p>{item.text}</p>
                       </motion.article>
-                    ))}
+                      )
+                    })}
                   </div>
                 </div>
 

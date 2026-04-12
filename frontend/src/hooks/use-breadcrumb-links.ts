@@ -63,6 +63,17 @@ function buildDashboardBreadcrumbs(
     return fromMyTests ? [d, myTests, ...tail] : [d, ...tail];
   }
 
+  const speakingSession = matchPath({ path: '/dashboard/speaking/tests/:testId/session', end: true }, pathname);
+  if (speakingSession?.params.testId) {
+    const testId = String(speakingSession.params.testId);
+    const tail: BreadcrumbsLinkProps[] = [
+      { name: tx('layout.nav.speaking'), href: paths.ielts.speaking },
+      { name: tx('layout.breadcrumbs.test'), href: paths.ielts.speakingTest(testId) },
+      { name: tx('layout.breadcrumbs.session') },
+    ];
+    return fromMyTests ? [d, myTests, ...tail] : [d, ...tail];
+  }
+
   const readingAttempt = matchPath({ path: '/dashboard/reading/attempts/:attemptId', end: true }, pathname);
   if (readingAttempt?.params.attemptId) {
     const tail: BreadcrumbsLinkProps[] = [
@@ -85,6 +96,15 @@ function buildDashboardBreadcrumbs(
   if (writingAttempt?.params.attemptId) {
     const tail: BreadcrumbsLinkProps[] = [
       { name: tx('layout.nav.writing'), href: paths.ielts.writing },
+      { name: tx('layout.breadcrumbs.result') },
+    ];
+    return fromMyTests ? [d, myTests, ...tail] : [d, ...tail];
+  }
+
+  const speakingAttempt = matchPath({ path: '/dashboard/speaking/attempts/:attemptId', end: true }, pathname);
+  if (speakingAttempt?.params.attemptId) {
+    const tail: BreadcrumbsLinkProps[] = [
+      { name: tx('layout.nav.speaking'), href: paths.ielts.speaking },
       { name: tx('layout.breadcrumbs.result') },
     ];
     return fromMyTests ? [d, myTests, ...tail] : [d, ...tail];
@@ -117,6 +137,15 @@ function buildDashboardBreadcrumbs(
     ];
   }
 
+  const speakingTest = matchPath({ path: '/dashboard/speaking/tests/:testId', end: true }, pathname);
+  if (speakingTest?.params.testId) {
+    return [
+      d,
+      { name: tx('layout.nav.speaking'), href: paths.ielts.speaking },
+      { name: tx('layout.breadcrumbs.test') },
+    ];
+  }
+
   if (matchPath({ path: '/dashboard/reading', end: true }, pathname)) {
     return [d, { name: tx('layout.nav.reading') }];
   }
@@ -125,6 +154,9 @@ function buildDashboardBreadcrumbs(
   }
   if (matchPath({ path: '/dashboard/writing', end: true }, pathname)) {
     return [d, { name: tx('layout.nav.writing') }];
+  }
+  if (matchPath({ path: '/dashboard/speaking', end: true }, pathname)) {
+    return [d, { name: tx('layout.nav.speaking') }];
   }
   if (matchPath({ path: '/dashboard/my-tests', end: true }, pathname)) {
     return [d, { name: tx('layout.nav.my_tests') }];

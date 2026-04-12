@@ -95,11 +95,10 @@ export function useNavData() {
           },
           {
             title: tx('layout.nav.speaking'),
-            path: '#',
+            path: paths.ielts.speaking,
+            deepMatch: true,
             icon: ICONS.speaking,
-            disabled: true,
             roles: ['student'],
-            caption: tx('layout.nav.speaking_caption'),
           },
         ],
       },

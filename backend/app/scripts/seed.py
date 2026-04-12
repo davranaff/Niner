@@ -33,6 +33,9 @@ from app.db.models import (
     ReadingQuestionOption,
     ReadingTest,
     RoleEnum,
+    SpeakingPart,
+    SpeakingQuestion,
+    SpeakingTest,
     TeacherStudentLink,
     User,
     UserAnalytics,
@@ -507,10 +510,65 @@ async def seed_writing_tests(db: AsyncSession) -> None:
             )
 
 
+async def seed_speaking_tests(db: AsyncSession) -> None:
+    payload = _load_fixture("speaking_tests.yaml")
+    tests = _ensure_list(payload, "tests", "speaking_tests.yaml")
+
+    for test_row in tests:
+        speaking_test = SpeakingTest(
+            slug=str(test_row["slug"]),
+            title=str(test_row["title"]),
+            description=str(test_row["description"]),
+            level=str(test_row["level"]),
+            duration_minutes=int(test_row["duration_minutes"]),
+            instructions=[str(item) for item in _as_list(test_row.get("instructions"))],
+            scoring_focus=[str(item) for item in _as_list(test_row.get("scoring_focus"))],
+            is_active=bool(test_row.get("is_active", True)),
+        )
+        db.add(speaking_test)
+        await db.flush()
+
+        parts = test_row.get("parts", [])
+        if not isinstance(parts, list):
+            raise ValueError("Fixture 'speaking_tests.yaml' key 'parts' must be a list")
+
+        for part_row in parts:
+            part = SpeakingPart(
+                test_id=speaking_test.id,
+                part_id=str(part_row["part_id"]),
+                part_order=int(part_row["order"]),
+                title=str(part_row["title"]),
+                examiner_guidance=str(part_row["examiner_guidance"]),
+                duration_minutes=int(part_row["duration_minutes"]),
+            )
+            db.add(part)
+            await db.flush()
+
+            questions = part_row.get("questions", [])
+            if not isinstance(questions, list):
+                raise ValueError("Fixture 'speaking_tests.yaml' key 'questions' must be a list")
+
+            for question_row in questions:
+                db.add(
+                    SpeakingQuestion(
+                        part_id=part.id,
+                        question_code=str(question_row["question_code"]),
+                        question_order=int(question_row["order"]),
+                        short_label=str(question_row["short_label"]),
+                        prompt=str(question_row["prompt"]),
+                        expected_answer_seconds=int(question_row["expected_answer_seconds"]),
+                        rephrase_prompt=question_row.get("rephrase_prompt"),
+                        follow_ups=[str(item) for item in _as_list(question_row.get("follow_ups"))],
+                        cue_card=question_row.get("cue_card"),
+                    )
+                )
+
+
 async def seed_exam_content(db: AsyncSession) -> None:
     await seed_reading_tests(db)
     await seed_listening_tests(db)
     await seed_writing_tests(db)
+    await seed_speaking_tests(db)
 
 
 async def main() -> None:

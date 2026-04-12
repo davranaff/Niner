@@ -14,7 +14,7 @@ const SECONDS_IN_MINUTE = 60;
 export const MY_TESTS_DEFAULT_PAGE_SIZE = 10;
 
 function normalizeModule(value: string): StudentTestModule | undefined {
-  if (value === 'reading' || value === 'listening' || value === 'writing') {
+  if (value === 'reading' || value === 'listening' || value === 'writing' || value === 'speaking') {
     return value;
   }
 

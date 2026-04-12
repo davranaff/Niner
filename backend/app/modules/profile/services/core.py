@@ -377,8 +377,12 @@ def get_quick_links() -> DashboardQuickLinksOut:
                 path="/dashboard/writing",
                 module=ProgressTestTypeEnum.writing,
             ),
+            DashboardQuickLinkOut(
+                label="Speaking",
+                path="/dashboard/speaking",
+                module=ProgressTestTypeEnum.speaking,
+            ),
             DashboardQuickLinkOut(label="Profile", path="/dashboard/profile", module=None),
         ]
     )
-
 

@@ -3,7 +3,17 @@ from __future__ import annotations
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, Numeric, Text, UniqueConstraint
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    DateTime,
+    ForeignKey,
+    Integer,
+    Numeric,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base, TimestampMixin
@@ -124,3 +134,32 @@ class WritingExamPart(TimestampMixin, Base):
     __table_args__ = (
         UniqueConstraint("exam_id", "part_id", name="uq_writing_exam_part"),
     )
+
+
+class SpeakingExam(TimestampMixin, Base):
+    __tablename__ = "speaking_exams"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    speaking_test_id: Mapped[int] = mapped_column(
+        ForeignKey("speaking_tests.id", ondelete="CASCADE"), index=True
+    )
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    finish_reason: Mapped[FinishReasonEnum | None] = mapped_column(finish_reason_enum, nullable=True)
+    session_status: Mapped[str] = mapped_column(String(64), default="idle", nullable=False)
+    connection_state: Mapped[str] = mapped_column(String(32), default="offline", nullable=False)
+    current_speaker: Mapped[str] = mapped_column(String(16), default="none", nullable=False)
+    current_part_id: Mapped[str] = mapped_column(String(16), default="part1", nullable=False)
+    current_question_index: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    asked_question_ids: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
+    note_draft: Mapped[str] = mapped_column(Text, default="", nullable=False)
+    elapsed_seconds: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    prep_remaining_seconds: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    transcript_segments: Mapped[list[dict[str, object]]] = mapped_column(JSON, default=list, nullable=False)
+    turns: Mapped[list[dict[str, object]]] = mapped_column(JSON, default=list, nullable=False)
+    integrity_events: Mapped[list[dict[str, object]]] = mapped_column(JSON, default=list, nullable=False)
+    result_json: Mapped[dict[str, object] | None] = mapped_column(JSON, nullable=True)
+
+    user: Mapped[User] = relationship()
+    speaking_test: Mapped[SpeakingTest] = relationship()

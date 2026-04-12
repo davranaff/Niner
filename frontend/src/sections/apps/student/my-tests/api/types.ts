@@ -1,4 +1,4 @@
-export type StudentTestModule = 'reading' | 'listening' | 'writing';
+export type StudentTestModule = 'reading' | 'listening' | 'writing' | 'speaking';
 export type StudentAttemptStatus = 'in_progress' | 'completed' | 'terminated';
 export type StudentAttemptFinishReason = 'completed' | 'left' | 'time_is_up';
 

@@ -24,3 +24,4 @@ from app.modules.reading.models import *  # noqa: F401,F403
 from app.modules.teacher_students.models import *  # noqa: F401,F403
 from app.modules.users.models import *  # noqa: F401,F403
 from app.modules.writing.models import *  # noqa: F401,F403
+from app.modules.speaking.models import *  # noqa: F401,F403

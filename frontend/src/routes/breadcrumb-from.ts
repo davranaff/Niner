@@ -20,9 +20,11 @@ const STUDENT_MODULE_ATTEMPT_OR_SESSION_PATTERNS = [
   '/dashboard/reading/attempts/:attemptId',
   '/dashboard/listening/attempts/:attemptId',
   '/dashboard/writing/attempts/:attemptId',
+  '/dashboard/speaking/attempts/:attemptId',
   '/dashboard/reading/tests/:testId/session',
   '/dashboard/listening/tests/:testId/session',
   '/dashboard/writing/tests/:testId/session',
+  '/dashboard/speaking/tests/:testId/session',
 ] as const;
 
 /** Result or in-progress session under Reading / Listening / Writing (not the test intro page). */
