@@ -10,6 +10,7 @@ import {
   fetchListeningList,
   fetchMyListeningExams,
   fetchMyListeningTests,
+  saveListeningExamDraft,
   startListeningExam,
   submitListeningExam,
 } from './listening-requests';
@@ -178,6 +179,18 @@ export function useSubmitListeningExamMutation() {
       answers: ListeningSubmitAnswerInput[];
       finishReason?: 'left' | 'time_is_up';
     }) => submitListeningExam(examId, answers, finishReason)
+  );
+}
+
+export function useSaveListeningExamDraftMutation() {
+  return useMutate(
+    async ({
+      examId,
+      answers,
+    }: {
+      examId: number;
+      answers: ListeningSubmitAnswerInput[];
+    }) => saveListeningExamDraft(examId, answers)
   );
 }
 

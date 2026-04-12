@@ -101,18 +101,12 @@ export function finalizeSpeakingExam(examId: number, payload: SpeakingFinalizePa
   });
 }
 
-export async function synthesizeSpeakingTts(payload: SpeakingTtsPayload) {
-  const response = await fetch(speakingUrls.tts, {
+export async function synthesizeSpeakingTts(payload: SpeakingTtsPayload, signal?: AbortSignal) {
+  return request<ArrayBuffer>({
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
+    url: speakingUrls.tts,
+    data: payload,
+    responseType: 'arraybuffer',
+    signal,
   });
-
-  if (!response.ok) {
-    throw new Error(`TTS request failed with status ${response.status}`);
-  }
-
-  return response.arrayBuffer();
 }

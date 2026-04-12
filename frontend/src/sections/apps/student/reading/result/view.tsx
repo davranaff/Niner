@@ -21,6 +21,7 @@ import { AppsPageHeader, MetricCard } from 'src/pages/components/apps';
 import { formatRoundedBand } from 'src/sections/apps/common/utils/format-band';
 import { AppsAttemptResultSkeleton } from 'src/sections/apps/common/module-test/result/skeleton';
 import { AttemptAiSummaryCard } from 'src/sections/apps/common/module-test/result/attempt-ai-summary-card';
+import { PostExamAssignmentsCard } from 'src/sections/apps/common/module-test/result/post-exam-assignments-card';
 
 import {
   fetchMyReadingExams,
@@ -354,6 +355,8 @@ export default function AppsReadingResultView() {
       ) : (
         <AttemptAiSummaryCard module="reading" examId={examId} />
       )}
+
+      <PostExamAssignmentsCard module="reading" examId={examId} />
 
       <Card variant="outlined" sx={{ p: 3 }}>
         <Stack spacing={2}>

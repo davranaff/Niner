@@ -35,6 +35,12 @@ class ExamSubmitOut(BaseModel):
     time_spent: int | None
 
 
+class ExamDraftOut(BaseModel):
+    saved_items: int = Field(ge=0)
+    started_at: datetime | None
+    updated_at: datetime
+
+
 class ExamResultOut(BaseModel):
     result: ExamResultStatus
     score: float | None

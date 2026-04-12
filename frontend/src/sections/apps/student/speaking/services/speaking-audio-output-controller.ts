@@ -1,4 +1,4 @@
-import { HOST_API } from 'src/config-global';
+import { synthesizeSpeakingTts } from '../api/speaking-requests';
 
 interface SpeakingOutputCallbacks {
   onStart?: () => void;
@@ -40,15 +40,6 @@ function scoreVoice(voice: SpeechSynthesisVoice) {
   return score;
 }
 
-function getTtsEndpoint() {
-  const base = String(HOST_API ?? '').trim().replace(/\/$/, '');
-  if (base) {
-    return `${base}/api/v1/speaking/tts`;
-  }
-
-  return '/api/v1/speaking/tts';
-}
-
 function browserSpeechSynthesisSupported() {
   return typeof window !== 'undefined' && 'speechSynthesis' in window;
 }
@@ -87,23 +78,14 @@ export class SpeakingAudioOutputController {
   private async tryBackendTts(text: string, token: number, callbacks: SpeakingOutputCallbacks) {
     try {
       this.abortController = new AbortController();
-      const response = await fetch(getTtsEndpoint(), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const audioBuffer = await synthesizeSpeakingTts(
+        {
           text: normalizeSpeechText(text),
           voice: process.env.REACT_APP_SPEAKING_TTS_VOICE,
-        }),
-        signal: this.abortController.signal,
-      });
-
-      if (!response.ok) {
-        throw new Error(`TTS request failed with status ${response.status}`);
-      }
-
-      const blob = await response.blob();
+        },
+        this.abortController.signal
+      );
+      const blob = new Blob([audioBuffer], { type: 'audio/mpeg' });
       if (this.activeToken !== token) {
         return true;
       }
@@ -125,7 +107,14 @@ export class SpeakingAudioOutputController {
       await this.audioElement.play();
       return true;
     } catch (error) {
-      if (!(error instanceof DOMException && error.name === 'AbortError')) {
+      const aborted =
+        (error instanceof DOMException && error.name === 'AbortError') ||
+        (typeof error === 'object' &&
+          error !== null &&
+          'name' in error &&
+          String((error as { name?: unknown }).name) === 'CanceledError');
+
+      if (!aborted) {
         console.error('Backend TTS playback failed:', error);
       }
       return false;

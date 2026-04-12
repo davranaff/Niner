@@ -31,6 +31,30 @@ async def cover_teacher_student_binding(ctx: CoverageContext) -> None:
         headers=teacher_headers,
     )
     await ctx.hit(
+        "GET",
+        "/api/v1/teacher/dashboard",
+        "/api/v1/teacher/dashboard",
+        headers=teacher_headers,
+    )
+    await ctx.hit(
+        "GET",
+        "/api/v1/teacher/analytics",
+        "/api/v1/teacher/analytics",
+        headers=teacher_headers,
+    )
+    await ctx.hit(
+        "GET",
+        "/api/v1/teacher/students/insights",
+        "/api/v1/teacher/students/insights?limit=20&offset=0",
+        headers=teacher_headers,
+    )
+    await ctx.hit(
+        "GET",
+        "/api/v1/teacher/students/{student_id}/insights",
+        f"/api/v1/teacher/students/{ctx.users['student'].id}/insights",
+        headers=teacher_headers,
+    )
+    await ctx.hit(
         "DELETE",
         "/api/v1/teacher/students/{student_id}",
         f"/api/v1/teacher/students/{ctx.users['student'].id}",

@@ -21,6 +21,7 @@ import { AppsPageHeader, MetricCard } from 'src/pages/components/apps';
 import { formatRoundedBand } from 'src/sections/apps/common/utils/format-band';
 import { AppsAttemptResultSkeleton } from 'src/sections/apps/common/module-test/result/skeleton';
 import { AttemptAiSummaryCard } from 'src/sections/apps/common/module-test/result/attempt-ai-summary-card';
+import { PostExamAssignmentsCard } from 'src/sections/apps/common/module-test/result/post-exam-assignments-card';
 
 import {
   fetchMyWritingExams,
@@ -363,6 +364,8 @@ export default function AppsWritingResultView() {
       ) : (
         <AttemptAiSummaryCard module="writing" examId={attemptId} />
       )}
+
+      <PostExamAssignmentsCard module="writing" examId={attemptId} />
 
       {detailParts.length ? (
         <Card variant="outlined" sx={{ p: 3, mb: 3 }}>

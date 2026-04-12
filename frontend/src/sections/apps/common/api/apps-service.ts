@@ -1,5 +1,6 @@
 import { AUTH_USER_KEY } from 'src/auth/api/storage-keys';
 import { localStorageAvailable } from 'src/utils/storage-available';
+import { request } from 'src/utils/axios';
 import type { Pagination } from 'src/hooks/api';
 import {
   IELTS_ACTIVITIES,
@@ -61,6 +62,124 @@ import {
 
 const STORAGE_KEY = 'ielts-mock-store-v3';
 const MOCK_DELAY = 280;
+const teacherApiUrls = {
+  dashboard: '/api/v1/teacher/dashboard',
+  analytics: '/api/v1/teacher/analytics',
+  students: '/api/v1/teacher/students/insights',
+  studentDetails: (studentId: string) => `/api/v1/teacher/students/${studentId}/insights`,
+} as const;
+
+type BackendTeacherModuleBands = {
+  reading: number;
+  listening: number;
+  writing: number;
+};
+
+type BackendTeacherStudentAnalytics = {
+  studentId: number;
+  studentName: string;
+  studentEmail: string;
+  targetBand: number;
+  latestBand: number;
+  moduleBands: BackendTeacherModuleBands;
+  attemptsCount: number;
+  weakModule: ActiveIeltsModule;
+  lastActivity: string | null;
+  integrityFlag: boolean;
+  strengths: string[];
+  weaknesses: string[];
+  recommendations: string[];
+  recentAttemptIds: string[];
+};
+
+type BackendTeacherAttemptSummary = {
+  attemptId: string;
+  studentId: number;
+  studentName: string;
+  studentEmail: string;
+  module: 'reading' | 'listening' | 'writing' | 'speaking';
+  testId: number;
+  testTitle: string;
+  status: 'in_progress' | 'completed' | 'terminated';
+  finishReason: 'completed' | 'left' | 'time_is_up' | null;
+  updatedAt: string | null;
+  estimatedBand: number | null;
+  timeLimitSeconds: number;
+};
+
+type BackendTeacherDashboardResponse = {
+  teacher: {
+    id: number;
+    name: string;
+    email: string;
+  };
+  totalStudents: number;
+  activeStudents: number;
+  averageOverallBand: number;
+  averageModuleBands: BackendTeacherModuleBands;
+  recentAttempts: BackendTeacherAttemptSummary[];
+  studentsAtRisk: BackendTeacherStudentAnalytics[];
+  topImprovers: BackendTeacherStudentAnalytics[];
+  integrityAlerts: Array<{
+    id: string;
+    attemptId: string;
+    studentId: number;
+    studentName: string;
+    module: string;
+    severity: string;
+    createdAt: string;
+    description: string;
+  }>;
+  completionStats: {
+    completed: number;
+    terminated: number;
+    inProgress: number;
+  };
+};
+
+type BackendTeacherStudentsPageResponse = {
+  results: BackendTeacherStudentAnalytics[];
+  count: number;
+  limit: number;
+  offset: number;
+};
+
+type BackendTeacherStudentDetailsResponse = {
+  student: {
+    id: number;
+    name: string;
+    email: string;
+    targetBand: number;
+  };
+  analytics: BackendTeacherStudentAnalytics;
+  latestAttempts: BackendTeacherAttemptSummary[];
+  writingSubmissions: Array<{
+    id: string;
+    attemptId: string;
+    draftSavedAt: string | null;
+    responses: Record<string, string>;
+  }>;
+  integrityEvents: Array<{
+    id: string;
+    attemptId: string;
+    type: string;
+    severity: string;
+    createdAt: string;
+    description: string;
+  }>;
+};
+
+type BackendTeacherAnalyticsResponse = {
+  averageOverallBand: number;
+  averageModuleBands: BackendTeacherModuleBands;
+  weakAreas: Array<{ label: string; count: number }>;
+  questionTypeIssues: Array<{ label: string; count: number }>;
+  completionVsTermination: {
+    completed: number;
+    terminated: number;
+  };
+  atRiskStudents: BackendTeacherStudentAnalytics[];
+};
 
 const PASSAGE_BY_ID = new Map(IELTS_PASSAGES.map((passage) => [passage.id, passage]));
 const TEST_BY_ID = new Map(IELTS_TESTS.map((test) => [test.id, test]));
@@ -162,10 +281,6 @@ function findStudent(store: MockStore, studentId: string) {
   return store.students.find((student) => student.id === studentId) || null;
 }
 
-function findTeacher(store: MockStore, teacherId: string) {
-  return store.teachers.find((teacher) => teacher.id === teacherId) || null;
-}
-
 function getCurrentStudent(store: MockStore) {
   const auth = getCurrentAuthRecord();
   if (auth?.id) {
@@ -178,20 +293,6 @@ function getCurrentStudent(store: MockStore) {
   }
 
   return store.students[0];
-}
-
-function getCurrentTeacher(store: MockStore) {
-  const auth = getCurrentAuthRecord();
-  if (auth?.id) {
-    const byId = findTeacher(store, auth.id);
-    if (byId) return byId;
-  }
-
-  if (auth?.email) {
-    return store.teachers.find((teacher) => teacher.email === auth.email) || store.teachers[0];
-  }
-
-  return store.teachers[0];
 }
 
 function getTest(testId: string) {
@@ -223,12 +324,6 @@ function getWritingPromptsForTest(testId: string) {
 function getAttemptsForStudent(store: MockStore, studentId: string) {
   return store.attempts
     .filter((attempt) => attempt.studentId === studentId)
-    .sort((left, right) => compareDateDesc(left.updatedAt, right.updatedAt));
-}
-
-function getTeacherAttempts(store: MockStore, teacher: MockTeacher) {
-  return store.attempts
-    .filter((attempt) => teacher.studentIds.includes(attempt.studentId))
     .sort((left, right) => compareDateDesc(left.updatedAt, right.updatedAt));
 }
 
@@ -592,6 +687,163 @@ function buildAttemptSummary(store: MockStore, attempt: MockAttempt): AttemptSum
   };
 }
 
+function mapBackendFinishReasonToMock(
+  value: BackendTeacherAttemptSummary['finishReason']
+): FinishReason {
+  if (value === 'time_is_up') {
+    return 'timeout';
+  }
+  if (value === 'left') {
+    return 'tab_switch';
+  }
+  return 'completed';
+}
+
+function buildSyntheticMockStudent(payload: {
+  studentId: number;
+  studentName: string;
+  studentEmail: string;
+  targetBand: number;
+}): MockStudent {
+  return {
+    id: String(payload.studentId),
+    name: payload.studentName,
+    email: payload.studentEmail,
+    role: 'student',
+    teacherId: 'teacher',
+    targetBand: payload.targetBand,
+    currentEstimatedBand: payload.targetBand,
+    weeklyStudyMinutes: 0,
+    streakDays: 0,
+    activePlan: {
+      name: 'Teacher-linked',
+      attemptsLimit: 0,
+      attemptsUsed: 0,
+      renewalDate: new Date().toISOString(),
+    },
+    createdAt: new Date().toISOString(),
+  };
+}
+
+function buildSyntheticMockTest(payload: {
+  module: ActiveIeltsModule;
+  testId: number;
+  testTitle: string;
+  timeLimitSeconds: number;
+}): MockTest {
+  return {
+    id: String(payload.testId),
+    module: payload.module,
+    title: payload.testTitle,
+    description: payload.testTitle,
+    overview: payload.testTitle,
+    durationMinutes: Math.max(1, Math.ceil(payload.timeLimitSeconds / 60)),
+    difficulty: 'intermediate',
+    featured: false,
+    tag: payload.module,
+    questionCount: 0,
+    sectionCount: 0,
+    taskCount: payload.module === 'writing' ? 2 : 0,
+    sectionIds: [],
+    writingPromptIds: [],
+    instructions: [],
+  };
+}
+
+function toMockTeacherStudentAnalytics(
+  item: BackendTeacherStudentAnalytics
+): MockTeacherStudentAnalytics {
+  return {
+    studentId: String(item.studentId),
+    studentName: item.studentName,
+    studentEmail: item.studentEmail,
+    targetBand: item.targetBand,
+    latestBand: item.latestBand,
+    moduleBands: {
+      reading: item.moduleBands.reading,
+      listening: item.moduleBands.listening,
+      writing: item.moduleBands.writing,
+    },
+    attemptsCount: item.attemptsCount,
+    weakModule: item.weakModule,
+    lastActivity: item.lastActivity || new Date().toISOString(),
+    integrityFlag: item.integrityFlag,
+    strengths: item.strengths,
+    weaknesses: item.weaknesses,
+    recommendations: item.recommendations,
+    recentAttemptIds: item.recentAttemptIds,
+  };
+}
+
+function toAttemptSummaryFromBackend(
+  item: BackendTeacherAttemptSummary
+): AttemptSummary | null {
+  if (item.module === 'speaking') {
+    return null;
+  }
+
+  const module = item.module as ActiveIeltsModule;
+  const attempt: MockAttempt = {
+    id: item.attemptId,
+    testId: String(item.testId),
+    module,
+    studentId: String(item.studentId),
+    status: item.status,
+    finishReason: mapBackendFinishReasonToMock(item.finishReason),
+    startedAt: item.updatedAt || new Date().toISOString(),
+    updatedAt: item.updatedAt || new Date().toISOString(),
+    submittedAt: item.status === 'in_progress' ? undefined : item.updatedAt || undefined,
+    terminatedAt: item.status === 'terminated' ? item.updatedAt || undefined : undefined,
+    durationMinutes: Math.max(1, Math.ceil(item.timeLimitSeconds / 60)),
+    remainingTimeSec: 0,
+    answers: {},
+    integrityEventIds: [],
+    autosaveCount: 0,
+  };
+  const student = buildSyntheticMockStudent({
+    studentId: item.studentId,
+    studentName: item.studentName,
+    studentEmail: item.studentEmail,
+    targetBand: item.estimatedBand || 6,
+  });
+  const test = buildSyntheticMockTest({
+    module,
+    testId: item.testId,
+    testTitle: item.testTitle,
+    timeLimitSeconds: item.timeLimitSeconds,
+  });
+  const result: MockResult | null =
+    item.estimatedBand == null
+      ? null
+      : {
+          id: `result-${item.attemptId}`,
+          attemptId: item.attemptId,
+          testId: String(item.testId),
+          module,
+          studentId: String(item.studentId),
+          rawScore: 0,
+          scaledRawScore: 0,
+          totalQuestions: 0,
+          estimatedBand: item.estimatedBand,
+          finishReason: mapBackendFinishReasonToMock(item.finishReason),
+          timeSpentSec: item.timeLimitSeconds,
+          sectionBreakdown: [],
+          questionTypeBreakdown: [],
+          strengths: [],
+          weaknesses: [],
+          summary: 'Exam attempt summary generated from backend attempt record.',
+          recommendations: [],
+          answerReview: [],
+        };
+
+  return {
+    attempt,
+    test,
+    student,
+    result,
+  };
+}
+
 function computeModuleBands(store: MockStore, studentId: string): ModuleBandMap {
   const attempts = getAttemptsForStudent(store, studentId);
   const empty: ModuleBandMap = {
@@ -683,44 +935,6 @@ function createTestListItem(store: MockStore, studentId: string, test: MockTest)
     status: inProgressAttempt ? 'in_progress' : latestAttempt?.status || 'not_started',
     lastAttemptId: latestAttempt?.id || null,
     inProgressAttemptId: inProgressAttempt?.id || null,
-  };
-}
-
-function buildTeacherStudentAnalytics(
-  store: MockStore,
-  student: MockStudent
-): MockTeacherStudentAnalytics {
-  const attempts = getAttemptsForStudent(store, student.id);
-  const moduleBands = computeModuleBands(store, student.id);
-  const latestResult = attempts.find(
-    (attempt) => attempt.status === 'completed' || attempt.status === 'terminated'
-  );
-  const latestBand = latestResult
-    ? buildResult(store, latestResult).estimatedBand
-    : student.currentEstimatedBand;
-  const { weakest, strongest } = findStrongestWeakestModule(moduleBands);
-  const integrityFlag = attempts.some((attempt) => attempt.integrityEventIds.length > 0);
-
-  return {
-    studentId: student.id,
-    studentName: student.name,
-    studentEmail: student.email,
-    targetBand: student.targetBand,
-    latestBand,
-    moduleBands,
-    attemptsCount: attempts.length,
-    weakModule: weakest,
-    lastActivity: attempts[0]?.updatedAt || student.createdAt,
-    integrityFlag,
-    strengths: [`${formatModuleLabel(strongest)} is currently the strongest module.`],
-    weaknesses: [`${formatModuleLabel(weakest)} needs the most support.`],
-    recommendations: [
-      `Schedule a focused ${formatModuleLabel(weakest).toLowerCase()} review block this week.`,
-      integrityFlag
-        ? 'Address exam discipline before the next strict mock.'
-        : 'Keep momentum with one full mock and one targeted drill.',
-    ],
-    recentAttemptIds: attempts.slice(0, 3).map((attempt) => attempt.id),
   };
 }
 
@@ -858,61 +1072,55 @@ export async function getStudentDashboard(): Promise<StudentDashboardData> {
 }
 
 export async function getTeacherDashboard(): Promise<TeacherDashboardData> {
-  await wait();
-
-  return withStore((store) => {
-    const teacher = getCurrentTeacher(store);
-    const analytics = teacher.studentIds
-      .map((studentId) => findStudent(store, studentId))
-      .filter(Boolean)
-      .map((student) => buildTeacherStudentAnalytics(store, student as MockStudent));
-    const attempts = getTeacherAttempts(store, teacher);
-    const averageModuleBands = analytics.reduce<ModuleBandMap>(
-      (acc, item) => {
-        acc.reading += item.moduleBands.reading;
-        acc.listening += item.moduleBands.listening;
-        acc.writing += item.moduleBands.writing;
-        return acc;
-      },
-      { reading: 0, listening: 0, writing: 0 }
-    );
-    const divisor = analytics.length || 1;
-
-    return {
-      teacher: cloneValue(teacher),
-      totalStudents: teacher.studentIds.length,
-      activeStudents: analytics.filter(
-        (item) => new Date(item.lastActivity) > new Date(Date.now() - 1000 * 60 * 60 * 24 * 7)
-      ).length,
-      averageOverallBand: Number(
-        Math.round(analytics.reduce((sum, item) => sum + item.latestBand, 0) / divisor || 0)
-      ),
-      averageModuleBands: {
-        reading: Math.round(averageModuleBands.reading / divisor),
-        listening: Math.round(averageModuleBands.listening / divisor),
-        writing: Math.round(averageModuleBands.writing / divisor),
-      },
-      recentAttempts: attempts.slice(0, 5).map((attempt) => buildAttemptSummary(store, attempt)),
-      studentsAtRisk: analytics
-        .filter((item) => item.latestBand < item.targetBand || item.integrityFlag)
-        .sort((left, right) => left.latestBand - right.latestBand)
-        .slice(0, 3),
-      topImprovers: [...analytics]
-        .sort((left, right) => right.latestBand - left.latestBand)
-        .slice(0, 3),
-      integrityAlerts: cloneValue(
-        store.integrityEvents
-          .filter((event) => teacher.studentIds.includes(event.studentId))
-          .sort((left, right) => compareDateDesc(left.createdAt, right.createdAt))
-          .slice(0, 5)
-      ),
-      completionStats: {
-        completed: attempts.filter((attempt) => attempt.status === 'completed').length,
-        terminated: attempts.filter((attempt) => attempt.status === 'terminated').length,
-        inProgress: attempts.filter((attempt) => attempt.status === 'in_progress').length,
-      },
-    };
+  const response = await request<BackendTeacherDashboardResponse>({
+    method: 'GET',
+    url: teacherApiUrls.dashboard,
   });
+
+  const teacher: MockTeacher = {
+    id: String(response.teacher.id),
+    name: response.teacher.name,
+    email: response.teacher.email,
+    role: 'teacher',
+    bio: '',
+    studentIds: Array.from(
+      new Set(
+        [...response.studentsAtRisk, ...response.topImprovers].map((item) => String(item.studentId))
+      )
+    ),
+    createdAt: new Date().toISOString(),
+  };
+
+  return {
+    teacher,
+    totalStudents: response.totalStudents,
+    activeStudents: response.activeStudents,
+    averageOverallBand: response.averageOverallBand,
+    averageModuleBands: {
+      reading: response.averageModuleBands.reading,
+      listening: response.averageModuleBands.listening,
+      writing: response.averageModuleBands.writing,
+    },
+    recentAttempts: response.recentAttempts
+      .map((item) => toAttemptSummaryFromBackend(item))
+      .filter((item): item is AttemptSummary => Boolean(item)),
+    studentsAtRisk: response.studentsAtRisk.map(toMockTeacherStudentAnalytics),
+    topImprovers: response.topImprovers.map(toMockTeacherStudentAnalytics),
+    integrityAlerts: response.integrityAlerts.map((item) => ({
+      id: item.id,
+      attemptId: item.attemptId,
+      studentId: String(item.studentId),
+      type: 'route_leave',
+      severity: item.severity === 'critical' ? 'high' : 'medium',
+      createdAt: item.createdAt,
+      description: item.description,
+    })),
+    completionStats: {
+      completed: response.completionStats.completed,
+      terminated: response.completionStats.terminated,
+      inProgress: response.completionStats.inProgress,
+    },
+  };
 }
 
 export async function getModuleTests(
@@ -1364,130 +1572,94 @@ export async function getStudentProfile(): Promise<StudentProfileData> {
 export async function getTeacherStudents(
   filters: TeacherStudentsFilters
 ): Promise<PaginatedTeacherStudents> {
-  await wait();
-
-  return withStore((store) => {
-    const teacher = getCurrentTeacher(store);
-    const search = filters.search.trim().toLowerCase();
-    const analytics = teacher.studentIds
-      .map((studentId) => findStudent(store, studentId))
-      .filter(Boolean)
-      .map((student) => buildTeacherStudentAnalytics(store, student as MockStudent))
-      .filter((item) => {
-        const student = getStudentByIdOrThrow(store, item.studentId);
-
-        if (search) {
-          const haystack = `${student.name} ${student.email}`.toLowerCase();
-          if (!haystack.includes(search)) {
-            return false;
-          }
-        }
-
-        if (
-          filters.weakModule &&
-          filters.weakModule !== 'all' &&
-          item.weakModule !== filters.weakModule
-        ) {
-          return false;
-        }
-
-        if (filters.integrity === 'flagged' && !item.integrityFlag) {
-          return false;
-        }
-
-        return true;
-      })
-      .sort((left, right) => compareDateDesc(left.lastActivity, right.lastActivity));
-
-    return paginate(analytics, filters.page, filters.pageSize);
+  const response = await request<BackendTeacherStudentsPageResponse>({
+    method: 'GET',
+    url: teacherApiUrls.students,
+    params: {
+      search: filters.search.trim() || undefined,
+      weakModule: filters.weakModule && filters.weakModule !== 'all' ? filters.weakModule : undefined,
+      integrity: filters.integrity && filters.integrity !== 'all' ? filters.integrity : undefined,
+      limit: filters.pageSize,
+      offset: Math.max(0, (filters.page - 1) * filters.pageSize),
+    },
   });
+
+  const nextPage = response.offset + response.limit < response.count ? filters.page + 1 : null;
+  const prevPage = filters.page > 1 ? filters.page - 1 : null;
+
+  return {
+    count: response.count,
+    next: nextPage ? `?page=${nextPage}` : null,
+    previous: prevPage ? `?page=${prevPage}` : null,
+    results: response.results.map(toMockTeacherStudentAnalytics),
+  };
 }
 
 export async function getTeacherStudentById(studentId: string): Promise<TeacherStudentDetailsData> {
-  await wait();
-
-  return withStore((store) => {
-    const student = getStudentByIdOrThrow(store, studentId);
-    const attempts = getAttemptsForStudent(store, student.id);
-
-    return {
-      student: cloneValue(student),
-      analytics: buildTeacherStudentAnalytics(store, student),
-      latestAttempts: attempts.slice(0, 5).map((attempt) => buildAttemptSummary(store, attempt)),
-      writingSubmissions: cloneValue(
-        store.writingSubmissions.filter((submission) => submission.studentId === student.id)
-      ),
-      integrityEvents: cloneValue(
-        store.integrityEvents.filter((event) => event.studentId === student.id)
-      ),
-    };
+  const response = await request<BackendTeacherStudentDetailsResponse>({
+    method: 'GET',
+    url: teacherApiUrls.studentDetails(studentId),
   });
+
+  const student: MockStudent = {
+    ...buildSyntheticMockStudent({
+      studentId: response.student.id,
+      studentName: response.student.name,
+      studentEmail: response.student.email,
+      targetBand: response.student.targetBand,
+    }),
+    currentEstimatedBand: response.analytics.latestBand,
+  };
+
+  return {
+    student,
+    analytics: toMockTeacherStudentAnalytics(response.analytics),
+    latestAttempts: response.latestAttempts
+      .map((item) => toAttemptSummaryFromBackend(item))
+      .filter((item): item is AttemptSummary => Boolean(item)),
+    writingSubmissions: response.writingSubmissions.map((item) => ({
+      id: item.id,
+      attemptId: item.attemptId,
+      studentId: String(response.student.id),
+      responses: item.responses,
+      wordCounts: Object.fromEntries(
+        Object.entries(item.responses).map(([key, value]) => [key, countWords(value)])
+      ),
+      draftSavedAt: item.draftSavedAt || new Date().toISOString(),
+      submittedAt: undefined,
+      rubric: undefined,
+      evaluatorSummary: undefined,
+    })),
+    integrityEvents: response.integrityEvents.map((item) => ({
+      id: item.id,
+      attemptId: item.attemptId,
+      studentId: String(response.student.id),
+      type: 'route_leave',
+      severity: item.severity === 'critical' ? 'high' : 'medium',
+      createdAt: item.createdAt,
+      description: item.description,
+    })),
+  };
 }
 
 export async function getTeacherAnalytics(): Promise<TeacherAnalyticsData> {
-  await wait();
-
-  return withStore((store) => {
-    const teacher = getCurrentTeacher(store);
-    const analytics = teacher.studentIds
-      .map((studentId) => findStudent(store, studentId))
-      .filter(Boolean)
-      .map((student) => buildTeacherStudentAnalytics(store, student as MockStudent));
-
-    const attempts = getTeacherAttempts(store, teacher);
-    const results = attempts
-      .filter((attempt) => attempt.status === 'completed' || attempt.status === 'terminated')
-      .map((attempt) => buildResult(store, attempt));
-
-    const weakAreas = analytics.reduce<Record<string, number>>((acc, item) => {
-      acc[item.weakModule] = (acc[item.weakModule] || 0) + 1;
-      return acc;
-    }, {});
-
-    const questionTypeIssues = results.reduce<Record<string, number>>((acc, result) => {
-      result.questionTypeBreakdown.forEach((item) => {
-        const accuracy = item.total ? item.correct / item.total : 0;
-        if (accuracy < 0.7) {
-          acc[item.type] = (acc[item.type] || 0) + 1;
-        }
-      });
-      return acc;
-    }, {});
-
-    const averageModuleBands = analytics.reduce<ModuleBandMap>(
-      (acc, item) => {
-        acc.reading += item.moduleBands.reading;
-        acc.listening += item.moduleBands.listening;
-        acc.writing += item.moduleBands.writing;
-        return acc;
-      },
-      { reading: 0, listening: 0, writing: 0 }
-    );
-    const divisor = analytics.length || 1;
-
-    return {
-      averageOverallBand: Number(
-        Math.round(analytics.reduce((sum, item) => sum + item.latestBand, 0) / divisor || 0)
-      ),
-      averageModuleBands: {
-        reading: Math.round(averageModuleBands.reading / divisor),
-        listening: Math.round(averageModuleBands.listening / divisor),
-        writing: Math.round(averageModuleBands.writing / divisor),
-      },
-      weakAreas: Object.entries(weakAreas).map(([label, count]) => ({ label, count })),
-      questionTypeIssues: Object.entries(questionTypeIssues).map(([label, count]) => ({
-        label,
-        count,
-      })),
-      completionVsTermination: {
-        completed: attempts.filter((attempt) => attempt.status === 'completed').length,
-        terminated: attempts.filter((attempt) => attempt.status === 'terminated').length,
-      },
-      atRiskStudents: analytics.filter(
-        (item) => item.latestBand < item.targetBand || item.integrityFlag
-      ),
-    };
+  const response = await request<BackendTeacherAnalyticsResponse>({
+    method: 'GET',
+    url: teacherApiUrls.analytics,
   });
+
+  return {
+    averageOverallBand: response.averageOverallBand,
+    averageModuleBands: {
+      reading: response.averageModuleBands.reading,
+      listening: response.averageModuleBands.listening,
+      writing: response.averageModuleBands.writing,
+    },
+    weakAreas: response.weakAreas,
+    questionTypeIssues: response.questionTypeIssues,
+    completionVsTermination: response.completionVsTermination,
+    atRiskStudents: response.atRiskStudents.map(toMockTeacherStudentAnalytics),
+  };
 }
 
 export async function saveWritingDraft(input: {

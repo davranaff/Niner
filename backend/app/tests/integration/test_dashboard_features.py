@@ -122,7 +122,7 @@ async def test_dashboard_activity_stats_history_and_quick_links(client, db_sessi
     assert filtered_stats.status_code == 200
     filtered_stats_payload = filtered_stats.json()
     assert filtered_stats_payload["total_attempts"] == 4
-    assert Decimal(str(filtered_stats_payload["predicted_overall_band"])) == Decimal("6.8")
+    assert Decimal(str(filtered_stats_payload["predicted_overall_band"])) == Decimal("7.0")
 
     history = await client.get("/api/v1/dashboard/history?limit=2&offset=0", headers=headers)
     assert history.status_code == 200

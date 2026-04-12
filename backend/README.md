@@ -50,9 +50,10 @@ Default demo users (exactly 3):
 
 ## Documentation
 - Docs index: `backend/docs/README.md`
-- Exams: `backend/docs/exams/README.md`
+- Exams lifecycle + scoring + endpoints: `backend/docs/exams/README.md`
+- Post-exam assignments domain: `backend/docs/assignments/README.md`
 - AI Summary + Teacher Binding + SSE: `backend/docs/ai/README.md`
-- Dashboard split endpoints: `backend/docs/dashboard/README.md`
+- Dashboard contracts: `backend/docs/dashboard/README.md`
 
 ## Auth
 - Access token: 15 min

@@ -30,6 +30,7 @@ import {
 import { WritingPartTabs, WritingPromptAssets } from '../components';
 import {
   useMyWritingExamsQuery,
+  useSaveWritingExamDraftMutation,
   useStartWritingFlowMutation,
   useSubmitWritingExamMutation,
   useWritingDetailQuery,
@@ -73,6 +74,7 @@ export default function AppsWritingSessionView() {
   const examsQuery = useMyWritingExamsQuery({ enabled: testId > 0 });
   const startWritingFlowMutation = useStartWritingFlowMutation();
   const submitWritingExamMutation = useSubmitWritingExamMutation();
+  const saveWritingDraftMutation = useSaveWritingExamDraftMutation();
   const writingExamResultMutation = useWritingExamResultMutation();
   const { values: sessionQuery, setValues: setSessionQuery } =
     useUrlQueryState(writingSessionQuerySchema);
@@ -89,6 +91,7 @@ export default function AppsWritingSessionView() {
   const bootstrapTestRef = useRef<number | null>(null);
   const allowExitRef = useRef(false);
   const finalizingRef = useRef(false);
+  const draftSyncTimerRef = useRef<number | null>(null);
 
   const detail = detailQuery.data;
   const examItems = useMemo(() => examsQuery.data?.items ?? [], [examsQuery.data]);
@@ -159,12 +162,34 @@ export default function AppsWritingSessionView() {
   }, [selectedPart, selectedTaskOrder, setSessionQuery]);
 
   useEffect(() => {
-    if (!activeExamId) {
-      return;
+    if (!activeExamId || !detail) {
+      return undefined;
     }
 
     setWritingDraftResponses(activeExamId, responses);
-  }, [activeExamId, responses]);
+
+    if (draftSyncTimerRef.current) {
+      window.clearTimeout(draftSyncTimerRef.current);
+    }
+
+    const payload = buildWritingSubmitPayload(detail, responses);
+    draftSyncTimerRef.current = window.setTimeout(() => {
+      if (finalizingRef.current) {
+        return;
+      }
+      saveWritingDraftMutation.mutate({
+        examId: activeExamId,
+        parts: payload,
+      });
+    }, 700);
+
+    return () => {
+      if (draftSyncTimerRef.current) {
+        window.clearTimeout(draftSyncTimerRef.current);
+        draftSyncTimerRef.current = null;
+      }
+    };
+  }, [activeExamId, detail, responses, saveWritingDraftMutation]);
 
   useSessionCountdown({
     attemptId: activeExamId ? String(activeExamId) : '',
@@ -183,6 +208,10 @@ export default function AppsWritingSessionView() {
       finalizingRef.current = true;
       allowExitRef.current = true;
       setSubmitDialogOpen(false);
+      if (draftSyncTimerRef.current) {
+        window.clearTimeout(draftSyncTimerRef.current);
+        draftSyncTimerRef.current = null;
+      }
 
       const finishedAt = new Date().toISOString();
       const startedAt = activeExamStartedAt ?? finishedAt;

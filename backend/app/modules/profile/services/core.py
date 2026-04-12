@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from datetime import UTC, date, datetime, timedelta
-from decimal import ROUND_HALF_UP, Decimal
+from decimal import Decimal
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.pagination import OffsetPage, serialize_page
 from app.db.models import ProgressTestTypeEnum, User, UserAnalytics, UserProfile, UserProgress
+from app.modules.exams.score import round_band_to_half
 from app.modules.profile import repository
 from app.modules.profile.schemas import (
     AnalyticsOut,
@@ -126,7 +127,8 @@ def _predicted_overall_band(rows: list[UserProgress]) -> Decimal:
 
     total = sum(latest_by_module.values(), Decimal("0.0"))
     average = total / Decimal(len(latest_by_module))
-    return average.quantize(Decimal("0.1"), rounding=ROUND_HALF_UP)
+    rounded = round_band_to_half(average)
+    return Decimal(str(rounded)).quantize(Decimal("0.0"))
 
 
 def _minutes_this_week(rows: list[UserProgress], today: date) -> int:
@@ -363,6 +365,7 @@ async def get_quick_links(db: AsyncSession, user: User) -> DashboardQuickLinksOu
     reading_stats = await repository.get_reading_attempt_summary(db, user_id=user.id)
     listening_stats = await repository.get_listening_attempt_summary(db, user_id=user.id)
     writing_stats = await repository.get_writing_attempt_summary(db, user_id=user.id)
+    speaking_stats = await repository.get_speaking_attempt_summary(db, user_id=user.id)
 
     return DashboardQuickLinksOut(
         items=[
@@ -394,9 +397,9 @@ async def get_quick_links(db: AsyncSession, user: User) -> DashboardQuickLinksOu
                 label="Speaking",
                 path="/dashboard/speaking",
                 module=ProgressTestTypeEnum.speaking,
-                attempts_count=0,
-                successful_attempts_count=0,
-                failed_attempts_count=0,
+                attempts_count=speaking_stats["attempts_count"],
+                successful_attempts_count=speaking_stats["successful_attempts_count"],
+                failed_attempts_count=speaking_stats["failed_attempts_count"],
             ),
             DashboardQuickLinkOut(
                 label="Profile",

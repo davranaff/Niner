@@ -1,8 +1,6 @@
 # Endpoints Map (Exam Domain)
 
-This is a practical map of what currently exists in backend for exam-related flows.
-
-## 1) Public catalog endpoints
+## 1) Public Catalog Endpoints
 Reading:
 - `GET /api/v1/reading/tests`
 - `GET /api/v1/reading/tests/{test_id}`
@@ -15,90 +13,65 @@ Writing:
 - `GET /api/v1/writing/tests`
 - `GET /api/v1/writing/tests/{test_id}`
 
-## 2) Public exam attempt endpoints
+Speaking:
+- `GET /api/v1/speaking/tests`
+- `GET /api/v1/speaking/tests/{test_id}`
+- `POST /api/v1/speaking/tts`
+- `WS /api/v1/speaking/live/{exam_id}`
+
+## 2) Public Attempt Endpoints
 Reading:
 - `POST /api/v1/exams/reading`
 - `POST /api/v1/exams/reading/{exam_id}/start`
+- `PUT /api/v1/exams/reading/{exam_id}/draft`
 - `POST /api/v1/exams/reading/{exam_id}/submit`
 
 Listening:
 - `POST /api/v1/exams/listening`
 - `POST /api/v1/exams/listening/{exam_id}/start`
+- `PUT /api/v1/exams/listening/{exam_id}/draft`
 - `POST /api/v1/exams/listening/{exam_id}/submit`
 
 Writing:
 - `POST /api/v1/exams/writing`
 - `POST /api/v1/exams/writing/{exam_id}/start`
+- `PUT /api/v1/exams/writing/{exam_id}/draft`
 - `POST /api/v1/exams/writing/{exam_id}/submit`
+
+Speaking:
+- `POST /api/v1/exams/speaking`
+- `POST /api/v1/exams/speaking/{exam_id}/start`
+- `GET /api/v1/exams/speaking/{exam_id}/session`
+- `PUT /api/v1/exams/speaking/{exam_id}/session`
+- `POST /api/v1/exams/speaking/{exam_id}/examiner-decision`
+- `POST /api/v1/exams/speaking/{exam_id}/finalize`
 
 History:
 - `GET /api/v1/exams/me`
 - `GET /api/v1/exams/my-tests`
 
-## 3) Admin endpoints for content and exam control
-Reading content:
-- `GET /api/v1/admin/reading/tests`
-- `POST /api/v1/admin/reading/tests`
-- `GET /api/v1/admin/reading/tests/{test_id}`
-- `PATCH /api/v1/admin/reading/tests/{test_id}`
-- `DELETE /api/v1/admin/reading/tests/{test_id}`
-- `POST /api/v1/admin/reading/tests/{test_id}/passages`
-- `PATCH /api/v1/admin/reading/passages/{passage_id}`
-- `DELETE /api/v1/admin/reading/passages/{passage_id}`
-- `POST /api/v1/admin/reading/passages/{passage_id}/blocks`
-- `PATCH /api/v1/admin/reading/blocks/{block_id}`
-- `DELETE /api/v1/admin/reading/blocks/{block_id}`
-- `POST /api/v1/admin/reading/blocks/{block_id}/questions`
-- `PATCH /api/v1/admin/reading/questions/{question_id}`
-- `DELETE /api/v1/admin/reading/questions/{question_id}`
-- `POST /api/v1/admin/reading/questions/{question_id}/options`
-- `PATCH /api/v1/admin/reading/options/{option_id}`
-- `DELETE /api/v1/admin/reading/options/{option_id}`
-- `POST /api/v1/admin/reading/questions/{question_id}/answers`
-- `PATCH /api/v1/admin/reading/answers/{answer_id}`
-- `DELETE /api/v1/admin/reading/answers/{answer_id}`
+Overall exam orchestration:
+- `POST /api/v1/exams/overall`
+- `GET /api/v1/exams/overall`
+- `GET /api/v1/exams/overall/{overall_id}`
+- `POST /api/v1/exams/overall/{overall_id}/start-module`
+- `POST /api/v1/exams/overall/{overall_id}/break/skip`
+- `POST /api/v1/exams/overall/{overall_id}/terminate`
 
-Listening content:
-- `GET /api/v1/admin/listening/tests`
-- `POST /api/v1/admin/listening/tests`
-- `PATCH /api/v1/admin/listening/tests/{test_id}`
-- `DELETE /api/v1/admin/listening/tests/{test_id}`
-- `POST /api/v1/admin/listening/tests/{test_id}/parts`
-- `PATCH /api/v1/admin/listening/parts/{part_id}`
-- `DELETE /api/v1/admin/listening/parts/{part_id}`
-- `POST /api/v1/admin/listening/parts/{part_id}/blocks`
-- `PATCH /api/v1/admin/listening/blocks/{block_id}`
-- `DELETE /api/v1/admin/listening/blocks/{block_id}`
-- `POST /api/v1/admin/listening/blocks/{block_id}/questions`
-- `PATCH /api/v1/admin/listening/questions/{question_id}`
-- `DELETE /api/v1/admin/listening/questions/{question_id}`
-- `POST /api/v1/admin/listening/questions/{question_id}/options`
-- `PATCH /api/v1/admin/listening/options/{option_id}`
-- `DELETE /api/v1/admin/listening/options/{option_id}`
-- `POST /api/v1/admin/listening/questions/{question_id}/answers`
-- `PATCH /api/v1/admin/listening/answers/{answer_id}`
-- `DELETE /api/v1/admin/listening/answers/{answer_id}`
+## 3) Post-Exam Assignment Endpoints
+- `GET /api/v1/assignments`
+- `GET /api/v1/assignments/{assignment_id}`
+- `POST /api/v1/assignments/{assignment_id}/attempts`
 
-Writing content:
-- `GET /api/v1/admin/writing/tests`
-- `POST /api/v1/admin/writing/tests`
-- `PATCH /api/v1/admin/writing/tests/{test_id}`
-- `DELETE /api/v1/admin/writing/tests/{test_id}`
-- `POST /api/v1/admin/writing/tests/{test_id}/parts`
-- `PATCH /api/v1/admin/writing/parts/{part_id}`
-- `DELETE /api/v1/admin/writing/parts/{part_id}`
+## 4) Teacher Analytics Endpoints
+- `GET /api/v1/teacher/dashboard`
+- `GET /api/v1/teacher/analytics`
+- `GET /api/v1/teacher/students/insights`
+- `GET /api/v1/teacher/students/{student_id}/insights`
 
-Exam management:
+## 5) Admin Endpoints (Exam Control + Content)
 - `GET /api/v1/admin/exams/{kind}`
 - `GET /api/v1/admin/exams/{kind}/{exam_id}`
 - `PATCH /api/v1/admin/exams/writing/parts/{exam_part_id}/review`
 
-## 4) Worker jobs tied to exam domain
-- `parse_table_completion`:
-  - parses table text into `table_json` for reading/listening blocks,
-  - status flow `pending -> done` or `pending -> failed`, with retries.
-
-- `evaluate_writing_exam_part`:
-  - generates IELTS-style writing feedback and estimated band,
-  - writes `score` and `corrections` for writing exam part,
-  - respects manual review (`is_checked=true` is not overwritten).
+Reading/listening/writing content management endpoints remain under `/api/v1/admin/{module}/...`.

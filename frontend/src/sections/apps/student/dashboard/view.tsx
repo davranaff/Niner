@@ -7,7 +7,6 @@ import Container from '@mui/material/Container';
 import Card from '@mui/material/Card';
 import Chip from '@mui/material/Chip';
 import Grid from '@mui/material/Grid';
-import LinearProgress from '@mui/material/LinearProgress';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
@@ -31,14 +30,6 @@ import { AppsDashboardSkeleton } from './skeleton';
 
 type DashboardTranslate = (key: string, options?: Record<string, string | number>) => string;
 const DASHBOARD_MODULE_ORDER: DashboardModule[] = ['reading', 'listening', 'writing', 'speaking'];
-
-const MOCK_PLAN_SNAPSHOT = {
-  name: 'IELTS Focus Plus',
-  monthlyPrice: '$19',
-  attemptsUsed: 17,
-  attemptsLimit: 40,
-  renewalDate: new Date('2026-05-01T00:00:00.000Z').toISOString(),
-};
 
 type PaletteColorKey = 'primary' | 'info' | 'success' | 'warning';
 
@@ -170,10 +161,47 @@ export default function AppsDashboardView() {
   const studentName = user.displayName || user.email || 'Student';
   const isSelectedActivityLoaded = activityQuery.data.year === selectedYear && !activityQuery.isFetching;
   const internalQuickLinks = quickLinksQuery.data.filter((item) => item.path.startsWith('/'));
-  const planProgress = Math.round(
-    (MOCK_PLAN_SNAPSHOT.attemptsUsed / MOCK_PLAN_SNAPSHOT.attemptsLimit) * 100
+  const moduleQuickLinks = internalQuickLinks.filter(
+    (item): item is DashboardQuickLink & { module: DashboardModule } => Boolean(item.module)
   );
-  const attemptsRemaining = Math.max(0, MOCK_PLAN_SNAPSHOT.attemptsLimit - MOCK_PLAN_SNAPSHOT.attemptsUsed);
+  const strongestModuleLink = moduleQuickLinks.reduce<(typeof moduleQuickLinks)[number] | null>(
+    (best, item) => {
+      if (!best) {
+        return item;
+      }
+      if (item.successfulAttemptsCount > best.successfulAttemptsCount) {
+        return item;
+      }
+      if (
+        item.successfulAttemptsCount === best.successfulAttemptsCount &&
+        item.attemptsCount > best.attemptsCount
+      ) {
+        return item;
+      }
+      return best;
+    },
+    null
+  );
+  const weakestModuleLink = moduleQuickLinks.reduce<(typeof moduleQuickLinks)[number] | null>(
+    (best, item) => {
+      if (!best) {
+        return item;
+      }
+      if (item.failedAttemptsCount > best.failedAttemptsCount) {
+        return item;
+      }
+      if (item.failedAttemptsCount === best.failedAttemptsCount && item.attemptsCount > best.attemptsCount) {
+        return item;
+      }
+      return best;
+    },
+    null
+  );
+  const strongestAreaLabel = strongestModuleLink?.module
+    ? moduleLabel(strongestModuleLink.module, tx)
+    : '-';
+  const weakestAreaLabel = weakestModuleLink?.module ? moduleLabel(weakestModuleLink.module, tx) : '-';
+  const recommendedPath = weakestModuleLink?.path || '/dashboard/my-tests';
 
   return (
     <Container maxWidth="lg">
@@ -259,36 +287,29 @@ export default function AppsDashboardView() {
               >
                 <Stack spacing={0.5}>
                   <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-                    {tx('pages.ielts.dashboard.plan_title')}
+                    {tx('pages.ielts.dashboard.recommended_next')}
                   </Typography>
-                  <Typography variant="h6">{MOCK_PLAN_SNAPSHOT.name}</Typography>
+                  <Typography variant="h6">
+                    {weakestModuleLink?.module ? moduleLabel(weakestModuleLink.module, tx) : tx('pages.ielts.dashboard.empty_attempts')}
+                  </Typography>
                 </Stack>
 
-                <Typography variant="h6">{MOCK_PLAN_SNAPSHOT.monthlyPrice}</Typography>
+                <Button
+                  component={RouterLink}
+                  href={recommendedPath}
+                  size="small"
+                  color="inherit"
+                  variant="outlined"
+                  startIcon={<Iconify icon="solar:alt-arrow-right-linear" width={16} />}
+                  sx={{ textTransform: 'none' }}
+                >
+                  {tx('pages.ielts.shared.details')}
+                </Button>
               </Stack>
 
-              <Box>
-                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 0.75 }}>
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    {tx('pages.ielts.dashboard.plan_attempts', {
-                      used: MOCK_PLAN_SNAPSHOT.attemptsUsed,
-                      limit: MOCK_PLAN_SNAPSHOT.attemptsLimit,
-                    })}
-                  </Typography>
-                  <Chip
-                    size="small"
-                    color="success"
-                    label={`${attemptsRemaining} ${tx('pages.ielts.shared.attempts')}`}
-                    variant="outlined"
-                  />
-                </Stack>
-                <LinearProgress
-                  variant="determinate"
-                  value={planProgress}
-                  color="info"
-                  sx={{ height: 8, borderRadius: 999 }}
-                />
-              </Box>
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                {`${tx('pages.ielts.dashboard.strongest_area')}: ${strongestAreaLabel} · ${tx('pages.ielts.dashboard.weakest_area')}: ${weakestAreaLabel}`}
+              </Typography>
 
               <Stack
                 direction={{ xs: 'column', sm: 'row' }}
@@ -296,22 +317,19 @@ export default function AppsDashboardView() {
                 justifyContent="space-between"
                 spacing={1}
               >
-                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                  {tx('pages.ielts.dashboard.plan_renewal', {
-                    date: fDate(MOCK_PLAN_SNAPSHOT.renewalDate),
-                  })}
-                </Typography>
-                <Button
+                <Chip
                   size="small"
-                  color="inherit"
                   variant="outlined"
-                  startIcon={<Iconify icon="solar:wallet-money-bold-duotone" width={16} />}
-                  sx={{ textTransform: 'none' }}
-                >
-                  {tx('pages.ielts.shared.details')}
-                </Button>
+                  color="success"
+                  label={`${tx('pages.ielts.shared.attempts')}: ${statsQuery.data.totalAttempts}`}
+                />
+                <Chip
+                  size="small"
+                  variant="outlined"
+                  color="info"
+                  label={`${tx('pages.ielts.dashboard.study_minutes')}: ${statsQuery.data.weeklyStudyMinutes}`}
+                />
               </Stack>
-
             </Stack>
           </Card>
         </Grid>

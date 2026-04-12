@@ -1,71 +1,67 @@
 # Exam Lifecycle
 
-This is the same lifecycle for all exam kinds: `reading`, `listening`, `writing`.
+Applies to `reading`, `listening`, `writing`, and `speaking` attempts.
 
-## 1) Create attempt
-Endpoint:
-- `POST /api/v1/exams/{kind}` with `{ "test_id": <int> }`.
-
-What backend does:
-- Checks that the requested test exists.
-- Creates an exam attempt bound to the current user from JWT.
-- Stores initial state:
+## 1) Create Attempt
+- `POST /api/v1/exams/{kind}` with `{ "test_id": <int> }`
+- Stores attempt linked to current JWT user.
+- Initial state:
   - `started_at = null`
   - `finished_at = null`
   - `finish_reason = null`
 
-## 2) Start attempt (idempotent)
-Endpoint:
+## 2) Start Attempt (idempotent)
 - `POST /api/v1/exams/{kind}/{exam_id}/start`
+- Ownership check is strict.
+- `started_at` is set once.
+- Repeated `start` returns current state.
 
-What backend does:
-- Checks ownership: user can start only own exam.
-- If `started_at` is empty, sets it once.
-- If already started, returns current exam state without creating duplicates.
+## 3) Draft Save vs Final Submit
+Strict exam submit and autosave are separated.
 
-## 3) Submit attempt
-Endpoints:
+Draft endpoints:
+- `PUT /api/v1/exams/reading/{exam_id}/draft`
+- `PUT /api/v1/exams/listening/{exam_id}/draft`
+- `PUT /api/v1/exams/writing/{exam_id}/draft`
+
+Final submit endpoints:
 - `POST /api/v1/exams/reading/{exam_id}/submit`
 - `POST /api/v1/exams/listening/{exam_id}/submit`
 - `POST /api/v1/exams/writing/{exam_id}/submit`
 
-Common rules:
+Speaking finalization:
+- `POST /api/v1/exams/speaking/{exam_id}/finalize`
+
+## 4) Strict Submit Rules
 - Ownership check is mandatory.
-- Full-set validation is mandatory before save.
-- If payload is invalid, backend returns `400` and saves nothing.
+- Final submit requires complete payload for the module.
+- Invalid payload returns `400 invalid_exam_submission`.
+- On strict-submit failure, backend keeps exam data unchanged.
 
-## 4) Finish exam
-On first successful submit:
+## 5) Finish and Timing
+On first successful final submit/finalize:
 - `finished_at` is set.
-- `time_spent` is calculated in seconds as `finished_at - started_at`.
+- `time_spent` is computed as `finished_at - started_at` (seconds).
 - `finish_reason`:
-  - `time_is_up` when elapsed seconds `>= test.time_limit`
+  - `time_is_up` when elapsed >= limit
   - `completed` otherwise
+  - `left` for explicit termination paths
 
-Important:
-- `time_spent` is not capped to `time_limit`.
-- If user submits without explicit `start`, backend sets `started_at = finished_at`, so `time_spent` becomes `0`.
+Notes:
+- `time_spent` is not capped by module time limit.
+- If user submits without explicit start, backend backfills `started_at` and returns valid `time_spent`.
 
-## 5) Re-submit behavior (idempotent)
-If exam is already finished:
-- backend returns already saved result,
-- no recalculation,
-- no overwrite.
+## 6) Re-submit Behavior
+- Final submit on finished exam is idempotent.
+- Backend returns stored result without rewriting answers.
 
-## 6) View exam history
-Endpoint:
-- `GET /api/v1/exams/me`
-- `GET /api/v1/exams/my-tests`
+## 7) Post-Submit Side Effects
+After successful finish:
+- Progress and analytics are synchronized (`user_progress`, `user_analytics`).
+- AI summary auto-trigger is attempted.
+- Post-exam assignments are generated from detected mistakes and weak skills.
+- Overall exam state transition is updated when attempt belongs to overall-exam flow.
 
-Returns three sections:
-- `reading`
-- `listening`
-- `writing`
-
-Each section is paginated independently with its own offset.
-
-`/api/v1/exams/my-tests` returns a flat student-facing list with:
-- search by test title,
-- module/status filters,
-- offset/limit pagination,
-- ordering (default `-updated_at`).
+## 8) History Endpoints
+- `GET /api/v1/exams/me` (module-separated history)
+- `GET /api/v1/exams/my-tests` (flat attempt list with SQL-level filtering/sorting/pagination)

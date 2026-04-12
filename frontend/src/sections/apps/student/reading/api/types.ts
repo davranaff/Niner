@@ -211,6 +211,12 @@ export type BackendReadingSubmitResult = {
   timeSpent: number | null;
 };
 
+export type BackendExamDraftOut = {
+  savedItems: number;
+  startedAt: string | null;
+  updatedAt: string;
+};
+
 export type ReadingDraftAnswers = Record<string, string>;
 
 export type ReadingQuestionWithContext = {

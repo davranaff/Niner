@@ -1,21 +1,22 @@
 # Exam Flow Documentation
 
-This folder contains product-level documentation for the backend exam system.
+This folder documents the implemented backend exam system.
 
-Scope:
-- Module family: `reading`, `listening`, `writing`, and `exams`.
+## Scope
+- Modules: `reading`, `listening`, `writing`, `speaking`, and `overall-exam` orchestration.
 - API prefix: `/api/v1`.
 - Timer unit: seconds.
-- Speaking is not implemented yet.
+- IELTS reporting bands: `.0` / `.5`.
 
-Files:
-- `01-lifecycle.md`: full lifecycle of an exam attempt.
-- `02-reading-listening-flow.md`: catalog and submit behavior for reading/listening.
-- `03-writing-flow.md`: writing submit, AI feedback, and manual review flow.
-- `04-errors-and-pagination.md`: error contract and pagination contract.
-- `05-test-types.md`: all supported task types in reading/listening/writing.
-- `06-endpoints-map.md`: public/admin endpoint map for exam domain.
+## Files
+- `01-lifecycle.md`: full attempt lifecycle including strict submit and draft save.
+- `02-reading-listening-flow.md`: objective modules, answer normalization, scoring maps.
+- `03-writing-flow.md`: weighted writing scoring and async evaluation path.
+- `04-errors-and-pagination.md`: error contract and list/query behavior.
+- `05-test-types.md`: supported task types.
+- `06-endpoints-map.md`: public/admin endpoint map.
 
-See also:
+## See also
+- `../assignments/README.md` for post-exam personalized training flow.
 - `../ai/README.md` for AI summary generation/streaming after submit.
-- `../dashboard/README.md` for student dashboard widgets built on exam data.
+- `../dashboard/README.md` for student dashboard data contracts.

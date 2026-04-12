@@ -161,6 +161,12 @@ export type BackendWritingSubmitResult = {
   timeSpent: number | null;
 };
 
+export type BackendExamDraftOut = {
+  savedItems: number;
+  startedAt: string | null;
+  updatedAt: string;
+};
+
 export type WritingDraftResponses = Record<string, string>;
 
 export type WritingStoredResultAnswer = {

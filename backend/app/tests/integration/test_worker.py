@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 
 import pytest
 from arq import Retry
+from sqlalchemy import select
 
 from app.core.security import hash_password
 from app.db.models import (
@@ -12,12 +13,17 @@ from app.db.models import (
     AiSummaryModuleEnum,
     AiSummarySourceEnum,
     AiSummaryStatusEnum,
+    FinishReasonEnum,
     ParseStatusEnum,
+    ProgressTestTypeEnum,
     ReadingPassage,
     ReadingQuestionBlock,
     ReadingTest,
     RoleEnum,
+    TrainingAssignment,
     User,
+    UserAnalytics,
+    UserProgress,
     WritingExam,
     WritingExamPart,
     WritingPart,
@@ -200,6 +206,129 @@ async def test_writing_ai_evaluation_failed_with_retries(db_session, monkeypatch
         assert refreshed is not None
         assert refreshed.score is None
         assert "failed after retries" in (refreshed.corrections or "")
+
+
+@pytest.mark.asyncio
+async def test_writing_ai_evaluation_syncs_progress_and_assignments_after_final_score(
+    db_session,
+    monkeypatch,
+):
+    user = await _create_user(db_session, "worker-ai-sync@example.com")
+
+    writing_test = WritingTest(title="WT3", description="Desc", time_limit=3600, is_active=True)
+    db_session.add(writing_test)
+    await db_session.flush()
+
+    part_1 = WritingPart(test_id=writing_test.id, order=1, task="Describe the chart.")
+    part_2 = WritingPart(test_id=writing_test.id, order=2, task="Discuss both views and give your opinion.")
+    db_session.add_all([part_1, part_2])
+    await db_session.flush()
+
+    started_at = datetime.now(UTC) - timedelta(minutes=58)
+    finished_at = datetime.now(UTC)
+    writing_exam = WritingExam(
+        user_id=user.id,
+        writing_test_id=writing_test.id,
+        started_at=started_at,
+        finished_at=finished_at,
+        finish_reason=FinishReasonEnum.completed,
+    )
+    db_session.add(writing_exam)
+    await db_session.flush()
+
+    exam_part_1 = WritingExamPart(
+        exam_id=writing_exam.id,
+        part_id=part_1.id,
+        essay=" ".join(["overview"] * 170),
+    )
+    exam_part_2 = WritingExamPart(
+        exam_id=writing_exam.id,
+        part_id=part_2.id,
+        essay=" ".join(["argument"] * 260),
+    )
+    db_session.add_all([exam_part_1, exam_part_2])
+    await db_session.commit()
+
+    evaluations = iter(
+        [
+            {
+                "overall_band": 6.0,
+                "summary": "Part 1 response is understandable but limited.",
+                "criteria": {
+                    "task_response": {"band": 6.0, "reason": "Key features covered."},
+                    "coherence_cohesion": {"band": 6.0, "reason": "Clear but basic progression."},
+                    "lexical_resource": {"band": 5.5, "reason": "Limited variation."},
+                    "grammar_accuracy": {"band": 6.0, "reason": "Mostly controlled grammar."},
+                },
+            },
+            {
+                "overall_band": 5.5,
+                "summary": "Part 2 needs stronger development and precision.",
+                "criteria": {
+                    "task_response": {"band": 5.5, "reason": "Position is underdeveloped."},
+                    "coherence_cohesion": {"band": 5.5, "reason": "Ideas not fully extended."},
+                    "lexical_resource": {"band": 5.5, "reason": "Repetition limits clarity."},
+                    "grammar_accuracy": {"band": 5.5, "reason": "Frequent sentence-level issues."},
+                },
+            },
+        ]
+    )
+
+    async def fake_eval(task_prompt: str, essay: str) -> dict:
+        _ = task_prompt
+        _ = essay
+        return next(evaluations)
+
+    monkeypatch.setattr(tasks, "_evaluate_writing_essay", fake_eval)
+
+    await tasks.evaluate_writing_exam_part({"job_try": 1}, exam_part_1.id)
+
+    async with SessionLocal() as verify_db:
+        progress_rows = (
+            await verify_db.execute(
+                select(UserProgress).where(
+                    UserProgress.user_id == user.id,
+                    UserProgress.test_type == ProgressTestTypeEnum.writing,
+                )
+            )
+        ).scalars()
+        assert list(progress_rows) == []
+
+    await tasks.evaluate_writing_exam_part({"job_try": 1}, exam_part_2.id)
+
+    async with SessionLocal() as verify_db:
+        progress_rows = (
+            await verify_db.execute(
+                select(UserProgress).where(
+                    UserProgress.user_id == user.id,
+                    UserProgress.test_type == ProgressTestTypeEnum.writing,
+                )
+            )
+        ).scalars()
+        progress_items = list(progress_rows)
+        assert len(progress_items) == 1
+        assert progress_items[0].band_score == Decimal("5.5")
+        assert progress_items[0].test_date.replace(tzinfo=UTC) == finished_at
+
+        analytics = (
+            await verify_db.execute(select(UserAnalytics).where(UserAnalytics.user_id == user.id))
+        ).scalar_one_or_none()
+        assert analytics is not None
+        assert int(analytics.total_tests_taken) == 1
+        assert analytics.best_band_score == Decimal("5.5")
+
+        assignments = (
+            await verify_db.execute(
+                select(TrainingAssignment).where(
+                    TrainingAssignment.user_id == user.id,
+                    TrainingAssignment.source_exam_kind == "writing",
+                    TrainingAssignment.source_exam_id == writing_exam.id,
+                )
+            )
+        ).scalars()
+        assignment_items = list(assignments)
+        assert len(assignment_items) >= 2
+        assert all(item.task_type == "writing_revision" for item in assignment_items)
 
 
 @pytest.mark.asyncio

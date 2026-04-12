@@ -18,6 +18,7 @@ import { useParams, useRouter } from 'src/routes/hook';
 import { fDate } from 'src/utils/format-time';
 import EmptyContent from 'src/components/empty-content';
 import { AppsPageHeader, InsightListCard, MetricCard } from 'src/pages/components/apps';
+import { PostExamAssignmentsCard } from 'src/sections/apps/common/module-test/result/post-exam-assignments-card';
 
 import { getSpeakingRecentAttempt } from '../api/utils';
 import { useSpeakingSessionQuery } from '../api/use-speaking-api';
@@ -191,6 +192,8 @@ export default function AppsSpeakingResultView() {
 
       <Grid container spacing={3}>
         <Grid item xs={12} lg={8}>
+          <PostExamAssignmentsCard module="speaking" examId={examId} />
+
           <Card variant="outlined" sx={{ p: 3, mb: 3 }}>
             <Stack spacing={2}>
               <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>

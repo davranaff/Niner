@@ -9,6 +9,7 @@ from typing import Any
 from arq import Retry
 from openai import AsyncOpenAI
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.config import settings
@@ -18,9 +19,14 @@ from app.db.models import (
     ListeningQuestionBlock,
     ParseStatusEnum,
     ReadingQuestionBlock,
+    ProgressTestTypeEnum,
+    UserAnalytics,
+    UserProgress,
+    WritingExam,
     WritingExamPart,
 )
 from app.db.session import SessionLocal
+from app.modules.assignments import services as assignment_services
 from app.modules.ai_summary.services.generator import build_module_summary
 
 logger = logging.getLogger(__name__)
@@ -113,6 +119,146 @@ def _average_criteria_band(criteria: Any) -> Decimal | None:
 
     avg = sum(bands, start=Decimal("0")) / Decimal(len(bands))
     return _to_band_decimal(avg)
+
+
+def _calculate_elapsed_seconds(
+    started_at: datetime | None,
+    finished_at: datetime | None,
+) -> int | None:
+    if not started_at or not finished_at:
+        return None
+    if started_at.tzinfo is None and finished_at.tzinfo is not None:
+        finished_at = finished_at.replace(tzinfo=None)
+    elif started_at.tzinfo is not None and finished_at.tzinfo is None:
+        started_at = started_at.replace(tzinfo=None)
+    elapsed_seconds = int((finished_at - started_at).total_seconds())
+    return max(elapsed_seconds, 0)
+
+
+def _calculate_writing_exam_band(exam: WritingExam) -> Decimal | None:
+    submitted_parts = [part for part in exam.writing_parts if (part.essay or "").strip()]
+    if not submitted_parts:
+        return None
+    if any(part.score is None for part in submitted_parts):
+        return None
+
+    weighted_total = Decimal("0.0")
+    total_weight = Decimal("0.0")
+
+    for part in submitted_parts:
+        part_score = Decimal(str(part.score))
+        part_order = int(getattr(getattr(part, "part", None), "order", 0) or 0)
+        part_weight = Decimal("2.0") if part_order == 2 else Decimal("1.0")
+        weighted_total += part_score * part_weight
+        total_weight += part_weight
+
+    if total_weight <= Decimal("0.0"):
+        return None
+
+    return _to_band_decimal(weighted_total / total_weight)
+
+
+async def _sync_writing_exam_progress(
+    db: AsyncSession,
+    *,
+    exam: WritingExam,
+    band_score: Decimal,
+) -> None:
+    if exam.finished_at is None:
+        return
+
+    progress_exists = (
+        await db.execute(
+            select(UserProgress.id)
+            .where(
+                UserProgress.user_id == exam.user_id,
+                UserProgress.test_type == ProgressTestTypeEnum.writing,
+                UserProgress.test_date == exam.finished_at,
+            )
+            .limit(1)
+        )
+    ).scalar_one_or_none()
+    if progress_exists is not None:
+        return
+
+    submitted_parts = [part for part in exam.writing_parts if (part.essay or "").strip()]
+    progress = UserProgress(
+        user_id=exam.user_id,
+        test_date=exam.finished_at,
+        band_score=band_score,
+        correct_answers=None,
+        total_questions=len(submitted_parts) or None,
+        time_taken_seconds=_calculate_elapsed_seconds(exam.started_at, exam.finished_at),
+        test_type=ProgressTestTypeEnum.writing,
+    )
+    db.add(progress)
+
+    analytics = (
+        await db.execute(
+            select(UserAnalytics).where(UserAnalytics.user_id == exam.user_id).limit(1)
+        )
+    ).scalar_one_or_none()
+    if analytics is None:
+        analytics = UserAnalytics(user_id=exam.user_id)
+        db.add(analytics)
+        await db.flush()
+
+    previous_total_tests = int(analytics.total_tests_taken or 0)
+    previous_average = Decimal(str(analytics.average_band_score or Decimal("0.0")))
+    analytics.total_tests_taken = previous_total_tests + 1
+    analytics.total_study_time_seconds = int(analytics.total_study_time_seconds or 0) + int(
+        progress.time_taken_seconds or 0
+    )
+    analytics.last_test_date = progress.test_date
+    analytics.best_band_score = max(
+        Decimal(str(analytics.best_band_score or Decimal("0.0"))),
+        band_score,
+    )
+    cumulative = previous_average * Decimal(previous_total_tests)
+    analytics.average_band_score = (cumulative + band_score) / Decimal(analytics.total_tests_taken)
+
+    await db.commit()
+
+
+async def _sync_writing_exam_post_scoring_state(
+    db: AsyncSession,
+    *,
+    exam_id: int,
+) -> None:
+    exam_stmt = (
+        select(WritingExam)
+        .where(WritingExam.id == exam_id)
+        .options(
+            selectinload(WritingExam.user),
+            selectinload(WritingExam.writing_parts).selectinload(WritingExamPart.part),
+        )
+    )
+    exam = (await db.execute(exam_stmt)).scalar_one_or_none()
+    if exam is None or exam.finished_at is None:
+        return
+
+    band_score = _calculate_writing_exam_band(exam)
+    if band_score is not None:
+        await _sync_writing_exam_progress(
+            db,
+            exam=exam,
+            band_score=band_score,
+        )
+
+    if exam.user is None:
+        return
+
+    try:
+        await assignment_services.ensure_writing_exam_assignments(
+            db,
+            exam.user,
+            exam_id=exam.id,
+        )
+    except Exception:  # noqa: BLE001
+        logger.exception(
+            "Writing assignment sync after worker scoring failed",
+            extra={"exam_id": exam.id, "exam_part_ids": [part.id for part in exam.writing_parts]},
+        )
 
 
 async def _evaluate_writing_essay(task_prompt: str, essay: str) -> dict[str, Any]:
@@ -268,6 +414,10 @@ async def evaluate_writing_exam_part(ctx: dict, exam_part_id: int) -> None:
             exam_part.score = band
             exam_part.corrections = _format_writing_feedback(evaluation)
             await db.commit()
+            await _sync_writing_exam_post_scoring_state(
+                db,
+                exam_id=int(exam_part.exam_id),
+            )
         except Exception as exc:  # noqa: BLE001
             if job_try < 3:
                 raise Retry(defer=2**job_try) from exc

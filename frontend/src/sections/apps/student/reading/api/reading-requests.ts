@@ -1,6 +1,7 @@
 import { request } from 'src/utils/axios';
 
 import type {
+  BackendExamDraftOut,
   BackendExamPublic,
   BackendExamsMeResponse,
   BackendOffsetPage,
@@ -18,6 +19,7 @@ const readingUrls = {
   detail: (testId: number) => `/api/v1/reading/tests/${testId}`,
   createExam: '/api/v1/exams/reading',
   startExam: (examId: number) => `/api/v1/exams/reading/${examId}/start`,
+  saveDraft: (examId: number) => `/api/v1/exams/reading/${examId}/draft`,
   submitExam: (examId: number) => `/api/v1/exams/reading/${examId}/submit`,
   examResult: (examId: number) => `/api/v1/exams/reading/${examId}/result`,
   myExams: '/api/v1/exams/me',
@@ -63,6 +65,14 @@ export function submitReadingExam(
     url: readingUrls.submitExam(examId),
     data: payload,
     params: finishReason ? { finishReason } : undefined,
+  });
+}
+
+export function saveReadingExamDraft(examId: number, payload: ReadingSubmitAnswerInput[]) {
+  return request<BackendExamDraftOut>({
+    method: 'PUT',
+    url: readingUrls.saveDraft(examId),
+    data: payload,
   });
 }
 

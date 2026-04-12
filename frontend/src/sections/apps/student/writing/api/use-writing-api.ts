@@ -9,6 +9,7 @@ import {
   fetchMyWritingExams,
   fetchWritingDetail,
   fetchWritingList,
+  saveWritingExamDraft,
   startWritingExam,
   submitWritingExam,
 } from './writing-requests';
@@ -136,6 +137,18 @@ export function useSubmitWritingExamMutation() {
       parts: WritingSubmitPartInput[];
       finishReason?: 'left' | 'time_is_up';
     }) => submitWritingExam(examId, parts, finishReason)
+  );
+}
+
+export function useSaveWritingExamDraftMutation() {
+  return useMutate(
+    async ({
+      examId,
+      parts,
+    }: {
+      examId: number;
+      parts: WritingSubmitPartInput[];
+    }) => saveWritingExamDraft(examId, parts)
   );
 }
 

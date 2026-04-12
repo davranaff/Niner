@@ -9,6 +9,7 @@ import {
   fetchMyReadingExams,
   fetchReadingDetail,
   fetchReadingList,
+  saveReadingExamDraft,
   startReadingExam,
   submitReadingExam,
 } from './reading-requests';
@@ -138,6 +139,18 @@ export function useSubmitReadingExamMutation() {
       answers: ReadingSubmitAnswerInput[];
       finishReason?: 'left' | 'time_is_up';
     }) => submitReadingExam(examId, answers, finishReason)
+  );
+}
+
+export function useSaveReadingExamDraftMutation() {
+  return useMutate(
+    async ({
+      examId,
+      answers,
+    }: {
+      examId: number;
+      answers: ReadingSubmitAnswerInput[];
+    }) => saveReadingExamDraft(examId, answers)
   );
 }
 

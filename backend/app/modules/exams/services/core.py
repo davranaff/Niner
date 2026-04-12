@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import logging
+import re
 from datetime import UTC, datetime, timedelta
-from decimal import ROUND_HALF_UP, Decimal
+from decimal import Decimal
 from typing import Any, Literal
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import ApiError
@@ -16,20 +18,31 @@ from app.db.models import (
     ListeningExamQuestionAnswer,
     ListeningQuestion,
     OverallExam,
+    ProgressTestTypeEnum,
     ReadingExam,
     ReadingExamQuestionAnswer,
     ReadingQuestion,
     SpeakingExam,
+    UserAnalytics,
+    UserProgress,
     User,
     WritingExam,
     WritingExamPart,
 )
+from app.modules.assignments import services as assignment_services
 from app.modules.ai_summary.services.core import create_auto_summary
 from app.modules.exams import repository
-from app.modules.exams.score import reading_band_score
+from app.modules.exams.score import (
+    listening_band_score,
+    reading_band_score,
+    round_band_to_half,
+)
 from app.modules.exams.services.validation import (
+    validate_listening_draft_payload,
     validate_listening_submit_payload,
+    validate_reading_draft_payload,
     validate_reading_submit_payload,
+    validate_writing_draft_payload,
     validate_writing_submit_payload,
 )
 from app.modules.listening.service import question_numbering as listening_question_numbering
@@ -48,11 +61,15 @@ from app.modules.speaking.schemas import (
 )
 from app.modules.speaking.services.examiner import decide_examiner_turn
 from app.modules.speaking.services.realtime import speaking_realtime_hub
-from app.modules.speaking.services.result_builder import build_result as build_speaking_result
+from app.modules.speaking.services.scoring import score_speaking_session
 from app.modules.speaking.services.core import serialize_speaking_test_detail
 from app.workers.queue import enqueue_writing_evaluation
 
 logger = logging.getLogger(__name__)
+
+_ANSWER_NORMALIZE_RE = re.compile(r"[^a-z0-9\s']")
+_ANSWER_SPLIT_RE = re.compile(r"\s*(?:\bor\b|/|;|\|)\s*", flags=re.IGNORECASE)
+_ANSWER_ARTICLES = {"a", "an", "the"}
 
 ExamKind = Literal["reading", "listening", "writing", "speaking"]
 ExamAttemptStatus = Literal["in_progress", "completed", "terminated"]
@@ -211,7 +228,66 @@ def _calculate_result_time_spent_seconds(
     return _calculate_time_spent_seconds(started_at, finished_at)
 
 
+async def _get_or_create_user_analytics(db: AsyncSession, *, user_id: int) -> UserAnalytics:
+    analytics = (
+        await db.execute(select(UserAnalytics).where(UserAnalytics.user_id == user_id))
+    ).scalar_one_or_none()
+    if analytics is not None:
+        return analytics
+
+    analytics = UserAnalytics(user_id=user_id)
+    db.add(analytics)
+    await db.flush()
+    return analytics
+
+
+async def _record_exam_progress(
+    db: AsyncSession,
+    *,
+    user_id: int,
+    test_type: ProgressTestTypeEnum,
+    band_score: float | None,
+    correct_answers: int | None,
+    total_questions: int | None,
+    time_taken_seconds: int | None,
+    test_date: datetime | None,
+) -> None:
+    if band_score is None:
+        return
+
+    normalized_test_date = test_date or datetime.now(UTC)
+    progress_score = Decimal(str(band_score))
+    progress = UserProgress(
+        user_id=user_id,
+        test_date=normalized_test_date,
+        band_score=progress_score,
+        correct_answers=correct_answers,
+        total_questions=total_questions,
+        time_taken_seconds=time_taken_seconds,
+        test_type=test_type,
+    )
+    db.add(progress)
+
+    analytics = await _get_or_create_user_analytics(db, user_id=user_id)
+    previous_total_tests = int(analytics.total_tests_taken or 0)
+    previous_average = Decimal(str(analytics.average_band_score or Decimal("0.0")))
+
+    analytics.total_tests_taken = previous_total_tests + 1
+    analytics.total_study_time_seconds = int(analytics.total_study_time_seconds or 0) + int(time_taken_seconds or 0)
+    analytics.last_test_date = normalized_test_date
+    analytics.best_band_score = max(Decimal(str(analytics.best_band_score or Decimal("0.0"))), progress_score)
+
+    cumulative = previous_average * Decimal(previous_total_tests)
+    analytics.average_band_score = (cumulative + progress_score) / Decimal(analytics.total_tests_taken)
+    await db.flush()
+
+
+def _objective_band_score(kind: Literal["reading", "listening"], correct_count: int) -> float:
+    return reading_band_score(correct_count) if kind == "reading" else listening_band_score(correct_count)
+
+
 def _serialize_objective_exam_result(
+    kind: Literal["reading", "listening"],
     exam: ReadingExam | ListeningExam,
     question_answers: list[ReadingExamQuestionAnswer | ListeningExamQuestionAnswer],
 ) -> dict[str, Any]:
@@ -219,7 +295,7 @@ def _serialize_objective_exam_result(
     correct_count = sum(1 for answer in question_answers if answer.is_correct)
     has_answers = bool(question_answers)
 
-    score = reading_band_score(correct_count) if (has_answers or result != "in_progress") else None
+    score = _objective_band_score(kind, correct_count) if (has_answers or result != "in_progress") else None
     return {
         "result": result,
         "score": score,
@@ -237,12 +313,16 @@ def _serialize_writing_exam_result(exam: WritingExam) -> dict[str, Any]:
     }
 
 
-def _calculate_reading_or_listening_estimated_band(question_answers: list[Any]) -> float | None:
+def _calculate_reading_or_listening_estimated_band(
+    question_answers: list[Any],
+    *,
+    kind: Literal["reading", "listening"],
+) -> float | None:
     if not question_answers:
         return None
 
     correct_count = sum(1 for answer in question_answers if answer.is_correct)
-    return reading_band_score(correct_count)
+    return _objective_band_score(kind, correct_count)
 
 
 def _calculate_writing_estimated_band(parts: list[WritingExamPart]) -> float | None:
@@ -252,9 +332,21 @@ def _calculate_writing_estimated_band(parts: list[WritingExamPart]) -> float | N
     if any(part.score is None for part in submitted_parts):
         return None
 
-    total = sum((Decimal(str(part.score)) for part in submitted_parts), Decimal("0.0"))
-    average = (total / Decimal(len(submitted_parts))).quantize(Decimal("0.1"), rounding=ROUND_HALF_UP)
-    return float(average)
+    total_weight = Decimal("0.0")
+    weighted_total = Decimal("0.0")
+
+    for part in submitted_parts:
+        part_score = Decimal(str(part.score))
+        order = int(getattr(getattr(part, "part", None), "order", 0) or 0)
+        weight = Decimal("2.0") if order == 2 else Decimal("1.0")
+        weighted_total += part_score * weight
+        total_weight += weight
+
+    if total_weight <= Decimal("0.0"):
+        return None
+
+    average = weighted_total / total_weight
+    return round_band_to_half(average)
 
 
 def _calculate_speaking_estimated_band(exam: SpeakingExam) -> float | None:
@@ -290,15 +382,58 @@ async def _ensure_auto_summary_for_exam(
         )
 
 
+async def _ensure_post_exam_assignments(
+    db: AsyncSession,
+    *,
+    user: User,
+    kind: ExamKind,
+    exam_id: int,
+) -> None:
+    try:
+        if kind in {"reading", "listening"}:
+            await assignment_services.ensure_objective_exam_assignments(
+                db,
+                user,
+                kind=kind,
+                exam_id=exam_id,
+            )
+            return
+
+        if kind == "writing":
+            await assignment_services.ensure_writing_exam_assignments(
+                db,
+                user,
+                exam_id=exam_id,
+            )
+            return
+
+        await assignment_services.ensure_speaking_exam_assignments(
+            db,
+            user,
+            exam_id=exam_id,
+        )
+    except Exception:  # noqa: BLE001
+        logger.exception(
+            "Failed to generate post-exam assignments",
+            extra={"exam_kind": kind, "exam_id": exam_id, "user_id": user.id},
+        )
+
+
 def _serialize_student_attempt_item(kind: ExamKind, exam: Any) -> dict[str, Any]:
     if kind == "reading":
         test = exam.reading_test
         test_id = exam.reading_test_id
-        estimated_band = _calculate_reading_or_listening_estimated_band(exam.question_answers)
+        estimated_band = _calculate_reading_or_listening_estimated_band(
+            exam.question_answers,
+            kind="reading",
+        )
     elif kind == "listening":
         test = exam.listening_test
         test_id = exam.listening_test_id
-        estimated_band = _calculate_reading_or_listening_estimated_band(exam.question_answers)
+        estimated_band = _calculate_reading_or_listening_estimated_band(
+            exam.question_answers,
+            kind="listening",
+        )
     elif kind == "writing":
         test = exam.writing_test
         test_id = exam.writing_test_id
@@ -413,7 +548,11 @@ def _serialize_overall_module_attempt(
     if module in {"listening", "reading"}:
         correct_answers = sum(1 for answer in exam.question_answers if answer.is_correct)
         has_answers = bool(exam.question_answers)
-        score = reading_band_score(correct_answers) if (has_answers or exam.finished_at is not None) else None
+        score = (
+            _objective_band_score(module, correct_answers)
+            if (has_answers or exam.finished_at is not None)
+            else None
+        )
     elif module == "writing":
         score = _calculate_writing_estimated_band(exam.writing_parts)
         correct_answers = None
@@ -454,12 +593,18 @@ def _calculate_overall_band(overall_exam: OverallExam) -> tuple[float | None, bo
         return (None, False)
 
     listening_score = (
-        _calculate_reading_or_listening_estimated_band(overall_exam.listening_exam.question_answers)
+        _calculate_reading_or_listening_estimated_band(
+            overall_exam.listening_exam.question_answers,
+            kind="listening",
+        )
         if overall_exam.listening_exam is not None
         else None
     )
     reading_score = (
-        _calculate_reading_or_listening_estimated_band(overall_exam.reading_exam.question_answers)
+        _calculate_reading_or_listening_estimated_band(
+            overall_exam.reading_exam.question_answers,
+            kind="reading",
+        )
         if overall_exam.reading_exam is not None
         else None
     )
@@ -479,8 +624,8 @@ def _calculate_overall_band(overall_exam: OverallExam) -> tuple[float | None, bo
         + Decimal(str(writing_score))
         + Decimal(str(speaking_score))
     )
-    average = (total / Decimal("4")).quantize(Decimal("0.1"), rounding=ROUND_HALF_UP)
-    return (float(average), False)
+    average = total / Decimal("4")
+    return (round_band_to_half(average), False)
 
 
 def _serialize_overall_modules(overall_exam: OverallExam) -> list[dict[str, Any]]:
@@ -710,6 +855,160 @@ async def start_exam(db: AsyncSession, user: User, kind: ExamKind, exam_id: int)
     return _serialize_exam_summary(kind, exam)
 
 
+async def save_reading_exam_draft(
+    db: AsyncSession,
+    user: User,
+    exam_id: int,
+    answers: list[dict[str, Any]],
+) -> dict[str, Any]:
+    exam = await _get_reading_exam_owned(db, exam_id, user.id)
+    if exam.finished_at is not None:
+        raise ApiError(code="exam_already_finished", message="Reading exam is already finished", status_code=409)
+
+    question_index: dict[int, ReadingQuestion] = {
+        question.id: question
+        for passage in exam.reading_test.passages
+        for block in passage.question_blocks
+        for question in block.questions
+    }
+    normalized_answers = validate_reading_draft_payload(answers, question_index=question_index)
+
+    for item in normalized_answers:
+        question_id = int(item["id"])
+        user_answer = str(item.get("value", ""))
+        question = question_index[question_id]
+
+        valid_answers = _extract_correct_answers_for_question(question)
+        correct_answer = " or ".join(valid_answers)
+        is_correct = _match_answer(user_answer, valid_answers)
+        row = await repository.get_reading_exam_answer(
+            db,
+            exam_id=exam.id,
+            question_id=question_id,
+        )
+        if row is None:
+            row = ReadingExamQuestionAnswer(
+                exam_id=exam.id,
+                question_id=question_id,
+                user_answer=user_answer,
+                correct_answer=correct_answer,
+                is_correct=is_correct,
+            )
+            db.add(row)
+            await db.flush()
+        else:
+            row.user_answer = user_answer
+            row.correct_answer = correct_answer
+            row.is_correct = is_correct
+
+    if exam.started_at is None:
+        exam.started_at = datetime.now(UTC)
+    await db.commit()
+    await db.refresh(exam)
+    return {
+        "saved_items": len(normalized_answers),
+        "started_at": exam.started_at,
+        "updated_at": exam.updated_at,
+    }
+
+
+async def save_listening_exam_draft(
+    db: AsyncSession,
+    user: User,
+    exam_id: int,
+    answers: list[dict[str, Any]],
+) -> dict[str, Any]:
+    exam = await _get_listening_exam_owned(db, exam_id, user.id)
+    if exam.finished_at is not None:
+        raise ApiError(code="exam_already_finished", message="Listening exam is already finished", status_code=409)
+
+    question_index: dict[int, ListeningQuestion] = {
+        question.id: question
+        for part in exam.listening_test.parts
+        for block in part.question_blocks
+        for question in block.questions
+    }
+    normalized_answers = validate_listening_draft_payload(answers, question_index=question_index)
+
+    for item in normalized_answers:
+        question_id = int(item["id"])
+        user_answer = str(item.get("value", ""))
+        question = question_index[question_id]
+
+        valid_answers = _extract_correct_answers_for_question(question)
+        correct_answer = " or ".join(valid_answers)
+        is_correct = _match_answer(user_answer, valid_answers)
+        row = await repository.get_listening_exam_answer(
+            db,
+            exam_id=exam.id,
+            question_id=question_id,
+        )
+        if row is None:
+            row = ListeningExamQuestionAnswer(
+                exam_id=exam.id,
+                question_id=question_id,
+                user_answer=user_answer,
+                correct_answer=correct_answer,
+                is_correct=is_correct,
+            )
+            db.add(row)
+            await db.flush()
+        else:
+            row.user_answer = user_answer
+            row.correct_answer = correct_answer
+            row.is_correct = is_correct
+
+    if exam.started_at is None:
+        exam.started_at = datetime.now(UTC)
+    await db.commit()
+    await db.refresh(exam)
+    return {
+        "saved_items": len(normalized_answers),
+        "started_at": exam.started_at,
+        "updated_at": exam.updated_at,
+    }
+
+
+async def save_writing_exam_draft(
+    db: AsyncSession,
+    user: User,
+    exam_id: int,
+    parts_payload: list[dict[str, Any]],
+) -> dict[str, Any]:
+    exam = await _get_writing_exam_owned(db, exam_id, user.id)
+    if exam.finished_at is not None:
+        raise ApiError(code="exam_already_finished", message="Writing exam is already finished", status_code=409)
+
+    part_index = {part.id: part for part in exam.writing_test.writing_parts}
+    normalized_parts = validate_writing_draft_payload(parts_payload, part_ids=set(part_index.keys()))
+
+    for item in normalized_parts:
+        part_id = int(item["part_id"])
+        essay = str(item.get("essay", ""))
+
+        existing = await repository.get_writing_exam_part(
+            db,
+            exam_id=exam.id,
+            part_id=part_id,
+        )
+        if existing is None:
+            existing = WritingExamPart(exam_id=exam.id, part_id=part_id, essay=essay)
+            db.add(existing)
+            await db.flush()
+        else:
+            existing.essay = essay
+
+    if exam.started_at is None:
+        exam.started_at = datetime.now(UTC)
+    await db.commit()
+    await db.refresh(exam)
+    return {
+        "saved_items": len(normalized_parts),
+        "started_at": exam.started_at,
+        "updated_at": exam.updated_at,
+    }
+
+
 def _extract_correct_answers_for_question(question: Any) -> list[str]:
     values: list[str] = []
     values.extend([str(option.option_text).strip() for option in question.options if option.is_correct])
@@ -722,9 +1021,40 @@ def _extract_correct_answers_for_question(question: Any) -> list[str]:
     return unique
 
 
+def _normalize_answer_for_match(value: str) -> str:
+    normalized = str(value or "").strip().lower()
+    normalized = normalized.replace("&", " and ")
+    normalized = _ANSWER_NORMALIZE_RE.sub(" ", normalized)
+    normalized = " ".join(normalized.split())
+
+    tokens = [token for token in normalized.split(" ") if token]
+    if len(tokens) > 1:
+        tokens = [token for token in tokens if token not in _ANSWER_ARTICLES]
+    return " ".join(tokens).strip()
+
+
+def _expand_candidate_answers(valid_answers: list[str]) -> set[str]:
+    candidates: set[str] = set()
+    for raw in valid_answers:
+        candidate = str(raw or "").strip()
+        if not candidate:
+            continue
+        candidates.add(candidate)
+        split_items = [item.strip() for item in _ANSWER_SPLIT_RE.split(candidate) if item.strip()]
+        candidates.update(split_items)
+    return candidates
+
+
 def _match_answer(user_answer: str, valid_answers: list[str]) -> bool:
-    normalized = user_answer.strip().lower()
-    return any(normalized == candidate.strip().lower() for candidate in valid_answers)
+    normalized_user_answer = _normalize_answer_for_match(user_answer)
+    if not normalized_user_answer:
+        return False
+
+    expanded_candidates = _expand_candidate_answers(valid_answers)
+    return any(
+        normalized_user_answer == _normalize_answer_for_match(candidate)
+        for candidate in expanded_candidates
+    )
 
 
 async def submit_reading_exam(
@@ -739,6 +1069,12 @@ async def submit_reading_exam(
     time_limit_seconds = int(exam.reading_test.time_limit)
 
     if exam.finished_at is not None:
+        await _ensure_post_exam_assignments(
+            db,
+            user=user,
+            kind="reading",
+            exam_id=exam.id,
+        )
         await _ensure_auto_summary_for_exam(
             db,
             user=user,
@@ -752,7 +1088,7 @@ async def submit_reading_exam(
             finish_reason=exam.finish_reason,
             finished_at=exam.finished_at,
         )
-        return _serialize_objective_exam_result(exam, exam.question_answers)
+        return _serialize_objective_exam_result("reading", exam, exam.question_answers)
 
     question_index: dict[int, ReadingQuestion] = {
         question.id: question
@@ -810,7 +1146,24 @@ async def submit_reading_exam(
         time_limit_seconds,
         forced_reason=forced_reason,
     )
+    await _record_exam_progress(
+        db,
+        user_id=user.id,
+        test_type=ProgressTestTypeEnum.reading,
+        band_score=_objective_band_score("reading", correct_count),
+        correct_answers=correct_count,
+        total_questions=len(question_index),
+        time_taken_seconds=_calculate_result_time_spent_seconds(exam.started_at, exam.finished_at),
+        test_date=exam.finished_at,
+    )
     await db.commit()
+
+    await _ensure_post_exam_assignments(
+        db,
+        user=user,
+        kind="reading",
+        exam_id=exam.id,
+    )
 
     await _ensure_auto_summary_for_exam(
         db,
@@ -829,7 +1182,7 @@ async def submit_reading_exam(
 
     return {
         "result": _resolve_exam_result_status(exam),
-        "score": reading_band_score(correct_count),
+        "score": _objective_band_score("reading", correct_count),
         "correct_answers": correct_count,
         "time_spent": _calculate_result_time_spent_seconds(exam.started_at, exam.finished_at),
     }
@@ -847,6 +1200,12 @@ async def submit_listening_exam(
     time_limit_seconds = int(exam.listening_test.time_limit)
 
     if exam.finished_at is not None:
+        await _ensure_post_exam_assignments(
+            db,
+            user=user,
+            kind="listening",
+            exam_id=exam.id,
+        )
         await _ensure_auto_summary_for_exam(
             db,
             user=user,
@@ -860,7 +1219,7 @@ async def submit_listening_exam(
             finish_reason=exam.finish_reason,
             finished_at=exam.finished_at,
         )
-        return _serialize_objective_exam_result(exam, exam.question_answers)
+        return _serialize_objective_exam_result("listening", exam, exam.question_answers)
 
     question_index: dict[int, ListeningQuestion] = {
         question.id: question
@@ -918,7 +1277,24 @@ async def submit_listening_exam(
         time_limit_seconds,
         forced_reason=forced_reason,
     )
+    await _record_exam_progress(
+        db,
+        user_id=user.id,
+        test_type=ProgressTestTypeEnum.listening,
+        band_score=_objective_band_score("listening", correct_count),
+        correct_answers=correct_count,
+        total_questions=len(question_index),
+        time_taken_seconds=_calculate_result_time_spent_seconds(exam.started_at, exam.finished_at),
+        test_date=exam.finished_at,
+    )
     await db.commit()
+
+    await _ensure_post_exam_assignments(
+        db,
+        user=user,
+        kind="listening",
+        exam_id=exam.id,
+    )
 
     await _ensure_auto_summary_for_exam(
         db,
@@ -937,7 +1313,7 @@ async def submit_listening_exam(
 
     return {
         "result": _resolve_exam_result_status(exam),
-        "score": reading_band_score(correct_count),
+        "score": _objective_band_score("listening", correct_count),
         "correct_answers": correct_count,
         "time_spent": _calculate_result_time_spent_seconds(exam.started_at, exam.finished_at),
     }
@@ -955,6 +1331,12 @@ async def submit_writing_exam(
     time_limit_seconds = int(exam.writing_test.time_limit)
 
     if exam.finished_at is not None:
+        await _ensure_post_exam_assignments(
+            db,
+            user=user,
+            kind="writing",
+            exam_id=exam.id,
+        )
         await _ensure_auto_summary_for_exam(
             db,
             user=user,
@@ -1009,7 +1391,24 @@ async def submit_writing_exam(
         time_limit_seconds,
         forced_reason=forced_reason,
     )
+    await _record_exam_progress(
+        db,
+        user_id=user.id,
+        test_type=ProgressTestTypeEnum.writing,
+        band_score=_calculate_writing_estimated_band(exam.writing_parts),
+        correct_answers=None,
+        total_questions=len(part_index),
+        time_taken_seconds=_calculate_result_time_spent_seconds(exam.started_at, exam.finished_at),
+        test_date=exam.finished_at,
+    )
     await db.commit()
+
+    await _ensure_post_exam_assignments(
+        db,
+        user=user,
+        kind="writing",
+        exam_id=exam.id,
+    )
 
     serialized_exam = await _get_writing_exam_owned(db, exam.id, user.id)
 
@@ -1048,12 +1447,18 @@ async def get_exam_result(
 ) -> dict[str, Any]:
     if kind == "reading":
         exam = await _get_reading_exam_owned(db, exam_id, user.id)
-        return _serialize_objective_exam_result(exam, exam.question_answers)
+        return _serialize_objective_exam_result("reading", exam, exam.question_answers)
     if kind == "listening":
         exam = await _get_listening_exam_owned(db, exam_id, user.id)
-        return _serialize_objective_exam_result(exam, exam.question_answers)
+        return _serialize_objective_exam_result("listening", exam, exam.question_answers)
 
     exam = await _get_writing_exam_owned(db, exam_id, user.id)
+    await _ensure_post_exam_assignments(
+        db,
+        user=user,
+        kind="writing",
+        exam_id=exam.id,
+    )
     return _serialize_writing_exam_result(exam)
 
 
@@ -1131,39 +1536,53 @@ async def list_student_attempts(
     offset: int,
     limit: int,
 ) -> dict[str, Any]:
-    rows: list[dict[str, Any]] = []
-
-    if module in {None, "reading"}:
-        reading_rows = await repository.list_all_user_reading_exams_with_relations(db, user_id=user.id)
-        rows.extend(_serialize_student_attempt_item("reading", exam) for exam in reading_rows)
-
-    if module in {None, "listening"}:
-        listening_rows = await repository.list_all_user_listening_exams_with_relations(db, user_id=user.id)
-        rows.extend(_serialize_student_attempt_item("listening", exam) for exam in listening_rows)
-
-    if module in {None, "writing"}:
-        writing_rows = await repository.list_all_user_writing_exams_with_relations(db, user_id=user.id)
-        rows.extend(_serialize_student_attempt_item("writing", exam) for exam in writing_rows)
-
-    if module in {None, "speaking"}:
-        speaking_rows = await repository.list_all_user_speaking_exams_with_relations(db, user_id=user.id)
-        rows.extend(_serialize_student_attempt_item("speaking", exam) for exam in speaking_rows)
-
-    filtered_rows = [row for row in rows if _matches_student_attempt_search(row, search)]
-    if test_id is not None:
-        filtered_rows = [row for row in filtered_rows if int(row["test_id"]) == int(test_id)]
-    if status is not None:
-        filtered_rows = [row for row in filtered_rows if row["status"] == status]
-
-    sorted_rows = _sort_student_attempts(filtered_rows, ordering)
-
     normalized_offset = normalize_offset(offset)
     normalized_limit = normalize_limit(limit)
-    paged_rows = sorted_rows[normalized_offset : normalized_offset + normalized_limit]
+    normalized_ordering = (
+        ordering if ordering in ALLOWED_STUDENT_ATTEMPTS_ORDERING else DEFAULT_STUDENT_ATTEMPTS_ORDERING
+    )
+
+    rows = await repository.list_student_attempt_rows(
+        db,
+        user_id=user.id,
+        module=module,
+        search=search,
+        test_id=test_id,
+        status=status,
+        ordering=normalized_ordering,
+        offset=normalized_offset,
+        limit=normalized_limit,
+    )
+    count = await repository.count_student_attempt_rows(
+        db,
+        user_id=user.id,
+        module=module,
+        search=search,
+        test_id=test_id,
+        status=status,
+    )
+
+    items = [
+        {
+            "id": int(row["id"]),
+            "kind": str(row["kind"]),
+            "test_id": int(row["test_id"]),
+            "test_title": str(row["test_title"]),
+            "time_limit": int(row["time_limit"] or 0),
+            "status": str(row["status"]),
+            "finish_reason": str(row["finish_reason"]) if row["finish_reason"] is not None else None,
+            "started_at": row["started_at"],
+            "finished_at": row["finished_at"],
+            "created_at": row["created_at"],
+            "updated_at": row["updated_at"],
+            "estimated_band": float(row["estimated_band"]) if row["estimated_band"] is not None else None,
+        }
+        for row in rows
+    ]
 
     return {
-        "items": paged_rows,
-        "count": len(sorted_rows),
+        "items": items,
+        "count": count,
         "limit": normalized_limit,
         "offset": normalized_offset,
     }
@@ -1316,8 +1735,7 @@ async def finalize_speaking_exam(
     test_detail = SpeakingTestDetail.model_validate(test_payload)
 
     session_copy = session.model_copy(deep=True)
-    if session_copy.result is None:
-        session_copy.result = build_speaking_result(session_copy, test_detail)
+    session_copy.result = await score_speaking_session(session_copy, test_detail)
 
     completed_at_dt = datetime.now(UTC)
     if session_copy.completed_at is None:
@@ -1342,9 +1760,26 @@ async def finalize_speaking_exam(
             int(exam.speaking_test.duration_minutes * 60),
         )
     )
+    await _record_exam_progress(
+        db,
+        user_id=user.id,
+        test_type=ProgressTestTypeEnum.speaking,
+        band_score=session_copy.result.overall_band if session_copy.result else None,
+        correct_answers=None,
+        total_questions=len(session_copy.asked_question_ids),
+        time_taken_seconds=_calculate_result_time_spent_seconds(exam.started_at, exam.finished_at),
+        test_date=exam.finished_at,
+    )
 
     await db.commit()
     await db.refresh(exam)
+
+    await _ensure_post_exam_assignments(
+        db,
+        user=user,
+        kind="speaking",
+        exam_id=exam.id,
+    )
 
     attempt_status = (
         SpeakingAttemptStatus.suspicious
@@ -1406,6 +1841,11 @@ async def persist_speaking_session_payload(
     exam = await repository.get_speaking_exam_with_relations(db, exam_id)
     if exam is None:
         return
+
+    if session.id != str(exam_id):
+        raise ApiError(code="exam_session_mismatch", message="Speaking session id mismatch", status_code=400)
+    if session.test_id != exam.speaking_test_id:
+        raise ApiError(code="exam_session_mismatch", message="Speaking test id mismatch", status_code=400)
 
     _apply_speaking_session_to_exam(exam, session)
     await db.commit()

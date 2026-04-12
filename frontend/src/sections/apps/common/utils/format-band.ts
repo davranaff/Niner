@@ -3,7 +3,7 @@ export function roundBand(value: number | null | undefined): number | null {
     return null;
   }
 
-  return Math.round(value);
+  return Math.round(value * 2) / 2;
 }
 
 export function formatRoundedBand(
@@ -11,5 +11,5 @@ export function formatRoundedBand(
   fallback = '-'
 ): string {
   const rounded = roundBand(value);
-  return rounded == null ? fallback : String(rounded);
+  return rounded == null ? fallback : rounded.toFixed(1);
 }

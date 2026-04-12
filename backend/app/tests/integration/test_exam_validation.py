@@ -51,7 +51,7 @@ async def _auth_headers(client, email: str) -> dict[str, str]:
 
 
 @pytest.mark.asyncio
-async def test_reading_submit_validation_partial_answers_are_incorrect(client, db_session):
+async def test_reading_submit_validation_is_strict_and_draft_is_partial(client, db_session):
     user = await _create_user(db_session, "reading-validation@example.com")
 
     test = ReadingTest(title="R-Validation", description="Desc", time_limit=3600, total_questions=2, is_active=True)
@@ -105,13 +105,21 @@ async def test_reading_submit_validation_partial_answers_are_incorrect(client, d
         headers=headers,
         json=[{"id": q1.id, "value": "Maybe"}],
     )
-    assert partial_submit.status_code == 200
-    assert partial_submit.json()["correct_answers"] == 0
+    assert partial_submit.status_code == 400
+    assert partial_submit.json()["code"] == "invalid_exam_submission"
 
     stored_answers = await db_session.execute(
         select(func.count(ReadingExamQuestionAnswer.id)).where(ReadingExamQuestionAnswer.exam_id == exam_id)
     )
-    assert int(stored_answers.scalar_one()) == 2
+    assert int(stored_answers.scalar_one()) == 0
+
+    draft_save = await client.put(
+        f"/api/v1/exams/reading/{exam_id}/draft",
+        headers=headers,
+        json=[{"id": q1.id, "value": "True"}],
+    )
+    assert draft_save.status_code == 200
+    assert draft_save.json()["saved_items"] == 1
 
     idempotent_submit = await client.post(
         f"/api/v1/exams/reading/{exam_id}/submit",
@@ -122,11 +130,11 @@ async def test_reading_submit_validation_partial_answers_are_incorrect(client, d
         ],
     )
     assert idempotent_submit.status_code == 200
-    assert idempotent_submit.json()["correct_answers"] == 0
+    assert idempotent_submit.json()["correct_answers"] == 2
 
 
 @pytest.mark.asyncio
-async def test_listening_submit_validation_partial_answers_are_incorrect(client, db_session):
+async def test_listening_submit_validation_is_strict_and_draft_is_partial(client, db_session):
     user = await _create_user(db_session, "listening-validation@example.com")
 
     test = ListeningTest(
@@ -189,13 +197,21 @@ async def test_listening_submit_validation_partial_answers_are_incorrect(client,
             {"id": q2.id, "value": "two words"},
         ],
     )
-    assert partial_submit.status_code == 200
-    assert partial_submit.json()["correct_answers"] == 0
+    assert partial_submit.status_code == 400
+    assert partial_submit.json()["code"] == "invalid_exam_submission"
 
     stored_answers = await db_session.execute(
         select(func.count(ListeningExamQuestionAnswer.id)).where(ListeningExamQuestionAnswer.exam_id == exam_id)
     )
-    assert int(stored_answers.scalar_one()) == 2
+    assert int(stored_answers.scalar_one()) == 0
+
+    draft_save = await client.put(
+        f"/api/v1/exams/listening/{exam_id}/draft",
+        headers=headers,
+        json=[{"id": q1.id, "value": "A"}],
+    )
+    assert draft_save.status_code == 200
+    assert draft_save.json()["saved_items"] == 1
 
     idempotent_submit = await client.post(
         f"/api/v1/exams/listening/{exam_id}/submit",
@@ -206,11 +222,11 @@ async def test_listening_submit_validation_partial_answers_are_incorrect(client,
         ],
     )
     assert idempotent_submit.status_code == 200
-    assert idempotent_submit.json()["correct_answers"] == 0
+    assert idempotent_submit.json()["correct_answers"] == 2
 
 
 @pytest.mark.asyncio
-async def test_writing_submit_validation_empty_parts_are_accepted(client, db_session):
+async def test_writing_submit_validation_is_strict_and_draft_is_partial(client, db_session):
     user = await _create_user(db_session, "writing-validation@example.com")
 
     test = WritingTest(title="W-Validation", description="Desc", time_limit=3600, is_active=True)
@@ -232,15 +248,21 @@ async def test_writing_submit_validation_empty_parts_are_accepted(client, db_ses
         headers=headers,
         json=[{"part_id": p1.id, "essay": "   "}],
     )
-    assert partial_submit.status_code == 200
-    partial_payload = partial_submit.json()
-    assert partial_payload["result"] == "success"
-    assert partial_payload["correct_answers"] is None
+    assert partial_submit.status_code == 400
+    assert partial_submit.json()["code"] == "invalid_exam_submission"
 
     stored_parts = await db_session.execute(
         select(func.count(WritingExamPart.id)).where(WritingExamPart.exam_id == exam_id)
     )
-    assert int(stored_parts.scalar_one()) == 2
+    assert int(stored_parts.scalar_one()) == 0
+
+    draft_save = await client.put(
+        f"/api/v1/exams/writing/{exam_id}/draft",
+        headers=headers,
+        json=[{"part_id": p1.id, "essay": "Draft task one"}],
+    )
+    assert draft_save.status_code == 200
+    assert draft_save.json()["saved_items"] == 1
 
     idempotent_submit = await client.post(
         f"/api/v1/exams/writing/{exam_id}/submit",
@@ -259,8 +281,8 @@ async def test_writing_submit_validation_empty_parts_are_accepted(client, db_ses
     ).scalars()
     stored_by_part_id = {row.part_id: row for row in stored_rows}
     assert len(stored_by_part_id) == 2
-    assert stored_by_part_id[p1.id].essay == ""
-    assert stored_by_part_id[p2.id].essay == ""
+    assert stored_by_part_id[p1.id].essay == "Essay for task one"
+    assert stored_by_part_id[p2.id].essay == "Essay for task two"
     assert "AI evaluation" in str(stored_by_part_id[p1.id].corrections)
 
     repeated_submit = await client.post(

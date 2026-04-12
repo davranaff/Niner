@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from app.modules.admin.api import router as admin_router
 from app.modules.ai_summary.api import router as ai_summary_router
+from app.modules.assignments.api import router as assignments_router
 from app.modules.auth.api import router as auth_router
 from app.modules.exams.api import router as exams_router
 from app.modules.lessons.api import router as lessons_router
@@ -25,4 +26,5 @@ api_router.include_router(profile_router)
 api_router.include_router(lessons_router)
 api_router.include_router(teacher_students_router)
 api_router.include_router(ai_summary_router)
+api_router.include_router(assignments_router)
 api_router.include_router(admin_router)

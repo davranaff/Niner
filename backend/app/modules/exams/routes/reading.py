@@ -8,6 +8,7 @@ from app.modules.exams import services
 from app.modules.exams.schemas import (
     ExamAnswerIn,
     ExamCreateIn,
+    ExamDraftOut,
     ExamPublic,
     ExamSubmitOut,
     SubmitFinishReasonOverride,
@@ -50,3 +51,19 @@ async def submit_reading_exam(
         finish_reason_override=finish_reason,
     )
     return ExamSubmitOut.model_validate(result)
+
+
+@router.put("/reading/{exam_id}/draft", response_model=ExamDraftOut)
+async def save_reading_exam_draft(
+    exam_id: int,
+    payload: list[ExamAnswerIn],
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ExamDraftOut:
+    result = await services.save_reading_exam_draft(
+        db,
+        current_user,
+        exam_id,
+        [p.model_dump() for p in payload],
+    )
+    return ExamDraftOut.model_validate(result)

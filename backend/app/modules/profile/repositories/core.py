@@ -12,6 +12,7 @@ from app.db.models import (
     ListeningExam,
     ProgressTestTypeEnum,
     ReadingExam,
+    SpeakingExam,
     UserAnalytics,
     UserProfile,
     UserProgress,
@@ -154,3 +155,7 @@ async def get_listening_attempt_summary(db: AsyncSession, *, user_id: int) -> di
 
 async def get_writing_attempt_summary(db: AsyncSession, *, user_id: int) -> dict[str, int]:
     return await _fetch_attempt_summary(db, _attempt_summary_stmt(WritingExam, user_id=user_id))
+
+
+async def get_speaking_attempt_summary(db: AsyncSession, *, user_id: int) -> dict[str, int]:
+    return await _fetch_attempt_summary(db, _attempt_summary_stmt(SpeakingExam, user_id=user_id))

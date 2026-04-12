@@ -31,6 +31,7 @@ import {
 import { ReadingPassageTabs, ReadingSessionQuestionList } from '../components';
 import {
   useMyReadingExamsQuery,
+  useSaveReadingExamDraftMutation,
   useReadingExamResultMutation,
   useReadingDetailQuery,
   useStartReadingFlowMutation,
@@ -76,6 +77,7 @@ export default function AppsReadingSessionView() {
   const examsQuery = useMyReadingExamsQuery({ enabled: testId > 0 });
   const startReadingFlowMutation = useStartReadingFlowMutation();
   const submitReadingExamMutation = useSubmitReadingExamMutation();
+  const saveReadingDraftMutation = useSaveReadingExamDraftMutation();
   const readingExamResultMutation = useReadingExamResultMutation();
   const { values: sessionQuery, setValues: setSessionQuery } =
     useUrlQueryState(readingSessionQuerySchema);
@@ -94,6 +96,7 @@ export default function AppsReadingSessionView() {
   const questionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const allowExitRef = useRef(false);
   const finalizingRef = useRef(false);
+  const draftSyncTimerRef = useRef<number | null>(null);
 
   const detail = detailQuery.data;
   const questions = useMemo(() => (detail ? flattenReadingQuestions(detail) : []), [detail]);
@@ -198,12 +201,34 @@ export default function AppsReadingSessionView() {
   }, [activeQuestionId, selectedPassageNumber]);
 
   useEffect(() => {
-    if (!activeExamId) {
-      return;
+    if (!activeExamId || !detail) {
+      return undefined;
     }
 
     setReadingDraftAnswers(activeExamId, answers);
-  }, [activeExamId, answers]);
+
+    if (draftSyncTimerRef.current) {
+      window.clearTimeout(draftSyncTimerRef.current);
+    }
+
+    const payload = buildReadingSubmitPayload(detail, answers);
+    draftSyncTimerRef.current = window.setTimeout(() => {
+      if (finalizingRef.current) {
+        return;
+      }
+      saveReadingDraftMutation.mutate({
+        examId: activeExamId,
+        answers: payload,
+      });
+    }, 700);
+
+    return () => {
+      if (draftSyncTimerRef.current) {
+        window.clearTimeout(draftSyncTimerRef.current);
+        draftSyncTimerRef.current = null;
+      }
+    };
+  }, [activeExamId, answers, detail, saveReadingDraftMutation]);
 
   useSessionCountdown({
     attemptId: activeExamId ? String(activeExamId) : '',
@@ -222,6 +247,10 @@ export default function AppsReadingSessionView() {
       finalizingRef.current = true;
       allowExitRef.current = true;
       setSubmitDialogOpen(false);
+      if (draftSyncTimerRef.current) {
+        window.clearTimeout(draftSyncTimerRef.current);
+        draftSyncTimerRef.current = null;
+      }
 
       const finishedAt = new Date().toISOString();
       const startedAt = activeExamStartedAt ?? finishedAt;

@@ -46,9 +46,23 @@ async def list_students_for_teacher(
         select(TeacherStudentLink)
         .where(TeacherStudentLink.teacher_id == teacher_id)
         .join(User, User.id == TeacherStudentLink.student_id)
-        .options(selectinload(TeacherStudentLink.student))
+        .options(selectinload(TeacherStudentLink.student).selectinload(User.profile))
     )
     return await paginate_query(db, stmt, TeacherStudentLink.id, limit, offset)
+
+
+async def list_all_students_for_teacher(
+    db: AsyncSession,
+    *,
+    teacher_id: int,
+) -> list[TeacherStudentLink]:
+    stmt = (
+        select(TeacherStudentLink)
+        .where(TeacherStudentLink.teacher_id == teacher_id)
+        .join(User, User.id == TeacherStudentLink.student_id)
+        .options(selectinload(TeacherStudentLink.student).selectinload(User.profile))
+    )
+    return list((await db.execute(stmt)).scalars().all())
 
 
 async def has_valid_manual_invite(

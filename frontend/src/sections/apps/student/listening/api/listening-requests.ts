@@ -1,6 +1,7 @@
 import { request } from 'src/utils/axios';
 
 import type {
+  BackendExamDraftOut,
   BackendExamPublic,
   BackendExamsMeResponse,
   BackendListeningAttemptPage,
@@ -20,6 +21,7 @@ const listeningUrls = {
   detail: (testId: number) => `/api/v1/listening/tests/${testId}`,
   createExam: '/api/v1/exams/listening',
   startExam: (examId: number) => `/api/v1/exams/listening/${examId}/start`,
+  saveDraft: (examId: number) => `/api/v1/exams/listening/${examId}/draft`,
   submitExam: (examId: number) => `/api/v1/exams/listening/${examId}/submit`,
   examResult: (examId: number) => `/api/v1/exams/listening/${examId}/result`,
   myExams: '/api/v1/exams/me',
@@ -66,6 +68,14 @@ export function submitListeningExam(
     url: listeningUrls.submitExam(examId),
     data: payload,
     params: finishReason ? { finishReason } : undefined,
+  });
+}
+
+export function saveListeningExamDraft(examId: number, payload: ListeningSubmitAnswerInput[]) {
+  return request<BackendExamDraftOut>({
+    method: 'PUT',
+    url: listeningUrls.saveDraft(examId),
+    data: payload,
   });
 }
 

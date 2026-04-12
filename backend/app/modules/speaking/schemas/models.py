@@ -299,6 +299,10 @@ class SpeakingExaminerDecisionOut(BaseModel):
 class LiveClientEvent(BaseModel):
     type: str
     exam_id: int
+    client_id: str
+    seq: int = Field(ge=0)
+    nonce: str = Field(min_length=8, max_length=128)
+    sent_at: str | None = None
     payload: dict[str, Any] = Field(default_factory=dict)
 
 

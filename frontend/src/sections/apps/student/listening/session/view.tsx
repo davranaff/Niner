@@ -35,6 +35,7 @@ import {
 import {
   useListeningDetailQuery,
   useMyListeningExamsQuery,
+  useSaveListeningExamDraftMutation,
   useStartListeningFlowMutation,
   useSubmitListeningExamMutation,
 } from '../api/use-listening-api';
@@ -75,6 +76,7 @@ export default function AppsListeningSessionView() {
   const examsQuery = useMyListeningExamsQuery({ enabled: testId > 0 });
   const startListeningFlowMutation = useStartListeningFlowMutation();
   const submitListeningExamMutation = useSubmitListeningExamMutation();
+  const saveListeningDraftMutation = useSaveListeningExamDraftMutation();
   const { values: sessionQuery, setValues: setSessionQuery } =
     useUrlQueryState(listeningSessionQuerySchema);
 
@@ -91,6 +93,7 @@ export default function AppsListeningSessionView() {
   const questionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const allowExitRef = useRef(false);
   const finalizingRef = useRef(false);
+  const draftSyncTimerRef = useRef<number | null>(null);
 
   const detail = detailQuery.data;
   const questions = useMemo(() => (detail ? flattenListeningQuestions(detail) : []), [detail]);
@@ -194,12 +197,34 @@ export default function AppsListeningSessionView() {
   }, [activeQuestionId, selectedSectionNumber]);
 
   useEffect(() => {
-    if (!activeExamId) {
-      return;
+    if (!activeExamId || !detail) {
+      return undefined;
     }
 
     setListeningDraftAnswers(activeExamId, answers);
-  }, [activeExamId, answers]);
+
+    if (draftSyncTimerRef.current) {
+      window.clearTimeout(draftSyncTimerRef.current);
+    }
+
+    const payload = buildListeningSubmitPayload(detail, answers);
+    draftSyncTimerRef.current = window.setTimeout(() => {
+      if (finalizingRef.current) {
+        return;
+      }
+      saveListeningDraftMutation.mutate({
+        examId: activeExamId,
+        answers: payload,
+      });
+    }, 700);
+
+    return () => {
+      if (draftSyncTimerRef.current) {
+        window.clearTimeout(draftSyncTimerRef.current);
+        draftSyncTimerRef.current = null;
+      }
+    };
+  }, [activeExamId, answers, detail, saveListeningDraftMutation]);
 
   useSessionCountdown({
     attemptId: activeExamId ? String(activeExamId) : '',
@@ -218,6 +243,10 @@ export default function AppsListeningSessionView() {
       finalizingRef.current = true;
       allowExitRef.current = true;
       setSubmitDialogOpen(false);
+      if (draftSyncTimerRef.current) {
+        window.clearTimeout(draftSyncTimerRef.current);
+        draftSyncTimerRef.current = null;
+      }
 
       try {
         await submitListeningExamMutation.mutateAsync({

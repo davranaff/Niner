@@ -1,4 +1,5 @@
 import { HOST_API } from 'src/config-global';
+import { ACCESS_TOKEN_KEY } from 'src/auth/api/storage-keys';
 
 import {
   fetchExaminerDecision,
@@ -49,6 +50,12 @@ function shouldUseBackendExaminerDecisions() {
   const raw = String(process.env.REACT_APP_SPEAKING_USE_BACKEND_DECISIONS ?? '')
     .trim()
     .toLowerCase();
+  if (!raw) {
+    return true;
+  }
+  if (raw === '0' || raw === 'false' || raw === 'no') {
+    return false;
+  }
   return raw === '1' || raw === 'true' || raw === 'yes';
 }
 
@@ -110,11 +117,21 @@ export function getSpeakingBackendWebSocketUrl(examId: number) {
   }
 
   const wsBase = baseUrl.replace(/^http/i, 'ws');
-  return `${wsBase}/api/v1/speaking/live/${examId}`;
+  const token = typeof window !== 'undefined' ? window.sessionStorage.getItem(ACCESS_TOKEN_KEY) || '' : '';
+  const clientId = `speaking-client-${examId}-${Math.random().toString(36).slice(2, 10)}`;
+  const params = new URLSearchParams();
+  params.set('client_id', clientId);
+  if (token) {
+    params.set('token', token);
+  }
+
+  return `${wsBase}/api/v1/speaking/live/${examId}?${params.toString()}`;
 }
 
 export class SpeakingRealtimeTransportClient {
   private socket?: WebSocket;
+
+  private sequence = 0;
 
   constructor(
     private examId: number,
@@ -173,9 +190,23 @@ export class SpeakingRealtimeTransportClient {
       return;
     }
 
+    const nonce =
+      typeof window !== 'undefined' && 'crypto' in window && 'randomUUID' in window.crypto
+        ? window.crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+
+    const seq = this.sequence;
+    this.sequence += 1;
+
     const body = {
       type,
       examId: this.examId,
+      clientId: this.socket.url.includes('client_id=')
+        ? new URL(this.socket.url).searchParams.get('client_id')
+        : '',
+      seq,
+      nonce,
+      sentAt: new Date().toISOString(),
       payload,
     };
 

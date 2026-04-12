@@ -215,6 +215,12 @@ export type BackendListeningExamResult = {
   timeSpent: number | null;
 };
 
+export type BackendExamDraftOut = {
+  savedItems: number;
+  startedAt: string | null;
+  updatedAt: string;
+};
+
 export type ListeningDraftAnswers = Record<string, string>;
 
 export type ListeningQuestionWithContext = {

@@ -1,47 +1,32 @@
 # Reading and Listening Flow
 
-This document covers both catalog usage and exam submit behavior for `reading` and `listening`.
+Covers objective modules: `reading` and `listening`.
 
-## A) Catalog endpoints (before exam attempt)
+## A) Catalog Endpoints
 Reading:
-- `GET /api/v1/reading/tests?offset=<int>&limit=<int>`
+- `GET /api/v1/reading/tests`
 - `GET /api/v1/reading/tests/{test_id}`
 
 Listening:
-- `GET /api/v1/listening/tests?offset=<int>&limit=<int>`
+- `GET /api/v1/listening/tests`
 - `GET /api/v1/listening/tests/{test_id}`
 
-Catalog pagination:
-- Uses `offset + limit`.
-- Response shape: `{ "items": [...], "limit": N, "offset": M }`.
+Both use offset pagination (`limit`, `offset`).
 
-## B) Detail payload structure
-Reading detail includes:
-- `parts` and alias `passages` (same data).
-- part -> block -> questions hierarchy.
-- per question: `id`, `number`, `question_text`, `options`.
-- per block: `block_type` + `answer_spec` + optional `table_json`.
-
-Listening detail includes:
-- one shared `voice_url` for the whole test.
-- alias `audio_url` (same value as `voice_url`).
-- `parts` hierarchy with blocks/questions.
-- same answer spec idea as reading (`single_choice` or `text_input`).
-
-## C) Exam attempt endpoints
+## B) Attempt Endpoints
 Reading:
 - `POST /api/v1/exams/reading`
 - `POST /api/v1/exams/reading/{exam_id}/start`
+- `PUT /api/v1/exams/reading/{exam_id}/draft`
 - `POST /api/v1/exams/reading/{exam_id}/submit`
 
 Listening:
 - `POST /api/v1/exams/listening`
 - `POST /api/v1/exams/listening/{exam_id}/start`
+- `PUT /api/v1/exams/listening/{exam_id}/draft`
 - `POST /api/v1/exams/listening/{exam_id}/submit`
 
-## D) Submit payload format
-`reading` and `listening` use the same body:
-
+## C) Payload Format
 ```json
 [
   { "id": 101, "value": "B" },
@@ -49,36 +34,35 @@ Listening:
 ]
 ```
 
-Where:
-- `id`: question id.
-- `value`: user answer as string.
+## D) Validation Policy
+Final submit is strict:
+- full question set is required
+- unknown/duplicate question ids are rejected
+- invalid option values are rejected for single-choice blocks
+- max-words constraints are enforced for text blocks
 
-## E) Submit validation (strict)
-Before save, backend validates all answers:
-- full set of answers is required;
-- unknown question ids are rejected;
-- duplicate question ids are rejected;
-- for single-choice blocks, `value` must match one of question options;
-- for text-input blocks, `value` is trimmed string;
-- if block has `max_words`, limit is enforced.
+Draft save is partial:
+- accepts incomplete answer sets
+- keeps the same schema and validation for known ids/options
 
-On any violation:
-- returns `400` with `code=invalid_exam_submission`;
-- nothing is saved (fail whole submit).
+## E) Answer Matching Normalization
+Objective checking is not raw string equality.
+Current matching normalizes:
+- case
+- punctuation/noise symbols
+- whitespace
+- basic article handling in multi-token answers (`a/an/the`)
+- equivalent variants split by `/`, `or`, `;`, `|`
 
-## F) Scoring and correctness
-After valid submit:
-- backend stores `user_answer`, `correct_answer`, `is_correct` for each question;
-- answer matching is trim + case-insensitive;
-- reading/listening score uses current IELTS raw-to-band scale (`reading_band_score`);
-- `correct_answers` is returned as count of correct responses.
+## F) Scoring
+Raw correct count is converted via module-specific IELTS maps:
+- Reading: `reading_band_score(raw)`
+- Listening: `listening_band_score(raw)`
 
-## G) Timer and finish reason
-- timer is measured in seconds;
-- `time_spent = finished_at - started_at`;
-- `time_spent` is not capped;
-- `finish_reason = time_is_up` when elapsed >= `time_limit`, else `completed`.
+Reading and listening mappings are intentionally separate.
+Reported bands use IELTS rounding (`.0/.5`).
 
-## H) Idempotency
-- repeated `start` keeps original `started_at`;
-- repeated `submit` after finish returns saved result, no rewrite.
+## G) Idempotency
+- repeated `start` keeps original `started_at`
+- repeated final `submit` after finish returns persisted result
+- draft saves remain available only for unfinished attempts

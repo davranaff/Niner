@@ -12,7 +12,7 @@ from app.core.config import settings
 from app.db.models import AiSummaryModuleEnum, ListeningExam, ReadingExam, WritingExam
 from app.modules.ai_summary import repository
 from app.modules.ai_summary.services.analysis import build_summary_payload
-from app.modules.exams.score import reading_band_score
+from app.modules.exams.score import listening_band_score, reading_band_score, round_band_to_half
 
 TokenCallback = Callable[[str], Awaitable[None]]
 
@@ -98,20 +98,24 @@ def _listening_attempt(exam: ListeningExam) -> dict[str, Any]:
         "time_limit_seconds": int(exam.listening_test.time_limit) if exam.listening_test else None,
         "correct_answers": correct,
         "total_questions": total,
-        "score": _to_float(reading_band_score(correct)),
+        "score": _to_float(listening_band_score(correct)),
         "mistakes": mistakes,
     }
 
 
 def _writing_attempt(exam: WritingExam) -> dict[str, Any]:
     parts: list[dict[str, Any]] = []
-    part_scores: list[float] = []
+    weighted_total = Decimal("0.0")
+    total_weight = Decimal("0.0")
     mistakes: list[dict[str, Any]] = []
 
     for part in exam.writing_parts:
         part_score = _to_float(part.score)
         if part_score is not None:
-            part_scores.append(part_score)
+            part_order = int(getattr(getattr(part, "part", None), "order", 0) or 0)
+            part_weight = Decimal("2.0") if part_order == 2 else Decimal("1.0")
+            weighted_total += Decimal(str(part.score)) * part_weight
+            total_weight += part_weight
 
         parts.append(
             {
@@ -133,7 +137,7 @@ def _writing_attempt(exam: WritingExam) -> dict[str, Any]:
                 }
             )
 
-    score = round(sum(part_scores) / len(part_scores), 2) if part_scores else None
+    score = round_band_to_half(weighted_total / total_weight) if total_weight > Decimal("0.0") else None
 
     return {
         "exam_id": exam.id,

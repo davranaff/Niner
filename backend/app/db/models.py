@@ -16,6 +16,7 @@ Domain model classes now live inside their respective module packages:
 from app.db.model_enums import *  # noqa: F401,F403
 from app.modules.admin.models import *  # noqa: F401,F403
 from app.modules.ai_summary.models import *  # noqa: F401,F403
+from app.modules.assignments.models import *  # noqa: F401,F403
 from app.modules.auth.models import *  # noqa: F401,F403
 from app.modules.exams.models import *  # noqa: F401,F403
 from app.modules.lessons.models import *  # noqa: F401,F403
