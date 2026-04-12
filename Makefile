@@ -1,9 +1,11 @@
-.PHONY: install lint test migrate upgrade seed seed-local run worker up down down-v logs restart
+.PHONY: install lint test migrate upgrade seed seed-local run worker up down down-v logs restart \
+	prod-up prod-down prod-logs prod-migrate prod-deploy prod-update
 
 APP_DIR=backend
 PYTHON ?= python3
 PIP ?= $(PYTHON) -m pip
 COMPOSE ?= docker compose
+PROD_COMPOSE ?= docker compose --env-file .env.prod -f docker-compose.prod.yml
 API_SERVICE ?= api
 WORKER_SERVICE ?= worker
 
@@ -51,3 +53,21 @@ logs:
 restart:
 	$(COMPOSE) down
 	$(COMPOSE) up --build -d
+
+prod-up:
+	$(PROD_COMPOSE) up --build -d
+
+prod-down:
+	$(PROD_COMPOSE) down
+
+prod-logs:
+	$(PROD_COMPOSE) logs -f api frontend landing worker caddy
+
+prod-migrate:
+	$(PROD_COMPOSE) exec -T api alembic upgrade head
+
+prod-deploy:
+	./scripts/prod/deploy.sh
+
+prod-update:
+	./scripts/prod/update.sh

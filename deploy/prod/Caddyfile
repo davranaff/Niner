@@ -1,0 +1,14 @@
+bandnine.online {
+  encode gzip zstd
+  reverse_proxy landing:80
+}
+
+ilets.bandnine.online {
+  encode gzip zstd
+  reverse_proxy frontend:80
+}
+
+api.bandnine.online {
+  encode gzip zstd
+  reverse_proxy api:8000
+}
