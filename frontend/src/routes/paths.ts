@@ -10,7 +10,17 @@ export const paths = {
 
   dashboard: '/dashboard',
 
-  afterLogin: (role?: UserRole) => (role === 'teacher' ? '/dashboard/teacher' : '/dashboard'),
+  afterLogin: (role?: UserRole) => {
+    if (role === 'teacher') {
+      return '/dashboard/teacher';
+    }
+
+    if (role === 'admin') {
+      return '/dashboard/admin';
+    }
+
+    return '/dashboard';
+  },
 
   ielts: {
     home: '/dashboard',
@@ -47,6 +57,17 @@ export const paths = {
       student: (studentId: string) => `/dashboard/teacher/students/${studentId}`,
       attempt: (attemptId: string) => `/dashboard/teacher/attempts/${attemptId}`,
       analytics: '/dashboard/teacher/analytics',
+    },
+    admin: {
+      root: '/dashboard/admin',
+      reading: '/dashboard/admin/reading',
+      readingTest: (testId: string) => `/dashboard/admin/reading/tests/${testId}`,
+      listening: '/dashboard/admin/listening',
+      listeningTest: (testId: string) => `/dashboard/admin/listening/tests/${testId}`,
+      writing: '/dashboard/admin/writing',
+      writingTest: (testId: string) => `/dashboard/admin/writing/tests/${testId}`,
+      lessons: '/dashboard/admin/lessons',
+      exams: '/dashboard/admin/exams',
     },
   },
 

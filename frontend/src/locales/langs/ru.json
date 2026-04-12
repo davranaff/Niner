@@ -62,7 +62,15 @@
     "nav": {
       "group": "Band 9.0",
       "group_exams": "Экзамены",
+      "group_admin": "Admin",
+      "group_content": "Content",
       "dashboard": "Dashboard",
+      "admin_dashboard": "Admin dashboard",
+      "admin_exams": "Exam reviews",
+      "admin_lessons": "Lessons",
+      "admin_reading": "Reading builder",
+      "admin_listening": "Listening builder",
+      "admin_writing": "Writing builder",
       "overall_exam": "Overall экзамен",
       "reading": "Reading",
       "listening": "Listening",
@@ -440,6 +448,327 @@
         "heatmap_row_fri": "Пт",
         "heatmap_cell_empty": "Нет активности · {{date}}",
         "heatmap_cell_active": "{{date}} · {{minutes}} мин"
+      }
+    },
+    "admin": {
+      "shared": {
+        "loading_hint": "Loading admin data...",
+        "empty_title": "No records yet",
+        "active": "Active",
+        "time_limit": "Time limit",
+        "minutes": "minutes",
+        "loaded_count": "{{count}} items loaded",
+        "created_at": "Created at",
+        "not_set": "Not set",
+        "boolean_yes": "Yes",
+        "boolean_no": "No",
+        "status_active": "Active",
+        "status_inactive": "Inactive",
+        "fields": {
+          "title": "Title",
+          "description": "Description",
+          "time_limit_seconds": "Time limit in seconds",
+          "is_active": "Active"
+        },
+        "actions": {
+          "back": "Back",
+          "cancel": "Cancel",
+          "create": "Create",
+          "delete": "Delete",
+          "delete_answer": "Delete answer",
+          "edit": "Edit",
+          "load_more": "Load more",
+          "open": "Open",
+          "save": "Save",
+          "update_answer": "Update answer"
+        },
+        "messages": {
+          "created": "Created successfully.",
+          "deleted": "Deleted successfully.",
+          "updated": "Updated successfully."
+        },
+        "validation": {
+          "required": "This field is required.",
+          "number": "Enter a valid number.",
+          "integer": "Enter a whole number.",
+          "positive": "Enter a positive number.",
+          "non_negative": "Enter zero or a positive number."
+        }
+      },
+      "dashboard": {
+        "document_title": "Admin dashboard - Band 9.0",
+        "title": "Admin dashboard",
+        "description": "A snapshot of the current content library and recent exam activity.",
+        "snapshot_note": "This dashboard is built from the existing admin list endpoints, so the metrics reflect the currently loaded snapshot rather than global totals.",
+        "quick_actions": "Quick actions",
+        "metrics": {
+          "reading_tests": "Reading tests",
+          "listening_tests": "Listening tests",
+          "writing_tests": "Writing tests",
+          "lessons": "Lessons"
+        },
+        "cards": {
+          "reading": "Latest reading tests",
+          "listening": "Latest listening tests",
+          "writing": "Latest writing tests",
+          "categories": "Lesson categories",
+          "lessons": "Latest lessons",
+          "exams": "Recent exam activity"
+        }
+      },
+      "reading": {
+        "document_title": "Admin reading - Band 9.0",
+        "detail_document_title": "Admin reading test - Band 9.0",
+        "title": "Reading builder",
+        "description": "Create and maintain reading tests, passages, blocks, questions, options and answers.",
+        "empty_description": "No reading tests have been created yet.",
+        "invalid_test": "The requested reading test could not be found.",
+        "detail_title": "Reading test details",
+        "detail_description": "Manage the reading test structure and every nested item from one place.",
+        "manual_answers_title": "Manual answer maintenance",
+        "manual_answers_description": "Use this section to update or delete answers when the backend response does not expose answer identifiers.",
+        "answer_contract_note": "The read API does not expose answer identifiers, so updating or deleting answers requires the answer id manually.",
+        "actions": {
+          "add_passage": "Add passage",
+          "add_block": "Add block",
+          "add_question": "Add question",
+          "add_option": "Add option",
+          "add_answer": "Add answer"
+        },
+        "labels": {
+          "passage": "Passage",
+          "correct_option": "Correct"
+        },
+        "summary": {
+          "passages": "Passages",
+          "questions": "Questions"
+        },
+        "fields": {
+          "content": "Content",
+          "passage_number": "Passage number",
+          "block_type": "Block type",
+          "question_heading": "Question heading",
+          "list_of_headings": "List of headings",
+          "table_completion": "Table completion JSON",
+          "flow_chart_completion": "Flow chart completion JSON",
+          "question_text": "Question text",
+          "option_text": "Option text",
+          "correct_answers": "Correct answers",
+          "answer_id": "Answer id",
+          "order": "Order",
+          "is_correct": "Correct option"
+        },
+        "empty_passages": "This test does not have any passages yet.",
+        "empty_blocks": "This passage does not have any blocks yet.",
+        "empty_questions": "This block does not have any questions yet.",
+        "delete_help": {
+          "test": "This removes the reading test and every nested passage, block and question.",
+          "passage": "This removes the passage and every nested block and question.",
+          "block": "This removes the block and every nested question.",
+          "question": "This removes the question, options and answers.",
+          "option": "This removes the selected option."
+        },
+        "dialogs": {
+          "create_title": "Create reading test",
+          "edit_title": "Edit reading test",
+          "delete_title": "Delete reading test?",
+          "delete_description": "This permanently removes the reading test.",
+          "create_passage_title": "Create passage",
+          "edit_passage_title": "Edit passage",
+          "create_block_title": "Create block",
+          "edit_block_title": "Edit block",
+          "create_question_title": "Create question",
+          "edit_question_title": "Edit question",
+          "create_option_title": "Create option",
+          "edit_option_title": "Edit option",
+          "create_answer_title": "Create answer"
+        }
+      },
+      "listening": {
+        "document_title": "Admin listening - Band 9.0",
+        "detail_document_title": "Admin listening test - Band 9.0",
+        "title": "Listening builder",
+        "description": "Create and maintain listening tests, parts, blocks, questions, options and answers.",
+        "empty_description": "No listening tests have been created yet.",
+        "invalid_test": "The requested listening test could not be found.",
+        "detail_title": "Listening test details",
+        "detail_description": "Manage listening test settings, structure and question flow from one screen.",
+        "manual_answers_title": "Manual answer maintenance",
+        "manual_answers_description": "Use this section to update or delete answers when you already know the answer id.",
+        "answer_contract_note": "The backend does not expose listening answer identifiers in the read response, so answer updates and deletes require the answer id manually.",
+        "option_contract_note": "The listening detail response does not expose option correctness, so the list view cannot confirm which option is correct after reading the test.",
+        "actions": {
+          "add_part": "Add part",
+          "add_block": "Add block",
+          "add_question": "Add question",
+          "add_option": "Add option",
+          "add_answer": "Add answer"
+        },
+        "labels": {
+          "part": "Part"
+        },
+        "summary": {
+          "parts": "Parts",
+          "questions": "Questions"
+        },
+        "fields": {
+          "voice_url": "Voice URL",
+          "block_type": "Block type",
+          "table_completion": "Table completion JSON",
+          "question_text": "Question text",
+          "option_text": "Option text",
+          "correct_answers": "Correct answers",
+          "answer_id": "Answer id",
+          "order": "Order",
+          "is_correct": "Correct option"
+        },
+        "empty_parts": "This test does not have any parts yet.",
+        "empty_blocks": "This part does not have any blocks yet.",
+        "empty_questions": "This block does not have any questions yet.",
+        "delete_help": {
+          "test": "This removes the listening test and every nested part, block and question.",
+          "part": "This removes the listening part and every nested block and question.",
+          "block": "This removes the block and every nested question.",
+          "question": "This removes the question, options and answers.",
+          "option": "This removes the selected option."
+        },
+        "dialogs": {
+          "create_title": "Create listening test",
+          "edit_title": "Edit listening test",
+          "delete_title": "Delete listening test?",
+          "delete_description": "This permanently removes the listening test.",
+          "create_part_title": "Create part",
+          "edit_part_title": "Edit part",
+          "create_block_title": "Create block",
+          "edit_block_title": "Edit block",
+          "create_question_title": "Create question",
+          "edit_question_title": "Edit question",
+          "create_option_title": "Create option",
+          "edit_option_title": "Edit option",
+          "create_answer_title": "Create answer"
+        }
+      },
+      "writing": {
+        "document_title": "Admin writing - Band 9.0",
+        "detail_document_title": "Admin writing test - Band 9.0",
+        "title": "Writing builder",
+        "description": "Create and maintain writing tests and their task parts.",
+        "empty_description": "No writing tests have been created yet.",
+        "invalid_test": "The requested writing test could not be found.",
+        "detail_title": "Writing test details",
+        "detail_description": "Manage writing test settings and task parts from one screen.",
+        "actions": {
+          "add_part": "Add part"
+        },
+        "labels": {
+          "part": "Part"
+        },
+        "summary": {
+          "parts": "Parts",
+          "task_prompt": "Task prompt"
+        },
+        "fields": {
+          "order": "Order",
+          "task": "Task prompt",
+          "image_url": "Image URL",
+          "file_urls": "Attachment URLs"
+        },
+        "empty_parts": "This test does not have any writing parts yet.",
+        "delete_help": {
+          "test": "This removes the writing test and all of its parts.",
+          "part": "This removes the writing part."
+        },
+        "dialogs": {
+          "create_title": "Create writing test",
+          "edit_title": "Edit writing test",
+          "delete_title": "Delete writing test?",
+          "delete_description": "This permanently removes the writing test.",
+          "create_part_title": "Create part",
+          "edit_part_title": "Edit part"
+        }
+      },
+      "lessons": {
+        "document_title": "Admin lessons - Band 9.0",
+        "title": "Lessons",
+        "description": "Manage lesson categories and the lesson library used by the platform.",
+        "category_required_note": "Create at least one category before adding lessons.",
+        "sections": {
+          "categories": "Categories",
+          "lessons": "Lessons"
+        },
+        "actions": {
+          "add_category": "Add category",
+          "add_lesson": "Add lesson"
+        },
+        "fields": {
+          "category": "Category",
+          "slug": "Slug",
+          "video_link": "Video link"
+        },
+        "empty_categories": "No lesson categories have been created yet.",
+        "empty_lessons": "No lessons have been created yet.",
+        "dialogs": {
+          "create_category_title": "Create category",
+          "edit_category_title": "Edit category",
+          "create_lesson_title": "Create lesson",
+          "edit_lesson_title": "Edit lesson",
+          "delete_title": "Delete item?",
+          "delete_category_description": "This permanently removes the selected category.",
+          "delete_lesson_description": "This permanently removes the selected lesson."
+        }
+      },
+      "exams": {
+        "document_title": "Admin exams - Band 9.0",
+        "title": "Exam reviews",
+        "description": "Inspect exam attempts by module and review writing submissions.",
+        "empty_description": "No exam attempts were found for this module.",
+        "detail_title": "Exam summary",
+        "detail_description": "The admin exam detail endpoint currently returns summary metadata for the selected exam.",
+        "review_note": "Writing review is manual because the admin exam endpoints do not expose writing exam part ids or full writing content in the detail response.",
+        "review_title": "Writing part review",
+        "review_description": "Use the exam part id to mark a writing submission as checked and store corrections or a score.",
+        "actions": {
+          "review": "Review",
+          "review_writing_part": "Review writing part"
+        },
+        "kinds": {
+          "reading": "Reading",
+          "listening": "Listening",
+          "writing": "Writing"
+        },
+        "status": {
+          "in_progress": "In progress",
+          "completed": "Completed",
+          "terminated": "Terminated"
+        },
+        "finish_reason": {
+          "completed": "Completed",
+          "left": "User left",
+          "manual_submit": "Manual submit",
+          "time_is_up": "Time expired",
+          "timeout": "Time expired"
+        },
+        "metrics": {
+          "loaded": "Loaded attempts",
+          "in_progress": "In progress",
+          "completed": "Completed",
+          "terminated": "Terminated"
+        },
+        "fields": {
+          "exam_id": "Exam id",
+          "exam_part_id": "Exam part id",
+          "user_id": "User id",
+          "test_id": "Test id",
+          "started_at": "Started at",
+          "finished_at": "Finished at",
+          "finish_reason": "Finish reason",
+          "corrections": "Corrections",
+          "score": "Score",
+          "is_checked": "Marked as checked"
+        },
+        "dialogs": {
+          "review_title": "Review writing part"
+        }
       }
     }
   }

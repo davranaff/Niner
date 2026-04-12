@@ -21,6 +21,8 @@ const ICONS = {
   writing: <Iconify icon="solar:pen-bold-duotone" width={24} />,
   speaking: <Iconify icon="solar:microphone-3-bold-duotone" width={24} />,
   tests: <Iconify icon="solar:clipboard-list-bold-duotone" width={24} />,
+  exams: <Iconify icon="solar:clipboard-text-bold-duotone" width={24} />,
+  lessons: <Iconify icon="solar:notebook-bookmark-bold-duotone" width={24} />,
   profile: <Iconify icon="solar:user-circle-bold-duotone" width={24} />,
   students: <Iconify icon="solar:users-group-rounded-bold-duotone" width={24} />,
   analytics: <Iconify icon="solar:chart-2-bold-duotone" width={24} />,
@@ -55,6 +57,62 @@ export function useNavData(currentRole: string = 'student') {
           roles: ['teacher'],
         },
       ],
+    }
+
+    const adminGroups = [
+      {
+        subheader: tx('layout.nav.group_admin'),
+        items: [
+          {
+            title: tx('layout.nav.admin_dashboard'),
+            path: paths.ielts.admin.root,
+            icon: ICONS.dashboard,
+            roles: ['admin'],
+          },
+          {
+            title: tx('layout.nav.admin_exams'),
+            path: paths.ielts.admin.exams,
+            icon: ICONS.exams,
+            roles: ['admin'],
+          },
+          {
+            title: tx('layout.nav.admin_lessons'),
+            path: paths.ielts.admin.lessons,
+            icon: ICONS.lessons,
+            roles: ['admin'],
+          },
+        ],
+      },
+      {
+        subheader: tx('layout.nav.group_content'),
+        items: [
+          {
+            title: tx('layout.nav.admin_reading'),
+            path: paths.ielts.admin.reading,
+            deepMatch: true,
+            icon: ICONS.reading,
+            roles: ['admin'],
+          },
+          {
+            title: tx('layout.nav.admin_listening'),
+            path: paths.ielts.admin.listening,
+            deepMatch: true,
+            icon: ICONS.listening,
+            roles: ['admin'],
+          },
+          {
+            title: tx('layout.nav.admin_writing'),
+            path: paths.ielts.admin.writing,
+            deepMatch: true,
+            icon: ICONS.writing,
+            roles: ['admin'],
+          },
+        ],
+      },
+    ]
+
+    if (currentRole === 'admin') {
+      return adminGroups
     }
 
     if (currentRole === 'teacher') {

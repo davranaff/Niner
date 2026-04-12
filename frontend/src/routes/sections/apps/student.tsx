@@ -1,8 +1,10 @@
 import { lazy, type ReactElement } from 'react';
-import type { RouteObject } from 'react-router-dom';
+import { Navigate, type RouteObject } from 'react-router-dom';
 
 import { RoleBasedGuard } from 'src/auth/guard';
+import { useAppUserProfile } from 'src/hooks/use-app-user-profile';
 import SessionLayout from 'src/layouts/dashboard/session-layout';
+import { paths } from 'src/routes/paths';
 
 const AppsDashboardPage = lazy(() => import('src/pages/apps/student/dashboard'));
 const AppsReadingPage = lazy(() => import('src/pages/apps/student/reading'));
@@ -42,6 +44,20 @@ function studentSessionPage(page: ReactElement) {
   return studentOnly(<SessionLayout>{page}</SessionLayout>);
 }
 
+function DashboardIndexEntry() {
+  const { user } = useAppUserProfile();
+
+  if (user.role === 'teacher') {
+    return <Navigate to={paths.ielts.teacher.root} replace />;
+  }
+
+  if (user.role === 'admin') {
+    return <Navigate to={paths.ielts.admin.root} replace />;
+  }
+
+  return studentOnly(<AppsDashboardPage />);
+}
+
 export const studentAppSessionRoutes: RouteObject[] = [
   {
     path: 'dashboard/reading/tests/:testId/session',
@@ -68,7 +84,7 @@ export const studentAppSessionRoutes: RouteObject[] = [
 export const studentAppDashboardRoutes: RouteObject[] = [
   {
     index: true,
-    element: studentOnly(<AppsDashboardPage />),
+    element: <DashboardIndexEntry />,
   },
   {
     path: 'reading',

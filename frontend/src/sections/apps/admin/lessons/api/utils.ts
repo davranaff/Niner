@@ -1,0 +1,2 @@
+export const ADMIN_LESSON_CATEGORY_BATCH_SIZE = 12;
+export const ADMIN_LESSON_BATCH_SIZE = 12;
