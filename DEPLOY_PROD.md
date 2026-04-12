@@ -11,7 +11,7 @@ Create these DNS records and point them to your server IP:
 Allow inbound ports:
 
 - `800/tcp` (HTTP container port published as host `800`)
-- `443/tcp` (HTTPS)
+- `4430/tcp` (HTTPS container port published as host `4430`)
 - Optional direct service ports from `.env.prod` (`18000`, `30000`, `31000`, etc.)
 
 ## 3) Prepare env
@@ -54,11 +54,13 @@ BRANCH=develop ./scripts/prod/update.sh
 ```
 
 ## 6) Domains routing
-Handled by Caddy (`deploy/prod/Caddyfile`) with automatic SSL:
+Handled by Caddy (`deploy/prod/Caddyfile`) with SSL:
 
-- `https://bandnine.online` -> landing
-- `https://ilets.bandnine.online` -> frontend
-- `https://api.bandnine.online` -> backend API
+- `https://bandnine.online:4430` -> landing
+- `https://ilets.bandnine.online:4430` -> frontend
+- `https://api.bandnine.online:4430` -> backend API
+
+Important: since host HTTPS port is `4430`, URLs must include `:4430` (including frontend API origin and backend CORS origins in `.env.prod`).
 
 ## Notes about ports
 Requested port style "add one zero" is kept where valid (for example `3000 -> 30000`).
