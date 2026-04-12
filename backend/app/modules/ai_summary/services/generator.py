@@ -155,14 +155,28 @@ async def collect_module_attempts(
     user_id: int,
     module: AiSummaryModuleEnum,
     attempts_limit: int,
+    exam_id: int | None = None,
 ) -> list[dict[str, Any]]:
     if module == AiSummaryModuleEnum.reading:
+        if exam_id is not None:
+            row = await repository.get_finished_reading_exam(db, user_id=user_id, exam_id=exam_id)
+            if row is not None:
+                return [_reading_attempt(row)]
         rows = await repository.list_recent_reading_exams(db, user_id=user_id, limit=attempts_limit)
         return [_reading_attempt(row) for row in rows]
 
     if module == AiSummaryModuleEnum.listening:
+        if exam_id is not None:
+            row = await repository.get_finished_listening_exam(db, user_id=user_id, exam_id=exam_id)
+            if row is not None:
+                return [_listening_attempt(row)]
         rows = await repository.list_recent_listening_exams(db, user_id=user_id, limit=attempts_limit)
         return [_listening_attempt(row) for row in rows]
+
+    if exam_id is not None:
+        row = await repository.get_finished_writing_exam(db, user_id=user_id, exam_id=exam_id)
+        if row is not None:
+            return [_writing_attempt(row)]
 
     rows = await repository.list_recent_writing_exams(db, user_id=user_id, limit=attempts_limit)
     return [_writing_attempt(row) for row in rows]
@@ -239,14 +253,31 @@ async def build_module_summary(
     attempts_limit: int,
     lang: str,
     on_token: TokenCallback,
+    exam_id: int | None = None,
 ) -> dict[str, Any]:
     attempts = await collect_module_attempts(
         db,
         user_id=user_id,
         module=module,
         attempts_limit=attempts_limit,
+        exam_id=exam_id,
     )
+    if exam_id is not None and not attempts:
+        attempts = await collect_module_attempts(
+            db,
+            user_id=user_id,
+            module=module,
+            attempts_limit=attempts_limit,
+            exam_id=None,
+        )
+
     base_payload = build_summary_payload(module, attempts)
+    if exam_id is not None:
+        base_payload["summary_scope"] = {
+            "type": "single_exam" if attempts and attempts[0].get("exam_id") == exam_id else "fallback_recent",
+            "module": module.value,
+            "exam_id": exam_id,
+        }
 
     try:
         payload = await _ai_stream(module=module, lang=lang, base_payload=base_payload, on_token=on_token)

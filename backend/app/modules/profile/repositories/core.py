@@ -3,11 +3,20 @@ from __future__ import annotations
 from collections.abc import Sequence
 from datetime import datetime
 
-from sqlalchemy import Select, select
+from sqlalchemy import Select, case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.pagination import paginate_query
-from app.db.models import ProgressTestTypeEnum, UserAnalytics, UserProfile, UserProgress
+from app.db.models import (
+    FinishReasonEnum,
+    ListeningExam,
+    ProgressTestTypeEnum,
+    ReadingExam,
+    UserAnalytics,
+    UserProfile,
+    UserProgress,
+    WritingExam,
+)
 
 
 def _apply_progress_filters(
@@ -106,3 +115,42 @@ async def list_progress_filtered(
         stmt = stmt.limit(max(1, limit))
 
     return list((await db.execute(stmt)).scalars().all())
+
+
+def _attempt_summary_stmt(model, *, user_id: int):
+    return select(
+        func.count(model.id).label("attempts_count"),
+        func.sum(
+            case(
+                (model.finish_reason == FinishReasonEnum.completed, 1),
+                else_=0,
+            )
+        ).label("successful_attempts_count"),
+        func.sum(
+            case(
+                (model.finish_reason.in_([FinishReasonEnum.left, FinishReasonEnum.time_is_up]), 1),
+                else_=0,
+            )
+        ).label("failed_attempts_count"),
+    ).where(model.user_id == user_id)
+
+
+async def _fetch_attempt_summary(db: AsyncSession, stmt) -> dict[str, int]:
+    row = (await db.execute(stmt)).one()
+    return {
+        "attempts_count": int(row.attempts_count or 0),
+        "successful_attempts_count": int(row.successful_attempts_count or 0),
+        "failed_attempts_count": int(row.failed_attempts_count or 0),
+    }
+
+
+async def get_reading_attempt_summary(db: AsyncSession, *, user_id: int) -> dict[str, int]:
+    return await _fetch_attempt_summary(db, _attempt_summary_stmt(ReadingExam, user_id=user_id))
+
+
+async def get_listening_attempt_summary(db: AsyncSession, *, user_id: int) -> dict[str, int]:
+    return await _fetch_attempt_summary(db, _attempt_summary_stmt(ListeningExam, user_id=user_id))
+
+
+async def get_writing_attempt_summary(db: AsyncSession, *, user_id: int) -> dict[str, int]:
+    return await _fetch_attempt_summary(db, _attempt_summary_stmt(WritingExam, user_id=user_id))

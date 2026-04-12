@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import ApiError
 from app.core.pagination import CursorPage, serialize_page
-from app.db.models import ListeningQuestion, ListeningQuestionBlock, ListeningTest
+from app.db.models import ListeningQuestion, ListeningQuestionBlock, ListeningTest, User
 from app.modules.listening import repository
 from app.modules.listening.schemas import ListeningTestListItem
 
@@ -146,7 +146,6 @@ def _serialize_question(question: ListeningQuestion, number: int) -> dict[str, A
             {
                 "id": option.id,
                 "option_text": option.option_text,
-                "is_correct": option.is_correct,
                 "order": option.order,
             }
             for option in sorted(question.options, key=lambda x: x.order)
@@ -202,8 +201,13 @@ def serialize_listening_test_detail(test: ListeningTest) -> dict[str, Any]:
     }
 
 
-async def list_listening_tests(db: AsyncSession, offset: int, limit: int) -> CursorPage:
+async def list_listening_tests(db: AsyncSession, user: User, offset: int, limit: int) -> CursorPage:
     rows = await repository.list_active_tests(db, offset=offset, limit=limit)
+    stats_by_test_id = await repository.get_attempt_stats_by_test_ids(
+        db,
+        user_id=user.id,
+        test_ids=[row.id for row in rows],
+    )
     return serialize_page(
         rows,
         serializer=lambda row: ListeningTestListItem(
@@ -214,6 +218,15 @@ async def list_listening_tests(db: AsyncSession, offset: int, limit: int) -> Cur
             time_limit=row.time_limit,
             is_active=row.is_active,
             created_at=row.created_at,
+            attempts_count=stats_by_test_id.get(row.id, {}).get("attempts_count", 0),
+            successful_attempts_count=stats_by_test_id.get(row.id, {}).get(
+                "successful_attempts_count",
+                0,
+            ),
+            failed_attempts_count=stats_by_test_id.get(row.id, {}).get(
+                "failed_attempts_count",
+                0,
+            ),
         ).model_dump(),
         limit=limit,
         offset=offset,

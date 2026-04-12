@@ -19,6 +19,7 @@ const readingUrls = {
   createExam: '/api/v1/exams/reading',
   startExam: (examId: number) => `/api/v1/exams/reading/${examId}/start`,
   submitExam: (examId: number) => `/api/v1/exams/reading/${examId}/submit`,
+  examResult: (examId: number) => `/api/v1/exams/reading/${examId}/result`,
   myExams: '/api/v1/exams/me',
 } as const;
 
@@ -52,11 +53,23 @@ export function startReadingExam(examId: number) {
   });
 }
 
-export function submitReadingExam(examId: number, payload: ReadingSubmitAnswerInput[]) {
+export function submitReadingExam(
+  examId: number,
+  payload: ReadingSubmitAnswerInput[],
+  finishReason?: 'left' | 'time_is_up'
+) {
   return request<BackendReadingSubmitResult>({
     method: 'POST',
     url: readingUrls.submitExam(examId),
     data: payload,
+    params: finishReason ? { finishReason } : undefined,
+  });
+}
+
+export function fetchReadingExamResult(examId: number) {
+  return request<BackendReadingSubmitResult>({
+    method: 'GET',
+    url: readingUrls.examResult(examId),
   });
 }
 

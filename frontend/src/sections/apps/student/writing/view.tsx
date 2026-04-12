@@ -14,6 +14,7 @@ import EmptyContent from 'src/components/empty-content';
 import { useRouter } from 'src/routes/hook';
 import { AppsPageHeader } from 'src/pages/components/apps';
 import { useUrlListState } from 'src/hooks/use-url-query-state';
+import { toModuleAttemptHistoryItems } from 'src/sections/apps/common/module-test/utils/attempt-history';
 
 import {
   findLatestUnfinishedWritingExamForTest,
@@ -88,6 +89,7 @@ export default function AppsWritingCatalogView() {
                 const storedActiveExamId = getWritingActiveExamId(item.id);
                 const latestActiveExam =
                   findLatestUnfinishedWritingExamForTest(item.id, exams) ?? null;
+                const attemptHistoryItems = toModuleAttemptHistoryItems('writing', exams, item.id);
                 const canContinue = Boolean(storedActiveExamId || latestActiveExam);
 
                 return (
@@ -97,12 +99,18 @@ export default function AppsWritingCatalogView() {
                       activeLabel={tx('pages.ielts.shared.available_now')}
                       durationLabel={tx('pages.ielts.shared.duration')}
                       publishedAtLabel={tx('pages.ielts.shared.published_at')}
+                      attemptsLabel={tx('pages.ielts.shared.attempts')}
+                      successfulAttemptsLabel={tx('pages.ielts.shared.review_correct')}
+                      failedAttemptsLabel={tx('pages.ielts.shared.review_incorrect')}
+                      attemptHistoryLabel={tx('pages.ielts.shared.attempt_history')}
+                      updatedLabel={tx('pages.ielts.shared.updated')}
+                      attemptHistoryItems={attemptHistoryItems}
                       actions={
                         <>
                           <Button
                             fullWidth
                             variant="outlined"
-                            color="inherit"
+                            color="primary"
                             onClick={() => router.push(paths.ielts.writingTest(String(item.id)))}
                           >
                             {tx('pages.ielts.shared.details')}
@@ -111,7 +119,7 @@ export default function AppsWritingCatalogView() {
                           <LoadingButton
                             fullWidth
                             variant="contained"
-                            color="inherit"
+                            color="primary"
                             loading={startingTestId === item.id}
                             onClick={() =>
                               handleStart(item.id, storedActiveExamId ?? latestActiveExam?.id)
@@ -150,7 +158,7 @@ export default function AppsWritingCatalogView() {
 
                 <LoadingButton
                   variant="contained"
-                  color="inherit"
+                  color="primary"
                   loading={loadMorePending}
                   onClick={handleLoadMore}
                   sx={{ alignSelf: { xs: 'stretch', md: 'center' } }}

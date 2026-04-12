@@ -2,6 +2,7 @@
 import Grid from '@mui/material/Grid';
 // locales
 import { useLocales } from 'src/locales';
+import { formatRoundedBand } from 'src/sections/apps/common/utils/format-band';
 // components
 import { MetricCard } from 'src/pages/components/apps';
 // types
@@ -39,7 +40,7 @@ export function DashboardMetricsGrid({ data }: DashboardMetricsGridProps) {
       <Grid item xs={6} md={3}>
         <MetricCard
           label={tx('pages.ielts.teacher.average_band')}
-          value={data.averageOverallBand.toFixed(1)}
+          value={formatRoundedBand(data.averageOverallBand)}
           icon="solar:medal-ribbon-star-bold-duotone"
           color="info"
         />

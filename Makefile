@@ -1,4 +1,4 @@
-.PHONY: install lint test migrate upgrade seed seed-local run worker up down logs restart
+.PHONY: install lint test migrate upgrade seed seed-local run worker up down down-v logs restart
 
 APP_DIR=backend
 PYTHON ?= python3
@@ -41,6 +41,9 @@ up:
 
 down:
 	$(COMPOSE) down
+
+down-v:
+	$(COMPOSE) down -v
 
 logs:
 	$(COMPOSE) logs -f api frontend worker

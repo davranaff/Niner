@@ -6,6 +6,7 @@ import { AppsPageHeader, InsightListCard } from 'src/pages/components/apps';
 import { useLocales } from 'src/locales';
 // api
 import { useTeacherDashboardQuery } from 'src/sections/apps/common/api/use-apps';
+import { formatRoundedBand } from 'src/sections/apps/common/utils/format-band';
 import { CompletionStatsCard, DashboardMetricsGrid, RecentAttemptsCard } from './components';
 import { AppsTeacherDashboardSkeleton } from './skeleton';
 
@@ -41,7 +42,7 @@ export default function AppsTeacherDashboardView() {
           <InsightListCard
             title={tx('pages.ielts.teacher.students_at_risk')}
             items={data.studentsAtRisk.map(
-              (item) => `${item.studentName} · ${item.latestBand.toFixed(1)}`
+              (item) => `${item.studentName} · ${formatRoundedBand(item.latestBand)}`
             )}
             emptyLabel={tx('pages.ielts.shared.empty_title')}
           />
@@ -50,7 +51,7 @@ export default function AppsTeacherDashboardView() {
           <InsightListCard
             title={tx('pages.ielts.teacher.top_improvers')}
             items={data.topImprovers.map(
-              (item) => `${item.studentName} · ${item.latestBand.toFixed(1)}`
+              (item) => `${item.studentName} · ${formatRoundedBand(item.latestBand)}`
             )}
             emptyLabel={tx('pages.ielts.shared.empty_title')}
           />

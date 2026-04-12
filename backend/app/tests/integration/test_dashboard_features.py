@@ -6,7 +6,19 @@ from decimal import Decimal
 import pytest
 
 from app.core.security import hash_password
-from app.db.models import ProgressTestTypeEnum, RoleEnum, User, UserProgress
+from app.db.models import (
+    FinishReasonEnum,
+    ListeningExam,
+    ListeningTest,
+    ProgressTestTypeEnum,
+    ReadingExam,
+    ReadingTest,
+    RoleEnum,
+    User,
+    UserProgress,
+    WritingExam,
+    WritingTest,
+)
 
 
 async def _create_active_user(db_session, email: str, password: str = "Password123") -> User:
@@ -137,4 +149,84 @@ async def test_dashboard_activity_stats_history_and_quick_links(client, db_sessi
     assert any(link["path"] == "/dashboard/listening" for link in quick_links_payload)
     assert any(link["path"] == "/dashboard/writing" for link in quick_links_payload)
     assert any(link["path"] == "/dashboard/profile" for link in quick_links_payload)
+    assert all("attempts_count" in link for link in quick_links_payload)
+    assert all("successful_attempts_count" in link for link in quick_links_payload)
+    assert all("failed_attempts_count" in link for link in quick_links_payload)
 
+
+@pytest.mark.asyncio
+async def test_dashboard_quick_links_include_exam_attempt_stats(client, db_session):
+    user = await _create_active_user(db_session, "dashboard.quick-links@example.com")
+    headers = await _auth_headers(client, user.email)
+
+    reading_test = ReadingTest(title="R", description="D", time_limit=3600, total_questions=0, is_active=True)
+    listening_test = ListeningTest(
+        title="L",
+        description="D",
+        time_limit=1800,
+        total_questions=0,
+        is_active=True,
+        voice_url=None,
+    )
+    writing_test = WritingTest(title="W", description="D", time_limit=3600, is_active=True)
+    db_session.add_all([reading_test, listening_test, writing_test])
+    await db_session.flush()
+
+    db_session.add_all(
+        [
+            ReadingExam(
+                user_id=user.id,
+                reading_test_id=reading_test.id,
+                finished_at=datetime.now(UTC),
+                finish_reason=FinishReasonEnum.completed,
+            ),
+            ReadingExam(
+                user_id=user.id,
+                reading_test_id=reading_test.id,
+                finished_at=datetime.now(UTC),
+                finish_reason=FinishReasonEnum.left,
+            ),
+            ReadingExam(
+                user_id=user.id,
+                reading_test_id=reading_test.id,
+                finished_at=None,
+                finish_reason=None,
+            ),
+            ListeningExam(
+                user_id=user.id,
+                listening_test_id=listening_test.id,
+                finished_at=datetime.now(UTC),
+                finish_reason=FinishReasonEnum.time_is_up,
+            ),
+            WritingExam(
+                user_id=user.id,
+                writing_test_id=writing_test.id,
+                finished_at=datetime.now(UTC),
+                finish_reason=FinishReasonEnum.completed,
+            ),
+            WritingExam(
+                user_id=user.id,
+                writing_test_id=writing_test.id,
+                finished_at=datetime.now(UTC),
+                finish_reason=FinishReasonEnum.left,
+            ),
+        ]
+    )
+    await db_session.commit()
+
+    quick_links = await client.get("/api/v1/dashboard/quick-links", headers=headers)
+    assert quick_links.status_code == 200
+    payload = quick_links.json()["items"]
+
+    by_module = {item["module"]: item for item in payload if item["module"] is not None}
+    assert by_module["reading"]["attempts_count"] == 3
+    assert by_module["reading"]["successful_attempts_count"] == 1
+    assert by_module["reading"]["failed_attempts_count"] == 1
+
+    assert by_module["listening"]["attempts_count"] == 1
+    assert by_module["listening"]["successful_attempts_count"] == 0
+    assert by_module["listening"]["failed_attempts_count"] == 1
+
+    assert by_module["writing"]["attempts_count"] == 2
+    assert by_module["writing"]["successful_attempts_count"] == 1
+    assert by_module["writing"]["failed_attempts_count"] == 1

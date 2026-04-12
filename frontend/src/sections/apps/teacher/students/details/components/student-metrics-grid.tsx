@@ -4,6 +4,7 @@ import Grid from '@mui/material/Grid';
 import { useLocales } from 'src/locales';
 // utils
 import { fDate } from 'src/utils/format-time';
+import { formatRoundedBand } from 'src/sections/apps/common/utils/format-band';
 // components
 import { MetricCard } from 'src/pages/components/apps';
 // types
@@ -23,7 +24,7 @@ export function StudentMetricsGrid({ data }: StudentMetricsGridProps) {
       <Grid item xs={6} md={3}>
         <MetricCard
           label={tx('pages.ielts.teacher.latest_band')}
-          value={data.analytics.latestBand.toFixed(1)}
+          value={formatRoundedBand(data.analytics.latestBand)}
           icon="solar:medal-ribbon-star-bold-duotone"
           color="primary"
         />

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 // @mui
 import Container from '@mui/material/Container';
+import Grid from '@mui/material/Grid';
 // locales
 import { useLocales } from 'src/locales';
 // hooks
@@ -12,7 +13,7 @@ import {
 import { useDebounce } from 'src/hooks/use-debounce';
 // table
 import { useTable } from 'src/components/table';
-import { AppsPageHeader } from 'src/pages/components/apps';
+import { AppsPageHeader, MetricCard } from 'src/pages/components/apps';
 // api
 import { useStudentAttemptsQuery } from './api/use-my-tests-api';
 import { MY_TESTS_DEFAULT_PAGE_SIZE } from './api/utils';
@@ -95,6 +96,22 @@ export default function AppsMyTestsView() {
   );
 
   const attemptsQuery = useStudentAttemptsQuery(filters);
+  const pageStats = useMemo(
+    () =>
+      (attemptsQuery.data?.items ?? []).reduce(
+        (accumulator, item) => ({
+          inProgress: accumulator.inProgress + (item.status === 'in_progress' ? 1 : 0),
+          completed: accumulator.completed + (item.status === 'completed' ? 1 : 0),
+          terminated: accumulator.terminated + (item.status === 'terminated' ? 1 : 0),
+        }),
+        {
+          inProgress: 0,
+          completed: 0,
+          terminated: 0,
+        }
+      ),
+    [attemptsQuery.data?.items]
+  );
 
   return (
     <Container maxWidth="lg">
@@ -102,6 +119,47 @@ export default function AppsMyTestsView() {
         title={tx('pages.ielts.my_tests.title')}
         description={tx('pages.ielts.my_tests.description')}
       />
+
+      {attemptsQuery.data ? (
+        <Grid container spacing={2} sx={{ mb: 3 }}>
+          <Grid item xs={12} sm={6} md={3}>
+            <MetricCard
+              label={tx('pages.ielts.my_tests.title')}
+              value={String(attemptsQuery.data.count)}
+              icon="eva:file-text-fill"
+              color="primary"
+              helper={tx('pages.ielts.shared.total_results', { count: attemptsQuery.data.count })}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <MetricCard
+              label={tx('pages.ielts.shared.status_in_progress')}
+              value={String(pageStats.inProgress)}
+              icon="eva:clock-fill"
+              color="warning"
+              helper={tx('pages.ielts.shared.page_label', { page: table.page + 1 })}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <MetricCard
+              label={tx('pages.ielts.shared.status_completed')}
+              value={String(pageStats.completed)}
+              icon="eva:checkmark-circle-2-fill"
+              color="success"
+              helper={tx('pages.ielts.shared.page_label', { page: table.page + 1 })}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <MetricCard
+              label={tx('pages.ielts.shared.status_terminated')}
+              value={String(pageStats.terminated)}
+              icon="eva:close-circle-fill"
+              color="error"
+              helper={tx('pages.ielts.shared.page_label', { page: table.page + 1 })}
+            />
+          </Grid>
+        </Grid>
+      ) : null}
 
       <FiltersToolbar
         search={searchInput}

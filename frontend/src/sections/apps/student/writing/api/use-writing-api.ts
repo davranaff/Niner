@@ -5,6 +5,7 @@ import { useFetch, useMutate } from 'src/hooks/api';
 
 import {
   createWritingExam,
+  fetchWritingExamResult,
   fetchMyWritingExams,
   fetchWritingDetail,
   fetchWritingList,
@@ -126,7 +127,18 @@ export function useStartWritingFlowMutation() {
 
 export function useSubmitWritingExamMutation() {
   return useMutate(
-    async ({ examId, parts }: { examId: number; parts: WritingSubmitPartInput[] }) =>
-      submitWritingExam(examId, parts)
+    async ({
+      examId,
+      parts,
+      finishReason,
+    }: {
+      examId: number;
+      parts: WritingSubmitPartInput[];
+      finishReason?: 'left' | 'time_is_up';
+    }) => submitWritingExam(examId, parts, finishReason)
   );
+}
+
+export function useWritingExamResultMutation() {
+  return useMutate((examId: number) => fetchWritingExamResult(examId));
 }

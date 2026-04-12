@@ -96,6 +96,9 @@ class DashboardQuickLinkOut(BaseModel):
     label: str
     path: str
     module: ProgressTestTypeEnum | None = None
+    attempts_count: int = 0
+    successful_attempts_count: int = 0
+    failed_attempts_count: int = 0
 
 
 class DashboardQuickLinksOut(BaseModel):

@@ -11,18 +11,24 @@ import Typography from '@mui/material/Typography';
 
 import { useLocales } from 'src/locales';
 import { useUrlListState, useUrlQueryState, stringParam } from 'src/hooks/use-url-query-state';
+import { useFetch } from 'src/hooks/api';
 import EmptyContent from 'src/components/empty-content';
 import { AppsPageHeader } from 'src/pages/components/apps';
 import { RouterLink } from 'src/routes/components';
 import type { ActiveIeltsModule } from 'src/_mock/ielts';
 import { useModuleTestsQuery } from 'src/sections/apps/common/api/use-apps';
 import {
+  fetchExamsMe,
+  getModuleExams,
+  toModuleAttemptHistoryItems,
+} from 'src/sections/apps/common/module-test/utils/attempt-history';
+import {
   getModuleAttemptPath,
   getModuleSessionPath,
   getModuleTestPath,
 } from 'src/sections/apps/common/module-test/utils/module-meta';
 
-import { ModuleTestCard } from './components';
+import { ModuleTestCard } from './components/module-test-card';
 import { AppsCatalogSkeleton } from './skeleton';
 
 type AppsModuleCatalogViewProps = {
@@ -49,6 +55,11 @@ export function AppsModuleCatalogView({ module }: AppsModuleCatalogViewProps) {
   );
 
   const { data, isLoading } = useModuleTestsQuery(module, queryFilters);
+  const examsQuery = useFetch(['module-attempt-history', module], () => fetchExamsMe(100));
+  const moduleExams = useMemo(
+    () => getModuleExams(examsQuery.data, module),
+    [examsQuery.data, module]
+  );
 
   const moduleTitle = tx(`pages.ielts.${module}.title`);
   const moduleDescription = tx(`pages.ielts.${module}.description`);
@@ -103,28 +114,39 @@ export function AppsModuleCatalogView({ module }: AppsModuleCatalogViewProps) {
         <>
           {data.results.length ? (
             <Grid container spacing={3}>
-              {data.results.map((item) => (
-                <Grid key={item.id} item xs={12} md={6} xl={4}>
-                  <ModuleTestCard
-                    item={item}
-                    statusLabel={tx(`pages.ielts.shared.status_${item.status}`)}
-                    difficultyLabel={tx(`pages.ielts.shared.difficulty_${item.difficulty}`)}
-                    attemptsLabel={tx('pages.ielts.shared.attempts')}
-                    bestBandLabel={tx('pages.ielts.shared.best_band')}
-                    startLabel={tx('pages.ielts.shared.start')}
-                    restartLabel={tx('pages.ielts.shared.restart')}
-                    continueLabel={tx('pages.ielts.shared.continue')}
-                    reviewLabel={tx('pages.ielts.shared.review_result')}
-                    detailsHref={getModuleTestPath(module, item.id)}
-                    sessionHref={
-                      item.inProgressAttemptId ? getModuleSessionPath(module, item.id) : null
-                    }
-                    resultHref={
-                      item.lastAttemptId ? getModuleAttemptPath(module, item.lastAttemptId) : null
-                    }
-                  />
-                </Grid>
-              ))}
+              {data.results.map((item) => {
+                const attemptHistoryItems = toModuleAttemptHistoryItems(
+                  module,
+                  moduleExams,
+                  item.id
+                );
+
+                return (
+                  <Grid key={item.id} item xs={12} md={6} xl={4}>
+                    <ModuleTestCard
+                      item={item}
+                      statusLabel={tx(`pages.ielts.shared.status_${item.status}`)}
+                      difficultyLabel={tx(`pages.ielts.shared.difficulty_${item.difficulty}`)}
+                      attemptsLabel={tx('pages.ielts.shared.attempts')}
+                      bestBandLabel={tx('pages.ielts.shared.best_band')}
+                      startLabel={tx('pages.ielts.shared.start')}
+                      restartLabel={tx('pages.ielts.shared.restart')}
+                      continueLabel={tx('pages.ielts.shared.continue')}
+                      reviewLabel={tx('pages.ielts.shared.review_result')}
+                      attemptHistoryLabel={tx('pages.ielts.shared.attempt_history')}
+                      updatedLabel={tx('pages.ielts.shared.updated')}
+                      attemptHistoryItems={attemptHistoryItems}
+                      detailsHref={getModuleTestPath(module, item.id)}
+                      sessionHref={
+                        item.inProgressAttemptId ? getModuleSessionPath(module, item.id) : null
+                      }
+                      resultHref={
+                        item.lastAttemptId ? getModuleAttemptPath(module, item.lastAttemptId) : null
+                      }
+                    />
+                  </Grid>
+                );
+              })}
             </Grid>
           ) : (
             <EmptyContent

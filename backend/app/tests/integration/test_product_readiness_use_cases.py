@@ -5,11 +5,16 @@ from datetime import UTC, datetime
 from decimal import Decimal
 
 import pytest
+from sqlalchemy import select
 
 from app.core.config import settings
 from app.core.rate_limit import rate_limiter
 from app.core.security import hash_password
 from app.db.models import (
+    FinishReasonEnum,
+    ListeningExam,
+    ListeningTest,
+    ReadingExam,
     ReadingPassage,
     ReadingQuestion,
     ReadingQuestionAnswer,
@@ -84,10 +89,14 @@ async def _create_minimal_reading_test_with_question(db_session, *, title: str, 
 async def test_auth_rate_limits_sign_in_reset_link_and_reset_password(client, db_session, monkeypatch):
     await _create_user(db_session, email="rate-limit@example.com")
 
+    async def fake_send_email(*args, **kwargs) -> None:  # noqa: ANN002,ANN003
+        return None
+
     rate_limiter._bucket.clear()
     monkeypatch.setattr(settings, "rate_limit_sign_in", 2)
     monkeypatch.setattr(settings, "rate_limit_reset", 2)
     monkeypatch.setattr(settings, "rate_limit_window_seconds", 60)
+    monkeypatch.setattr("app.modules.auth.services.core.send_email", fake_send_email)
 
     try:
         for _ in range(2):
@@ -131,6 +140,9 @@ async def test_auth_rate_limits_sign_in_reset_link_and_reset_password(client, db
 
 @pytest.mark.asyncio
 async def test_catalog_limit_offset_contract_for_all_modules(client, db_session):
+    user = await _create_user(db_session, email="catalog-auth@example.com")
+    headers = await _auth_headers(client, user.email)
+
     db_session.add_all(
         [
             ReadingTest(title="R-1", description="D", time_limit=3600, total_questions=0, is_active=True),
@@ -157,7 +169,7 @@ async def test_catalog_limit_offset_contract_for_all_modules(client, db_session)
     await db_session.commit()
 
     async def assert_limit_offset_contract(path: str) -> None:
-        first = await client.get(f"{path}?limit=2&offset=0")
+        first = await client.get(f"{path}?limit=2&offset=0", headers=headers)
         assert first.status_code == 200
         first_payload = first.json()
         assert first_payload["limit"] == 2
@@ -165,7 +177,7 @@ async def test_catalog_limit_offset_contract_for_all_modules(client, db_session)
         assert len(first_payload["items"]) == 2
         first_ids = {item["id"] for item in first_payload["items"]}
 
-        second = await client.get(f"{path}?limit=2&offset=2")
+        second = await client.get(f"{path}?limit=2&offset=2", headers=headers)
         assert second.status_code == 200
         second_payload = second.json()
         assert second_payload["limit"] == 2
@@ -178,6 +190,107 @@ async def test_catalog_limit_offset_contract_for_all_modules(client, db_session)
     await assert_limit_offset_contract("/api/v1/reading/tests")
     await assert_limit_offset_contract("/api/v1/listening/tests")
     await assert_limit_offset_contract("/api/v1/writing/tests")
+
+
+@pytest.mark.asyncio
+async def test_catalog_list_endpoints_require_auth(client):
+    reading = await client.get("/api/v1/reading/tests")
+    assert reading.status_code == 401
+
+    listening = await client.get("/api/v1/listening/tests")
+    assert listening.status_code == 401
+
+    writing = await client.get("/api/v1/writing/tests")
+    assert writing.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_catalog_list_includes_user_attempt_stats_and_isolation(client, db_session):
+    owner = await _create_user(db_session, email="catalog-stats-owner@example.com")
+    stranger = await _create_user(db_session, email="catalog-stats-stranger@example.com")
+    owner_headers = await _auth_headers(client, owner.email)
+
+    reading_test = ReadingTest(title="R-Stats", description="D", time_limit=3600, total_questions=0, is_active=True)
+    listening_test = ListeningTest(
+        title="L-Stats",
+        description="D",
+        time_limit=1800,
+        total_questions=0,
+        is_active=True,
+        voice_url=None,
+    )
+    writing_test = WritingTest(title="W-Stats", description="D", time_limit=3600, is_active=True)
+    db_session.add_all([reading_test, listening_test, writing_test])
+    await db_session.flush()
+
+    db_session.add_all(
+        [
+            ReadingExam(
+                user_id=owner.id,
+                reading_test_id=reading_test.id,
+                finished_at=datetime.now(UTC),
+                finish_reason=FinishReasonEnum.completed,
+            ),
+            ReadingExam(
+                user_id=owner.id,
+                reading_test_id=reading_test.id,
+                finished_at=datetime.now(UTC),
+                finish_reason=FinishReasonEnum.left,
+            ),
+            ReadingExam(
+                user_id=owner.id,
+                reading_test_id=reading_test.id,
+                finished_at=None,
+                finish_reason=None,
+            ),
+            ReadingExam(
+                user_id=stranger.id,
+                reading_test_id=reading_test.id,
+                finished_at=datetime.now(UTC),
+                finish_reason=FinishReasonEnum.completed,
+            ),
+            ListeningExam(
+                user_id=owner.id,
+                listening_test_id=listening_test.id,
+                finished_at=datetime.now(UTC),
+                finish_reason=FinishReasonEnum.time_is_up,
+            ),
+            WritingExam(
+                user_id=owner.id,
+                writing_test_id=writing_test.id,
+                finished_at=datetime.now(UTC),
+                finish_reason=FinishReasonEnum.completed,
+            ),
+            WritingExam(
+                user_id=owner.id,
+                writing_test_id=writing_test.id,
+                finished_at=datetime.now(UTC),
+                finish_reason=FinishReasonEnum.left,
+            ),
+        ]
+    )
+    await db_session.commit()
+
+    reading_resp = await client.get("/api/v1/reading/tests?limit=100&offset=0", headers=owner_headers)
+    assert reading_resp.status_code == 200
+    reading_item = next(item for item in reading_resp.json()["items"] if item["id"] == reading_test.id)
+    assert reading_item["attempts_count"] == 3
+    assert reading_item["successful_attempts_count"] == 1
+    assert reading_item["failed_attempts_count"] == 1
+
+    listening_resp = await client.get("/api/v1/listening/tests?limit=100&offset=0", headers=owner_headers)
+    assert listening_resp.status_code == 200
+    listening_item = next(item for item in listening_resp.json()["items"] if item["id"] == listening_test.id)
+    assert listening_item["attempts_count"] == 1
+    assert listening_item["successful_attempts_count"] == 0
+    assert listening_item["failed_attempts_count"] == 1
+
+    writing_resp = await client.get("/api/v1/writing/tests?limit=100&offset=0", headers=owner_headers)
+    assert writing_resp.status_code == 200
+    writing_item = next(item for item in writing_resp.json()["items"] if item["id"] == writing_test.id)
+    assert writing_item["attempts_count"] == 2
+    assert writing_item["successful_attempts_count"] == 1
+    assert writing_item["failed_attempts_count"] == 1
 
 
 @pytest.mark.asyncio
@@ -323,9 +436,13 @@ async def test_writing_submit_survives_ai_queue_failure(client, db_session, monk
     )
     assert submit.status_code == 200
     payload = submit.json()
-    assert len(payload["answers"]) == 1
-    assert payload["answers"][0]["score"] is None
-    assert "AI evaluation is pending" in str(payload["answers"][0]["corrections"])
+    assert payload["result"] == "success"
+
+    stored_part = (
+        await db_session.execute(select(WritingExamPart).where(WritingExamPart.exam_id == exam_id))
+    ).scalar_one()
+    assert stored_part.score is None
+    assert "AI evaluation is pending" in str(stored_part.corrections)
 
 
 @pytest.mark.asyncio

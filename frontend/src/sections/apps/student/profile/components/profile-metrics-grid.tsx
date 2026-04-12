@@ -2,10 +2,11 @@
 import Grid from '@mui/material/Grid';
 // locales
 import { useLocales } from 'src/locales';
+import { formatRoundedBand } from 'src/sections/apps/common/utils/format-band';
 // components
 import { MetricCard } from 'src/pages/components/apps';
 // types
-import type { StudentProfileData } from 'src/sections/apps/common/api/types';
+import type { StudentProfileData } from '../api/types';
 
 // ----------------------------------------------------------------------
 
@@ -21,7 +22,7 @@ export function ProfileMetricsGrid({ data }: ProfileMetricsGridProps) {
       <Grid item xs={6} md={3}>
         <MetricCard
           label={tx('pages.ielts.profile.current_band')}
-          value={data.estimatedOverallBand.toFixed(1)}
+          value={formatRoundedBand(data.estimatedOverallBand)}
           icon="solar:medal-ribbon-star-bold-duotone"
           color="primary"
         />

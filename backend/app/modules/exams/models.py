@@ -20,6 +20,53 @@ from app.db.base import Base, TimestampMixin
 from app.db.model_enums import FinishReasonEnum, finish_reason_enum
 
 
+class OverallExam(TimestampMixin, Base):
+    __tablename__ = "overall_exams"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    status: Mapped[str] = mapped_column(Text, nullable=False, default="in_progress")
+    phase: Mapped[str] = mapped_column(Text, nullable=False, default="module")
+    current_module: Mapped[str | None] = mapped_column(Text, nullable=True)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    finish_reason: Mapped[FinishReasonEnum | None] = mapped_column(finish_reason_enum, nullable=True)
+    break_started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    break_duration_seconds: Mapped[int] = mapped_column(Integer, nullable=False, default=300)
+    listening_test_id: Mapped[int] = mapped_column(
+        ForeignKey("listening_tests.id", ondelete="RESTRICT"), index=True
+    )
+    reading_test_id: Mapped[int] = mapped_column(
+        ForeignKey("reading_tests.id", ondelete="RESTRICT"), index=True
+    )
+    writing_test_id: Mapped[int] = mapped_column(
+        ForeignKey("writing_tests.id", ondelete="RESTRICT"), index=True
+    )
+    listening_exam_id: Mapped[int | None] = mapped_column(
+        ForeignKey("listening_exams.id", ondelete="SET NULL"), nullable=True
+    )
+    reading_exam_id: Mapped[int | None] = mapped_column(
+        ForeignKey("reading_exams.id", ondelete="SET NULL"), nullable=True
+    )
+    writing_exam_id: Mapped[int | None] = mapped_column(
+        ForeignKey("writing_exams.id", ondelete="SET NULL"), nullable=True
+    )
+
+    user: Mapped[User] = relationship()
+    listening_test: Mapped[ListeningTest] = relationship(foreign_keys=[listening_test_id])
+    reading_test: Mapped[ReadingTest] = relationship(foreign_keys=[reading_test_id])
+    writing_test: Mapped[WritingTest] = relationship(foreign_keys=[writing_test_id])
+    listening_exam: Mapped[ListeningExam | None] = relationship(foreign_keys=[listening_exam_id])
+    reading_exam: Mapped[ReadingExam | None] = relationship(foreign_keys=[reading_exam_id])
+    writing_exam: Mapped[WritingExam | None] = relationship(foreign_keys=[writing_exam_id])
+
+    __table_args__ = (
+        UniqueConstraint("listening_exam_id", name="uq_overall_exams_listening_exam_id"),
+        UniqueConstraint("reading_exam_id", name="uq_overall_exams_reading_exam_id"),
+        UniqueConstraint("writing_exam_id", name="uq_overall_exams_writing_exam_id"),
+    )
+
+
 class ReadingExam(TimestampMixin, Base):
     __tablename__ = "reading_exams"
 

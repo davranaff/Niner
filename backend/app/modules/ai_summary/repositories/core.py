@@ -56,6 +56,8 @@ async def list_summaries(
     *,
     user_id: int | None,
     module: AiSummaryModuleEnum | None,
+    source: AiSummarySourceEnum | None,
+    exam_id: int | None,
     offset: int,
     limit: int,
 ) -> list[AiModuleSummary]:
@@ -64,8 +66,36 @@ async def list_summaries(
         stmt = stmt.where(AiModuleSummary.user_id == user_id)
     if module is not None:
         stmt = stmt.where(AiModuleSummary.module == module)
+    if source is not None:
+        stmt = stmt.where(AiModuleSummary.source == source)
+    if exam_id is not None:
+        stmt = stmt.where(AiModuleSummary.exam_id == exam_id)
     stmt = stmt.order_by(desc(AiModuleSummary.id)).offset(max(offset, 0)).limit(max(1, min(limit, 100)))
     return list((await db.execute(stmt)).scalars().all())
+
+
+async def get_latest_summary_for_exam(
+    db: AsyncSession,
+    *,
+    user_id: int,
+    module: AiSummaryModuleEnum,
+    source: AiSummarySourceEnum,
+    exam_id: int,
+) -> AiModuleSummary | None:
+    stmt = (
+        select(AiModuleSummary)
+        .where(
+            and_(
+                AiModuleSummary.user_id == user_id,
+                AiModuleSummary.module == module,
+                AiModuleSummary.source == source,
+                AiModuleSummary.exam_id == exam_id,
+            )
+        )
+        .order_by(desc(AiModuleSummary.id))
+        .limit(1)
+    )
+    return (await db.execute(stmt)).scalar_one_or_none()
 
 
 async def count_manual_summaries_since(
@@ -102,6 +132,31 @@ async def list_recent_reading_exams(db: AsyncSession, *, user_id: int, limit: in
     return list((await db.execute(stmt)).scalars().all())
 
 
+async def get_finished_reading_exam(
+    db: AsyncSession,
+    *,
+    user_id: int,
+    exam_id: int,
+) -> ReadingExam | None:
+    stmt = (
+        select(ReadingExam)
+        .where(
+            and_(
+                ReadingExam.id == exam_id,
+                ReadingExam.user_id == user_id,
+                ReadingExam.finished_at.is_not(None),
+            )
+        )
+        .options(
+            selectinload(ReadingExam.reading_test),
+            selectinload(ReadingExam.question_answers)
+            .selectinload(ReadingExamQuestionAnswer.question)
+            .selectinload(ReadingQuestion.question_block),
+        )
+    )
+    return (await db.execute(stmt)).scalar_one_or_none()
+
+
 async def list_recent_listening_exams(db: AsyncSession, *, user_id: int, limit: int) -> list[ListeningExam]:
     stmt = (
         select(ListeningExam)
@@ -118,6 +173,31 @@ async def list_recent_listening_exams(db: AsyncSession, *, user_id: int, limit: 
     return list((await db.execute(stmt)).scalars().all())
 
 
+async def get_finished_listening_exam(
+    db: AsyncSession,
+    *,
+    user_id: int,
+    exam_id: int,
+) -> ListeningExam | None:
+    stmt = (
+        select(ListeningExam)
+        .where(
+            and_(
+                ListeningExam.id == exam_id,
+                ListeningExam.user_id == user_id,
+                ListeningExam.finished_at.is_not(None),
+            )
+        )
+        .options(
+            selectinload(ListeningExam.listening_test),
+            selectinload(ListeningExam.question_answers)
+            .selectinload(ListeningExamQuestionAnswer.question)
+            .selectinload(ListeningQuestion.question_block),
+        )
+    )
+    return (await db.execute(stmt)).scalar_one_or_none()
+
+
 async def list_recent_writing_exams(db: AsyncSession, *, user_id: int, limit: int) -> list[WritingExam]:
     stmt = (
         select(WritingExam)
@@ -130,3 +210,26 @@ async def list_recent_writing_exams(db: AsyncSession, *, user_id: int, limit: in
         )
     )
     return list((await db.execute(stmt)).scalars().all())
+
+
+async def get_finished_writing_exam(
+    db: AsyncSession,
+    *,
+    user_id: int,
+    exam_id: int,
+) -> WritingExam | None:
+    stmt = (
+        select(WritingExam)
+        .where(
+            and_(
+                WritingExam.id == exam_id,
+                WritingExam.user_id == user_id,
+                WritingExam.finished_at.is_not(None),
+            )
+        )
+        .options(
+            selectinload(WritingExam.writing_test),
+            selectinload(WritingExam.writing_parts).selectinload(WritingExamPart.part),
+        )
+    )
+    return (await db.execute(stmt)).scalar_one_or_none()

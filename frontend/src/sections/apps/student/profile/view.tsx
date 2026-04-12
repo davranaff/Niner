@@ -1,11 +1,13 @@
 // @mui
+import Alert from '@mui/material/Alert';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import { AppsPageHeader, InsightListCard } from 'src/pages/components/apps';
 // locales
 import { useLocales } from 'src/locales';
+import { formatRoundedBand } from 'src/sections/apps/common/utils/format-band';
 // api
-import { useStudentProfileQuery } from 'src/sections/apps/common/api/use-apps';
+import { useStudentProfileQuery } from './api/use-student-profile-api';
 import { ProfileMetricsGrid, StudentProfileSummaryCard } from './components';
 import { AppsProfileSkeleton } from './skeleton';
 
@@ -15,7 +17,7 @@ export default function AppsProfileView() {
   const { tx } = useLocales();
   const profileQuery = useStudentProfileQuery();
 
-  if (profileQuery.isLoading || !profileQuery.data) {
+  if (profileQuery.isLoading) {
     return (
       <Container maxWidth="lg">
         <AppsProfileSkeleton />
@@ -23,7 +25,20 @@ export default function AppsProfileView() {
     );
   }
 
+  if (profileQuery.isError || !profileQuery.data) {
+    return (
+      <Container maxWidth="lg">
+        <Alert severity="warning">{tx('pages.ielts.shared.empty_description')}</Alert>
+      </Container>
+    );
+  }
+
   const { data } = profileQuery;
+  const achievementItems = [
+    `${tx('pages.ielts.dashboard.total_attempts')}: ${data.totalAttempts}`,
+    `${tx('pages.ielts.dashboard.streak')}: ${data.studyStreak}`,
+    `${tx('pages.ielts.dashboard.study_minutes')}: ${data.weeklyStudyMinutes}`,
+  ];
 
   return (
     <Container maxWidth="lg">
@@ -44,7 +59,7 @@ export default function AppsProfileView() {
         <Grid item xs={12} md={6}>
           <InsightListCard
             title={tx('pages.ielts.profile.achievements')}
-            items={data.achievements}
+            items={achievementItems}
             emptyLabel={tx('pages.ielts.shared.empty_title')}
           />
         </Grid>
@@ -53,9 +68,9 @@ export default function AppsProfileView() {
             title={tx('pages.ielts.profile.recent_performance')}
             items={data.recentAttempts.map(
               (item) =>
-                `${item.test.title} · ${
-                  item.result
-                    ? item.result.estimatedBand.toFixed(1)
+                `${item.title} · ${
+                  item.estimatedBand != null
+                    ? formatRoundedBand(item.estimatedBand)
                     : tx('pages.ielts.shared.status_in_progress')
                 }`
             )}

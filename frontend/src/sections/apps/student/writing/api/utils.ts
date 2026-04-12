@@ -130,6 +130,9 @@ export function toWritingListItem(item: BackendWritingListItem): WritingListItem
     durationMinutes: Math.max(1, Math.ceil(item.timeLimit / SECONDS_IN_MINUTE)),
     isActive: item.isActive,
     createdAt: item.createdAt,
+    attemptsCount: Math.max(0, item.attemptsCount ?? 0),
+    successfulAttemptsCount: Math.max(0, item.successfulAttemptsCount ?? 0),
+    failedAttemptsCount: Math.max(0, item.failedAttemptsCount ?? 0),
   };
 }
 
@@ -370,38 +373,62 @@ export function findLatestStoredWritingResultForTest(testId: number) {
 }
 
 function toStoredWritingResultAnswer(
-  answer: BackendWritingSubmitResult['answers'][number],
+  examId: number,
+  part: WritingSubmitPartInput,
   detail: WritingTestDetail
 ): WritingStoredResultAnswer {
-  const part = getWritingParts(detail).find((item) => item.id === answer.part);
-  const order = part?.order ?? 0;
+  const detailPart = getWritingParts(detail).find((item) => item.id === part.partId);
+  const order = detailPart?.order ?? 0;
+  const essay = part.essay ?? '';
 
   return {
-    id: answer.id,
-    examId: answer.exam,
-    partId: answer.part,
+    id: part.partId,
+    examId,
+    partId: part.partId,
     order,
     taskLabel: `Task ${order || '?'}`,
-    promptText: part?.prompt.text ?? part?.task ?? '',
-    essay: answer.essay ?? '',
-    corrections: answer.corrections,
-    score: answer.score,
-    isChecked: answer.isChecked,
-    wordCount: answer.wordCount || countWords(answer.essay ?? ''),
+    promptText: detailPart?.prompt.text ?? detailPart?.task ?? '',
+    essay,
+    corrections: 'AI evaluation is pending. Please retry shortly to see detailed feedback.',
+    score: null,
+    isChecked: false,
+    wordCount: countWords(essay),
   };
+}
+
+function toWritingFinishReason(
+  result: BackendWritingSubmitResult['result']
+): 'completed' | 'time_is_up' | 'left' | 'in_progress' {
+  if (result === 'success') {
+    return 'completed';
+  }
+  if (result === 'failed') {
+    return 'time_is_up';
+  }
+  return 'in_progress';
+}
+
+function normalizeWritingFinishReason(
+  value: string | null | undefined
+): 'completed' | 'time_is_up' | 'left' | 'in_progress' | null {
+  if (value === 'completed' || value === 'time_is_up' || value === 'left' || value === 'in_progress') {
+    return value;
+  }
+  return null;
 }
 
 export function toWritingStoredResult(params: {
   exam: WritingExamSummary;
   detail: WritingTestDetail;
   submitResult: BackendWritingSubmitResult;
+  submittedParts: WritingSubmitPartInput[];
   finishedAt?: string;
 }) {
-  const { exam, detail, submitResult } = params;
+  const { exam, detail, submitResult, submittedParts } = params;
   const finishedAt = params.finishedAt ?? new Date().toISOString();
 
-  const answers = submitResult.answers
-    .map((item) => toStoredWritingResultAnswer(item, detail))
+  const answers = submittedParts
+    .map((item) => toStoredWritingResultAnswer(exam.id, item, detail))
     .sort((left, right) => left.order - right.order);
 
   return {
@@ -410,11 +437,12 @@ export function toWritingStoredResult(params: {
     testTitle: detail.title,
     testDescription: detail.description,
     submittedAt: finishedAt,
-    finishReason: resolveWritingFinishReason(exam.startedAt, detail.timeLimit, finishedAt),
+    result: submitResult.result,
+    finishReason: normalizeWritingFinishReason(exam.finishReason) ?? toWritingFinishReason(submitResult.result),
     score: submitResult.score,
     timeSpent: submitResult.timeSpent,
     totalTasks: getWritingTaskCount(detail),
-    reviewedTasks: answers.filter((item) => item.isChecked).length,
+    reviewedTasks: 0,
     answers,
   } satisfies WritingStoredResult;
 }

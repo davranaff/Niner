@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
@@ -7,6 +7,7 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
+import { alpha } from '@mui/material/styles';
 
 import { paths } from 'src/routes/paths';
 import { useLocales } from 'src/locales';
@@ -14,6 +15,7 @@ import EmptyContent from 'src/components/empty-content';
 import { useRouter } from 'src/routes/hook';
 import { AppsPageHeader } from 'src/pages/components/apps';
 import { useUrlListState } from 'src/hooks/use-url-query-state';
+import { toModuleAttemptHistoryItems } from 'src/sections/apps/common/module-test/utils/attempt-history';
 
 import {
   findLatestUnfinishedReadingExamForTest,
@@ -47,6 +49,18 @@ export default function AppsReadingCatalogView() {
   const startReadingFlowMutation = useStartReadingFlowMutation();
 
   const exams = examsQuery.data?.items ?? [];
+  const totalStats = useMemo(
+    () =>
+      (listQuery.data?.items ?? []).reduce(
+        (accumulator, item) => ({
+          attempts: accumulator.attempts + item.attemptsCount,
+          successful: accumulator.successful + item.successfulAttemptsCount,
+          failed: accumulator.failed + item.failedAttemptsCount,
+        }),
+        { attempts: 0, successful: 0, failed: 0 }
+      ),
+    [listQuery.data?.items]
+  );
 
   const handleStart = async (testId: number, examId?: number | null) => {
     setStartingTestId(testId);
@@ -82,12 +96,49 @@ export default function AppsReadingCatalogView() {
 
       {!showInitialSkeleton && listQuery.data ? (
         <>
+          <Card
+            variant="outlined"
+            sx={(theme) => ({
+              p: 2.5,
+              mb: 3,
+              borderColor: alpha(theme.palette.primary.main, 0.18),
+              bgcolor: 'common.white',
+            })}
+          >
+            <Stack
+              direction={{ xs: 'column', md: 'row' }}
+              spacing={2}
+              alignItems={{ xs: 'flex-start', md: 'center' }}
+              justifyContent="space-between"
+            >
+              <Stack spacing={0.75}>
+                <Typography variant="subtitle1" sx={{ color: 'primary.darker', fontWeight: 700 }}>
+                  {tx('pages.ielts.reading.title')}
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  {tx('pages.ielts.shared.attempts')}: {totalStats.attempts}
+                </Typography>
+              </Stack>
+
+              <Stack spacing={0.25}>
+                <Typography variant="h4" sx={{ color: 'primary.main', lineHeight: 1.15 }}>
+                  {totalStats.successful}/{totalStats.failed}
+                </Typography>
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                  {tx('pages.ielts.shared.review_correct')}: {totalStats.successful} ·{' '}
+                  {tx('pages.ielts.shared.review_incorrect')}: {totalStats.failed}
+                </Typography>
+              </Stack>
+            </Stack>
+          </Card>
+
           {listQuery.data.items.length ? (
             <Grid container spacing={3}>
               {listQuery.data.items.map((item) => {
                 const storedActiveExamId = getReadingActiveExamId(item.id);
                 const latestActiveExam =
                   findLatestUnfinishedReadingExamForTest(item.id, exams) ?? null;
+                const attemptHistoryItems = toModuleAttemptHistoryItems('reading', exams, item.id);
                 const canContinue = Boolean(storedActiveExamId || latestActiveExam);
 
                 return (
@@ -97,21 +148,26 @@ export default function AppsReadingCatalogView() {
                       activeLabel={tx('pages.ielts.shared.available_now')}
                       durationLabel={tx('pages.ielts.shared.duration')}
                       publishedAtLabel={tx('pages.ielts.shared.published_at')}
+                      attemptsLabel={tx('pages.ielts.shared.attempts')}
+                      successfulAttemptsLabel={tx('pages.ielts.shared.review_correct')}
+                      failedAttemptsLabel={tx('pages.ielts.shared.review_incorrect')}
+                      attemptHistoryLabel={tx('pages.ielts.shared.attempt_history')}
+                      updatedLabel={tx('pages.ielts.shared.updated')}
+                      attemptHistoryItems={attemptHistoryItems}
                       actions={
-                        <>
+                        <Stack spacing={1}>
                           <Button
                             fullWidth
                             variant="outlined"
-                            color="inherit"
+                            color="primary"
                             onClick={() => router.push(paths.ielts.readingTest(String(item.id)))}
                           >
                             {tx('pages.ielts.shared.details')}
                           </Button>
-
                           <LoadingButton
                             fullWidth
                             variant="contained"
-                            color="inherit"
+                            color="primary"
                             loading={startingTestId === item.id}
                             onClick={() =>
                               handleStart(item.id, storedActiveExamId ?? latestActiveExam?.id)
@@ -121,7 +177,7 @@ export default function AppsReadingCatalogView() {
                               ? tx('pages.ielts.shared.continue')
                               : tx('pages.ielts.shared.start')}
                           </LoadingButton>
-                        </>
+                        </Stack>
                       }
                     />
                   </Grid>
@@ -150,7 +206,7 @@ export default function AppsReadingCatalogView() {
 
                 <LoadingButton
                   variant="contained"
-                  color="inherit"
+                  color="primary"
                   loading={loadMorePending}
                   onClick={handleLoadMore}
                   sx={{ alignSelf: { xs: 'stretch', md: 'center' } }}

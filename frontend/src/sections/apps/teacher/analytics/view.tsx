@@ -6,6 +6,7 @@ import { AppsPageHeader, InsightListCard } from 'src/pages/components/apps';
 import { useLocales } from 'src/locales';
 // api
 import { useTeacherAnalyticsQuery } from 'src/sections/apps/common/api/use-apps';
+import { formatRoundedBand } from 'src/sections/apps/common/utils/format-band';
 import { AnalyticsMetricsGrid, AnalyticsProgressCard, CompletionOverviewCard } from './components';
 import { AppsTeacherAnalyticsSkeleton } from './skeleton';
 
@@ -54,7 +55,7 @@ export default function AppsTeacherAnalyticsView() {
           <InsightListCard
             title={tx('pages.ielts.teacher.at_risk_students')}
             items={data.atRiskStudents.map(
-              (item) => `${item.studentName} · ${item.latestBand.toFixed(1)}`
+              (item) => `${item.studentName} · ${formatRoundedBand(item.latestBand)}`
             )}
             emptyLabel={tx('pages.ielts.shared.empty_title')}
           />

@@ -15,6 +15,7 @@ import { RouterLink } from 'src/routes/components';
 import { paths } from 'src/routes/paths';
 // utils
 import { fDate } from 'src/utils/format-time';
+import { formatRoundedBand } from 'src/sections/apps/common/utils/format-band';
 // table
 import { TableHeadCustom, TableNoData, TablePaginationCustom } from 'src/components/table';
 import { AppsStatusChip } from 'src/pages/components/apps';
@@ -71,8 +72,8 @@ export function StudentsTable({
                   </Stack>
                 </TableCell>
 
-                <TableCell>{item.targetBand.toFixed(1)}</TableCell>
-                <TableCell>{item.latestBand.toFixed(1)}</TableCell>
+                <TableCell>{formatRoundedBand(item.targetBand)}</TableCell>
+                <TableCell>{formatRoundedBand(item.latestBand)}</TableCell>
                 <TableCell>{item.attemptsCount}</TableCell>
                 <TableCell>{tx(`pages.ielts.${item.weakModule}.title`)}</TableCell>
                 <TableCell>{fDate(item.lastActivity)}</TableCell>

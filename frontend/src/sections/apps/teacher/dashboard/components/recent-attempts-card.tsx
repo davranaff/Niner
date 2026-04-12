@@ -4,6 +4,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 // utils
 import { fDate } from 'src/utils/format-time';
+import { formatRoundedBand } from 'src/sections/apps/common/utils/format-band';
 // types
 import type { TeacherDashboardData } from 'src/sections/apps/common/api/types';
 
@@ -38,7 +39,7 @@ export function RecentAttemptsCard({ title, data }: RecentAttemptsCardProps) {
               </Stack>
 
               <Typography variant="subtitle2">
-                {item.result ? item.result.estimatedBand.toFixed(1) : '-'}
+                {item.result ? formatRoundedBand(item.result.estimatedBand) : '-'}
               </Typography>
             </Stack>
           </Card>

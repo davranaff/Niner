@@ -4,6 +4,7 @@ import Grid from '@mui/material/Grid';
 import { useLocales } from 'src/locales';
 // components
 import { MetricCard } from 'src/pages/components/apps';
+import { formatRoundedBand } from 'src/sections/apps/common/utils/format-band';
 // types
 import type { TeacherAnalyticsData } from 'src/sections/apps/common/api/types';
 
@@ -21,7 +22,7 @@ export function AnalyticsMetricsGrid({ data }: AnalyticsMetricsGridProps) {
       <Grid item xs={6} md={3}>
         <MetricCard
           label={tx('pages.ielts.teacher.average_band')}
-          value={data.averageOverallBand.toFixed(1)}
+          value={formatRoundedBand(data.averageOverallBand)}
           icon="solar:medal-ribbon-star-bold-duotone"
           color="primary"
         />
@@ -30,7 +31,7 @@ export function AnalyticsMetricsGrid({ data }: AnalyticsMetricsGridProps) {
       <Grid item xs={6} md={3}>
         <MetricCard
           label={tx('pages.ielts.reading.title')}
-          value={data.averageModuleBands.reading.toFixed(1)}
+          value={formatRoundedBand(data.averageModuleBands.reading)}
           icon="solar:book-bold-duotone"
           color="info"
         />
@@ -39,7 +40,7 @@ export function AnalyticsMetricsGrid({ data }: AnalyticsMetricsGridProps) {
       <Grid item xs={6} md={3}>
         <MetricCard
           label={tx('pages.ielts.listening.title')}
-          value={data.averageModuleBands.listening.toFixed(1)}
+          value={formatRoundedBand(data.averageModuleBands.listening)}
           icon="solar:headphones-round-bold-duotone"
           color="success"
         />
@@ -48,7 +49,7 @@ export function AnalyticsMetricsGrid({ data }: AnalyticsMetricsGridProps) {
       <Grid item xs={6} md={3}>
         <MetricCard
           label={tx('pages.ielts.writing.title')}
-          value={data.averageModuleBands.writing.toFixed(1)}
+          value={formatRoundedBand(data.averageModuleBands.writing)}
           icon="solar:pen-bold-duotone"
           color="warning"
         />

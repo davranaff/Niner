@@ -19,6 +19,7 @@ ExamAttemptStatus = Literal["in_progress", "completed", "terminated"]
 async def list_my_tests(
     search: str | None = Query(default=None, min_length=1),
     module: ExamKind | None = Query(default=None),
+    test_id: int | None = Query(default=None, gt=0),
     status: ExamAttemptStatus | None = Query(default=None),
     ordering: str = Query(default="-updated_at"),
     offset: int = Query(default=0, ge=0),
@@ -32,6 +33,7 @@ async def list_my_tests(
             current_user,
             search=search,
             module=module,
+            test_id=test_id,
             status=status,
             ordering=ordering,
             offset=offset,

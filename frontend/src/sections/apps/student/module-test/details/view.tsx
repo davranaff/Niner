@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import Card from '@mui/material/Card';
@@ -6,8 +6,10 @@ import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
+import ButtonBase from '@mui/material/ButtonBase';
 import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
+import { alpha } from '@mui/material/styles';
 
 import {
   AppsPageHeader,
@@ -16,16 +18,25 @@ import {
   MetricCard,
 } from 'src/pages/components/apps';
 import { useLocales } from 'src/locales';
+import { useFetch } from 'src/hooks/api';
 import { useRouter } from 'src/routes/hook';
+import { RouterLink } from 'src/routes/components';
 import type { ActiveIeltsModule } from 'src/_mock/ielts';
+import { fDateTime } from 'src/utils/format-time';
 import {
   useStartAttemptMutation,
   useTestDetailsQuery,
 } from 'src/sections/apps/common/api/use-apps';
 import {
+  fetchExamsMe,
+  getModuleExams,
+  toModuleAttemptHistoryItems,
+} from 'src/sections/apps/common/module-test/utils/attempt-history';
+import {
   getModuleAttemptPath,
   getModuleSessionPath,
 } from 'src/sections/apps/common/module-test/utils/module-meta';
+import { formatRoundedBand } from 'src/sections/apps/common/utils/format-band';
 
 import { AppsDetailSkeleton } from './skeleton';
 
@@ -39,6 +50,16 @@ export function ModuleTestDetailsView({ module, testId }: ModuleTestDetailsViewP
   const router = useRouter();
   const { data, isLoading } = useTestDetailsQuery(module, testId);
   const startAttemptMutation = useStartAttemptMutation();
+  const examsQuery = useFetch(['module-test-detail-attempt-history', module], () => fetchExamsMe(100));
+
+  const moduleExams = useMemo(
+    () => getModuleExams(examsQuery.data, module),
+    [examsQuery.data, module]
+  );
+  const attemptHistoryItems = useMemo(
+    () => toModuleAttemptHistoryItems(module, moduleExams, testId),
+    [module, moduleExams, testId]
+  );
 
   const handleStart = useCallback(async () => {
     if (!data) return;
@@ -139,6 +160,59 @@ export function ModuleTestDetailsView({ module, testId }: ModuleTestDetailsViewP
             </Stack>
           </Card>
 
+          {attemptHistoryItems.length > 0 ? (
+            <Card variant="outlined" sx={{ p: 3, mb: 3 }}>
+              <Stack spacing={1.25}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                  {tx('pages.ielts.shared.attempt_history')} ({attemptHistoryItems.length})
+                </Typography>
+
+                <Stack spacing={0.9}>
+                  {attemptHistoryItems.map((attempt) => (
+                    <ButtonBase
+                      key={attempt.id}
+                      component={RouterLink}
+                      href={getModuleAttemptPath(module, String(attempt.id))}
+                      sx={{ width: 1, borderRadius: 1, textAlign: 'left' }}
+                    >
+                      <Card
+                        variant="outlined"
+                        sx={(theme) => ({
+                          width: 1,
+                          p: 1.25,
+                          borderStyle: 'dashed',
+                          transition: theme.transitions.create(['border-color', 'background-color'], {
+                            duration: theme.transitions.duration.shorter,
+                          }),
+                          '&:hover': {
+                            borderColor: alpha(theme.palette.primary.main, 0.38),
+                            bgcolor: alpha(theme.palette.primary.main, 0.04),
+                          },
+                        })}
+                      >
+                        <Stack direction="row" spacing={1.25} alignItems="center" justifyContent="space-between">
+                          <Stack spacing={0.25}>
+                            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                              ID #{attempt.id}
+                            </Typography>
+                            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                              {tx('pages.ielts.shared.updated')}:{' '}
+                              {attempt.updatedAt ? fDateTime(attempt.updatedAt) : '-'}
+                            </Typography>
+                          </Stack>
+                          <AppsStatusChip
+                            status={attempt.status}
+                            label={tx(`pages.ielts.shared.status_${attempt.status}`)}
+                          />
+                        </Stack>
+                      </Card>
+                    </ButtonBase>
+                  ))}
+                </Stack>
+              </Stack>
+            </Card>
+          ) : null}
+
           <Card variant="outlined" sx={{ p: 3 }}>
             <Stack spacing={2}>
               <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
@@ -208,7 +282,7 @@ export function ModuleTestDetailsView({ module, testId }: ModuleTestDetailsViewP
             <Grid item xs={6} md={12}>
               <MetricCard
                 label={tx('pages.ielts.shared.best_band')}
-                value={data.lastResult ? data.lastResult.estimatedBand.toFixed(1) : '-'}
+                value={formatRoundedBand(data.lastResult?.estimatedBand)}
                 icon="solar:medal-ribbon-star-bold-duotone"
                 color="primary"
               />

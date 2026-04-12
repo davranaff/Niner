@@ -4,6 +4,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 // locales
 import { useLocales } from 'src/locales';
+import { formatRoundedBand } from 'src/sections/apps/common/utils/format-band';
 // types
 import type { TeacherStudentDetailsData } from 'src/sections/apps/common/api/types';
 
@@ -22,11 +23,11 @@ export function StudentSummaryCard({ data }: StudentSummaryCardProps) {
         <Typography variant="subtitle1">{data.student.email}</Typography>
 
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          {tx('pages.ielts.teacher.target_band')}: {data.student.targetBand.toFixed(1)}
+          {tx('pages.ielts.teacher.target_band')}: {formatRoundedBand(data.student.targetBand)}
         </Typography>
 
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          {tx('pages.ielts.teacher.latest_band')}: {data.analytics.latestBand.toFixed(1)}
+          {tx('pages.ielts.teacher.latest_band')}: {formatRoundedBand(data.analytics.latestBand)}
         </Typography>
 
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>

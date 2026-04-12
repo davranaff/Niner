@@ -10,6 +10,9 @@ class WritingTestListItem(BaseModel):
     time_limit: int
     is_active: bool
     created_at: datetime
+    attempts_count: int = Field(ge=0, default=0)
+    successful_attempts_count: int = Field(ge=0, default=0)
+    failed_attempts_count: int = Field(ge=0, default=0)
 
 
 class WritingPromptAssets(BaseModel):

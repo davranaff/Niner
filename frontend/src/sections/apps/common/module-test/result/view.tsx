@@ -23,6 +23,7 @@ import {
 } from 'src/pages/components/apps';
 import { useLocales } from 'src/locales';
 import { TableHeadCustom } from 'src/components/table';
+import { formatRoundedBand } from 'src/sections/apps/common/utils/format-band';
 
 import {
   useAttemptIntegrityEventsQuery,
@@ -97,7 +98,7 @@ export function AttemptResultView({ attemptId }: AttemptResultViewProps) {
         <Grid item xs={6} md={3}>
           <MetricCard
             label={tx('pages.ielts.shared.estimated_band')}
-            value={data.result.estimatedBand ? data.result.estimatedBand.toFixed(1) : '-'}
+            value={formatRoundedBand(data.result.estimatedBand)}
             icon="solar:medal-ribbon-star-bold-duotone"
             color="primary"
           />
@@ -176,7 +177,7 @@ export function AttemptResultView({ attemptId }: AttemptResultViewProps) {
                     <Stack direction="row" justifyContent="space-between">
                       <Typography variant="body2">{label}</Typography>
                       <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                        {value.toFixed(1)}
+                        {formatRoundedBand(value)}
                       </Typography>
                     </Stack>
                     <LinearProgress

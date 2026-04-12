@@ -189,7 +189,7 @@ export function ActivityHeatmap({
   );
 
   const handleModulesChange = (event: SelectChangeEvent<string[]>) => {
-    const value = event.target.value;
+    const { value } = event.target;
     const nextValues = typeof value === 'string' ? value.split(',') : value;
 
     if (nextValues.includes(ALL_MODULES_VALUE)) {

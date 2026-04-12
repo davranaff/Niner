@@ -283,6 +283,82 @@ async def test_auto_summary_trigger_after_each_exam_submit(client, db_session):
     assert AiSummaryModuleEnum.reading in modules
     assert AiSummaryModuleEnum.listening in modules
     assert AiSummaryModuleEnum.writing in modules
+    assert {row.exam_id for row in summary_rows} >= {reading_exam_id, listening_exam_id, writing_exam_id}
+    assert all(row.attempts_limit == 1 for row in summary_rows)
+
+    filtered = await client.get(
+        "/api/v1/ai/summaries",
+        headers=headers,
+        params={
+            "module": "reading",
+            "source": "auto_submit",
+            "exam_id": reading_exam_id,
+            "limit": 1,
+        },
+    )
+    assert filtered.status_code == 200
+    filtered_items = filtered.json()["items"]
+    assert filtered_items
+    assert filtered_items[0]["module"] == "reading"
+    assert filtered_items[0]["source"] == "auto_submit"
+    assert filtered_items[0]["exam_id"] == reading_exam_id
+
+
+@pytest.mark.asyncio
+async def test_idempotent_submit_recreates_auto_summary_after_failed_job(client, db_session):
+    student = await _create_user(db_session, "auto-summary-retry@example.com", RoleEnum.student)
+    headers = await _auth_headers(client, student.email)
+    reading_test, reading_question = await _create_minimal_reading_test(db_session)
+
+    created_exam = await client.post("/api/v1/exams/reading", headers=headers, json={"test_id": reading_test.id})
+    assert created_exam.status_code == 200
+    exam_id = created_exam.json()["id"]
+
+    first_submit = await client.post(
+        f"/api/v1/exams/reading/{exam_id}/submit",
+        headers=headers,
+        json=[{"id": reading_question.id, "value": "answer"}],
+    )
+    assert first_submit.status_code == 200
+
+    first_summary = (
+        await db_session.execute(
+            select(AiModuleSummary).where(
+                AiModuleSummary.user_id == student.id,
+                AiModuleSummary.module == AiSummaryModuleEnum.reading,
+                AiModuleSummary.source == AiSummarySourceEnum.auto_submit,
+                AiModuleSummary.exam_id == exam_id,
+            )
+        )
+    ).scalars().first()
+    assert first_summary is not None
+
+    first_summary.status = AiSummaryStatusEnum.failed
+    first_summary.error_text = "simulated failure"
+    await db_session.commit()
+
+    second_submit = await client.post(
+        f"/api/v1/exams/reading/{exam_id}/submit",
+        headers=headers,
+        json=[{"id": reading_question.id, "value": "answer"}],
+    )
+    assert second_submit.status_code == 200
+
+    summary_rows = (
+        await db_session.execute(
+            select(AiModuleSummary)
+            .where(
+                AiModuleSummary.user_id == student.id,
+                AiModuleSummary.module == AiSummaryModuleEnum.reading,
+                AiModuleSummary.source == AiSummarySourceEnum.auto_submit,
+                AiModuleSummary.exam_id == exam_id,
+            )
+            .order_by(AiModuleSummary.id.asc())
+        )
+    ).scalars().all()
+    assert len(summary_rows) == 2
+    assert summary_rows[0].status == AiSummaryStatusEnum.failed
+    assert summary_rows[1].status in {AiSummaryStatusEnum.pending, AiSummaryStatusEnum.running}
 
 
 @pytest.mark.asyncio

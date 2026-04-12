@@ -23,7 +23,6 @@ import type {
   ReadingQuestionOption,
   ReadingQuestionWithContext,
   ReadingStoredResult,
-  ReadingStoredResultAnswer,
   ReadingSubmitAnswerInput,
   ReadingTestDetail,
 } from './types';
@@ -162,6 +161,9 @@ export function toReadingListItem(item: BackendReadingListItem): ReadingListItem
     durationMinutes: Math.max(1, Math.ceil(item.timeLimit / SECONDS_IN_MINUTE)),
     isActive: item.isActive,
     createdAt: item.createdAt,
+    attemptsCount: Math.max(0, item.attemptsCount ?? 0),
+    successfulAttemptsCount: Math.max(0, item.successfulAttemptsCount ?? 0),
+    failedAttemptsCount: Math.max(0, item.failedAttemptsCount ?? 0),
   };
 }
 
@@ -307,6 +309,35 @@ export function findLatestReadingExamForTest(testId: number, exams: ReadingExamS
   return null;
 }
 
+function toDateTimestamp(value: string | null | undefined) {
+  if (!value) {
+    return 0;
+  }
+
+  const timestamp = new Date(value).getTime();
+  return Number.isFinite(timestamp) ? timestamp : 0;
+}
+
+export function findLatestCompletedReadingExamForTest(
+  testId: number,
+  exams: ReadingExamSummary[]
+) {
+  return (
+    exams
+      .filter((exam) => exam.testId === testId && Boolean(exam.finishedAt))
+      .sort((left, right) => {
+        const byFinishedAt =
+          toDateTimestamp(right.finishedAt) - toDateTimestamp(left.finishedAt);
+
+        if (byFinishedAt !== 0) {
+          return byFinishedAt;
+        }
+
+        return right.id - left.id;
+      })[0] ?? null
+  );
+}
+
 export function resolveReadingRemainingTimeSeconds(
   startedAt: string | null | undefined,
   timeLimit: number,
@@ -429,22 +460,25 @@ export function findLatestStoredReadingResultForTest(testId: number) {
     .sort((left, right) => right.examId - left.examId)[0] ?? null;
 }
 
-function toStoredResultAnswer(
-  answer: BackendReadingSubmitResult['answers'][number],
-  questionContext: ReadingQuestionWithContext | undefined
-): ReadingStoredResultAnswer {
-  return {
-    id: answer.id,
-    questionId: answer.question,
-    questionNumber: answer.questionNumber ?? questionContext?.question.number ?? 0,
-    prompt: questionContext?.question.questionText ?? '',
-    questionType: questionContext?.blockType ?? '',
-    partTitle: questionContext?.partTitle ?? '',
-    blockTitle: questionContext?.blockTitle ?? '',
-    userAnswer: answer.userAnswer,
-    correctAnswer: answer.correctAnswer,
-    isCorrect: answer.isCorrect,
-  };
+function toReadingFinishReason(
+  result: BackendReadingSubmitResult['result']
+): 'completed' | 'time_is_up' | 'left' | 'in_progress' {
+  if (result === 'success') {
+    return 'completed';
+  }
+  if (result === 'failed') {
+    return 'time_is_up';
+  }
+  return 'in_progress';
+}
+
+function normalizeReadingFinishReason(
+  value: string | null | undefined
+): 'completed' | 'time_is_up' | 'left' | 'in_progress' | null {
+  if (value === 'completed' || value === 'time_is_up' || value === 'left' || value === 'in_progress') {
+    return value;
+  }
+  return null;
 }
 
 export function toReadingStoredResult(params: {
@@ -455,11 +489,6 @@ export function toReadingStoredResult(params: {
 }) {
   const { detail, exam, submitResult } = params;
   const finishedAt = params.finishedAt ?? new Date().toISOString();
-  const questionContextMap = buildReadingQuestionContextMap(detail);
-
-  const answers = submitResult.answers
-    .map((item) => toStoredResultAnswer(item, questionContextMap.get(item.question)))
-    .sort((left, right) => left.questionNumber - right.questionNumber);
 
   return {
     examId: exam.id,
@@ -467,12 +496,11 @@ export function toReadingStoredResult(params: {
     testTitle: detail.title,
     testDescription: detail.description,
     submittedAt: finishedAt,
-    finishReason: resolveReadingFinishReason(exam.startedAt, detail.timeLimit, finishedAt),
+    result: submitResult.result,
+    finishReason: normalizeReadingFinishReason(exam.finishReason) ?? toReadingFinishReason(submitResult.result),
     score: submitResult.score,
-    correctAnswers:
-      submitResult.correctAnswers ?? answers.filter((item) => item.isCorrect).length,
+    correctAnswers: submitResult.correctAnswers ?? 0,
     totalQuestions: getReadingTotalQuestions(detail),
     timeSpent: submitResult.timeSpent,
-    answers,
   } satisfies ReadingStoredResult;
 }

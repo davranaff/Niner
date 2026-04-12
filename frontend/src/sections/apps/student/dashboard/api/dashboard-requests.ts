@@ -1,9 +1,8 @@
 import { request } from 'src/utils/axios';
 
 import type {
-  BackendOffsetPage,
   DashboardActivityResponse,
-  DashboardHistoryAttemptResponse,
+  DashboardHistoryAttemptPageResponse,
   DashboardModule,
   DashboardQuickLinksResponse,
   DashboardStatsResponse,
@@ -12,7 +11,7 @@ import type {
 const dashboardUrls = {
   activity: '/api/v1/dashboard/activity',
   stats: '/api/v1/dashboard/stats',
-  history: '/api/v1/dashboard/history',
+  history: '/api/v1/exams/my-tests',
   quickLinks: '/api/v1/dashboard/quick-links',
 } as const;
 
@@ -41,10 +40,10 @@ export function fetchDashboardStats() {
 }
 
 export function fetchDashboardHistory(limit: number, offset = 0) {
-  return request<BackendOffsetPage<DashboardHistoryAttemptResponse>>({
+  return request<DashboardHistoryAttemptPageResponse>({
     method: 'GET',
     url: dashboardUrls.history,
-    params: { limit, offset },
+    params: { limit, offset, ordering: '-updated_at' },
   });
 }
 

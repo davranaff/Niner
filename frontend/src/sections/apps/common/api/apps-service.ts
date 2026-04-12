@@ -452,8 +452,8 @@ function buildObjectiveResult(store: MockStore, attempt: MockAttempt): MockResul
     summary:
       attempt.status === 'terminated'
         ? `The attempt ended early because of a strict integrity event. The saved answers still show usable weak-area signals for review.`
-        : `${formatModuleLabel(test.module)} performance sits around band ${estimatedBand.toFixed(
-            1
+        : `${formatModuleLabel(test.module)} performance sits around band ${Math.round(
+            estimatedBand
           )} with the strongest accuracy in ${
             strongestSection?.title || 'the best-performing section'
           }.`,
@@ -540,8 +540,8 @@ function buildWritingResult(store: MockStore, attempt: MockAttempt): MockResult 
     ),
     summary:
       submission.evaluatorSummary ||
-      `The writing mock sits around band ${estimatedBand.toFixed(
-        1
+      `The writing mock sits around band ${Math.round(
+        estimatedBand
       )}. Task development is strongest where paragraph control and example support stay consistent.`,
     recommendations: [
       ...weakCriteria.map((criterion) =>
@@ -620,7 +620,7 @@ function moduleBandEntries(moduleBands: ModuleBandMap) {
 function averageBand(moduleBands: ModuleBandMap) {
   const values = moduleBandEntries(moduleBands).map(([, value]) => value);
   if (!values.length) return 0;
-  return Number((values.reduce((sum, value) => sum + value, 0) / values.length).toFixed(1));
+  return Math.round(values.reduce((sum, value) => sum + value, 0) / values.length);
 }
 
 function findStrongestWeakestModule(moduleBands: ModuleBandMap) {
@@ -885,12 +885,12 @@ export async function getTeacherDashboard(): Promise<TeacherDashboardData> {
         (item) => new Date(item.lastActivity) > new Date(Date.now() - 1000 * 60 * 60 * 24 * 7)
       ).length,
       averageOverallBand: Number(
-        (analytics.reduce((sum, item) => sum + item.latestBand, 0) / divisor || 0).toFixed(1)
+        Math.round(analytics.reduce((sum, item) => sum + item.latestBand, 0) / divisor || 0)
       ),
       averageModuleBands: {
-        reading: Number((averageModuleBands.reading / divisor).toFixed(1)),
-        listening: Number((averageModuleBands.listening / divisor).toFixed(1)),
-        writing: Number((averageModuleBands.writing / divisor).toFixed(1)),
+        reading: Math.round(averageModuleBands.reading / divisor),
+        listening: Math.round(averageModuleBands.listening / divisor),
+        writing: Math.round(averageModuleBands.writing / divisor),
       },
       recentAttempts: attempts.slice(0, 5).map((attempt) => buildAttemptSummary(store, attempt)),
       studentsAtRisk: analytics
@@ -1467,12 +1467,12 @@ export async function getTeacherAnalytics(): Promise<TeacherAnalyticsData> {
 
     return {
       averageOverallBand: Number(
-        (analytics.reduce((sum, item) => sum + item.latestBand, 0) / divisor || 0).toFixed(1)
+        Math.round(analytics.reduce((sum, item) => sum + item.latestBand, 0) / divisor || 0)
       ),
       averageModuleBands: {
-        reading: Number((averageModuleBands.reading / divisor).toFixed(1)),
-        listening: Number((averageModuleBands.listening / divisor).toFixed(1)),
-        writing: Number((averageModuleBands.writing / divisor).toFixed(1)),
+        reading: Math.round(averageModuleBands.reading / divisor),
+        listening: Math.round(averageModuleBands.listening / divisor),
+        writing: Math.round(averageModuleBands.writing / divisor),
       },
       weakAreas: Object.entries(weakAreas).map(([label, count]) => ({ label, count })),
       questionTypeIssues: Object.entries(questionTypeIssues).map(([label, count]) => ({

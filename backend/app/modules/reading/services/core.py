@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import ApiError
 from app.core.pagination import CursorPage, serialize_page
-from app.db.models import ReadingQuestion, ReadingQuestionBlock, ReadingTest
+from app.db.models import ReadingQuestion, ReadingQuestionBlock, ReadingTest, User
 from app.modules.reading import repository
 from app.modules.reading.schemas import ReadingTestListItem
 
@@ -214,10 +214,16 @@ def serialize_reading_test_detail(test: ReadingTest) -> dict[str, Any]:
 
 async def list_reading_tests(
     db: AsyncSession,
+    user: User,
     offset: int,
     limit: int,
 ) -> CursorPage:
     rows = await repository.list_active_tests(db, offset=offset, limit=limit)
+    stats_by_test_id = await repository.get_attempt_stats_by_test_ids(
+        db,
+        user_id=user.id,
+        test_ids=[row.id for row in rows],
+    )
     return serialize_page(
         rows,
         serializer=lambda row: ReadingTestListItem(
@@ -227,6 +233,15 @@ async def list_reading_tests(
             time_limit=row.time_limit,
             is_active=row.is_active,
             created_at=row.created_at,
+            attempts_count=stats_by_test_id.get(row.id, {}).get("attempts_count", 0),
+            successful_attempts_count=stats_by_test_id.get(row.id, {}).get(
+                "successful_attempts_count",
+                0,
+            ),
+            failed_attempts_count=stats_by_test_id.get(row.id, {}).get(
+                "failed_attempts_count",
+                0,
+            ),
         ).model_dump(),
         limit=limit,
         offset=offset,

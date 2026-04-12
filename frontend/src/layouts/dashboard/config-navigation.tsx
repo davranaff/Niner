@@ -15,6 +15,7 @@ const icon = (name: string) => (
 
 const ICONS = {
   dashboard: icon('ic_dashboard'),
+  overallExam: <Iconify icon="solar:clipboard-check-bold-duotone" width={24} />,
   reading: <Iconify icon="solar:book-bold-duotone" width={24} />,
   listening: <Iconify icon="solar:headphones-round-bold-duotone" width={24} />,
   writing: <Iconify icon="solar:pen-bold-duotone" width={24} />,
@@ -39,6 +40,13 @@ export function useNavData() {
             title: tx('layout.nav.dashboard'),
             path: paths.dashboard,
             icon: ICONS.dashboard,
+            roles: ['student'],
+          },
+          {
+            title: tx('layout.nav.overall_exam'),
+            path: paths.ielts.overallExam,
+            deepMatch: true,
+            icon: ICONS.overallExam,
             roles: ['student'],
           },
           {
