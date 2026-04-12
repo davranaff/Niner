@@ -1,4 +1,4 @@
-export type OverallModule = 'listening' | 'reading' | 'writing';
+export type OverallModule = 'listening' | 'reading' | 'writing' | 'speaking';
 export type OverallExamStatus = 'in_progress' | 'completed' | 'terminated';
 export type OverallExamPhase = 'module' | 'break' | 'completed' | 'terminated';
 export type OverallExamResultStatus = 'in_progress' | 'success' | 'failed';
@@ -35,9 +35,11 @@ export type BackendOverallExamState = {
   listeningTestId: number;
   readingTestId: number;
   writingTestId: number;
+  speakingTestId: number;
   listeningExamId: number | null;
   readingExamId: number | null;
   writingExamId: number | null;
+  speakingExamId: number | null;
   modules: BackendOverallModuleAttempt[];
   createdAt: string;
   updatedAt: string;
@@ -71,9 +73,11 @@ export type BackendOverallExamListItem = {
   listeningTestId: number;
   readingTestId: number;
   writingTestId: number;
+  speakingTestId: number;
   listeningExamId: number | null;
   readingExamId: number | null;
   writingExamId: number | null;
+  speakingExamId: number | null;
   createdAt: string;
   updatedAt: string;
 };

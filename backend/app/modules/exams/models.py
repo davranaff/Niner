@@ -51,19 +51,28 @@ class OverallExam(TimestampMixin, Base):
     writing_exam_id: Mapped[int | None] = mapped_column(
         ForeignKey("writing_exams.id", ondelete="SET NULL"), nullable=True
     )
+    speaking_test_id: Mapped[int] = mapped_column(
+        ForeignKey("speaking_tests.id", ondelete="RESTRICT"), index=True
+    )
+    speaking_exam_id: Mapped[int | None] = mapped_column(
+        ForeignKey("speaking_exams.id", ondelete="SET NULL"), nullable=True
+    )
 
     user: Mapped[User] = relationship()
     listening_test: Mapped[ListeningTest] = relationship(foreign_keys=[listening_test_id])
     reading_test: Mapped[ReadingTest] = relationship(foreign_keys=[reading_test_id])
     writing_test: Mapped[WritingTest] = relationship(foreign_keys=[writing_test_id])
+    speaking_test: Mapped[SpeakingTest] = relationship(foreign_keys=[speaking_test_id])
     listening_exam: Mapped[ListeningExam | None] = relationship(foreign_keys=[listening_exam_id])
     reading_exam: Mapped[ReadingExam | None] = relationship(foreign_keys=[reading_exam_id])
     writing_exam: Mapped[WritingExam | None] = relationship(foreign_keys=[writing_exam_id])
+    speaking_exam: Mapped[SpeakingExam | None] = relationship(foreign_keys=[speaking_exam_id])
 
     __table_args__ = (
         UniqueConstraint("listening_exam_id", name="uq_overall_exams_listening_exam_id"),
         UniqueConstraint("reading_exam_id", name="uq_overall_exams_reading_exam_id"),
         UniqueConstraint("writing_exam_id", name="uq_overall_exams_writing_exam_id"),
+        UniqueConstraint("speaking_exam_id", name="uq_overall_exams_speaking_exam_id"),
     )
 
 

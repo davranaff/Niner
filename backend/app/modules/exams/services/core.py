@@ -58,7 +58,7 @@ ExamKind = Literal["reading", "listening", "writing", "speaking"]
 ExamAttemptStatus = Literal["in_progress", "completed", "terminated"]
 ExamResultStatus = Literal["success", "failed", "in_progress"]
 SubmitFinishReasonOverride = Literal["left", "time_is_up"]
-OverallModuleKind = Literal["listening", "reading", "writing"]
+OverallModuleKind = Literal["listening", "reading", "writing", "speaking"]
 OverallExamStatus = Literal["in_progress", "completed", "terminated"]
 OverallExamPhase = Literal["module", "break", "completed", "terminated"]
 OverallExamResultStatus = Literal["in_progress", "success", "failed"]
@@ -368,7 +368,12 @@ def _resolve_overall_result_status(overall_exam: OverallExam) -> OverallExamResu
     if overall_exam.status == "terminated":
         return "failed"
 
-    linked_exams = [overall_exam.listening_exam, overall_exam.reading_exam, overall_exam.writing_exam]
+    linked_exams = [
+        overall_exam.listening_exam,
+        overall_exam.reading_exam,
+        overall_exam.writing_exam,
+        overall_exam.speaking_exam,
+    ]
     if any(exam is None for exam in linked_exams):
         return "failed"
     if any(exam.finish_reason != FinishReasonEnum.completed for exam in linked_exams if exam is not None):
@@ -383,7 +388,7 @@ def _resolve_overall_module_status(exam: Any | None) -> OverallModuleAttemptStat
 
 
 def _serialize_overall_module_attempt(
-    module: OverallModuleKind,
+    module: str,
     *,
     test_id: int,
     test_title: str,
@@ -409,8 +414,11 @@ def _serialize_overall_module_attempt(
         correct_answers = sum(1 for answer in exam.question_answers if answer.is_correct)
         has_answers = bool(exam.question_answers)
         score = reading_band_score(correct_answers) if (has_answers or exam.finished_at is not None) else None
-    else:
+    elif module == "writing":
         score = _calculate_writing_estimated_band(exam.writing_parts)
+        correct_answers = None
+    else:
+        score = _calculate_speaking_estimated_band(exam)
         correct_answers = None
 
     return {
@@ -442,7 +450,7 @@ def _compute_break_remaining_seconds(overall_exam: OverallExam) -> int | None:
 
 
 def _calculate_overall_band(overall_exam: OverallExam) -> tuple[float | None, bool]:
-    if overall_exam.writing_exam is None:
+    if overall_exam.writing_exam is None or overall_exam.speaking_exam is None:
         return (None, False)
 
     listening_score = (
@@ -456,14 +464,22 @@ def _calculate_overall_band(overall_exam: OverallExam) -> tuple[float | None, bo
         else None
     )
     writing_score = _calculate_writing_estimated_band(overall_exam.writing_exam.writing_parts)
+    speaking_score = _calculate_speaking_estimated_band(overall_exam.speaking_exam)
 
     if writing_score is None:
+        return (None, True)
+    if speaking_score is None:
         return (None, True)
     if listening_score is None or reading_score is None:
         return (None, False)
 
-    total = Decimal(str(listening_score)) + Decimal(str(reading_score)) + Decimal(str(writing_score))
-    average = (total / Decimal("3")).quantize(Decimal("0.1"), rounding=ROUND_HALF_UP)
+    total = (
+        Decimal(str(listening_score))
+        + Decimal(str(reading_score))
+        + Decimal(str(writing_score))
+        + Decimal(str(speaking_score))
+    )
+    average = (total / Decimal("4")).quantize(Decimal("0.1"), rounding=ROUND_HALF_UP)
     return (float(average), False)
 
 
@@ -487,6 +503,12 @@ def _serialize_overall_modules(overall_exam: OverallExam) -> list[dict[str, Any]
             test_title=overall_exam.writing_test.title,
             exam=overall_exam.writing_exam,
         ),
+        _serialize_overall_module_attempt(
+            "speaking",
+            test_id=overall_exam.speaking_test_id,
+            test_title=overall_exam.speaking_test.title,
+            exam=overall_exam.speaking_exam,
+        ),
     ]
 
 
@@ -507,9 +529,11 @@ def _serialize_overall_exam_state(overall_exam: OverallExam) -> dict[str, Any]:
         "listening_test_id": overall_exam.listening_test_id,
         "reading_test_id": overall_exam.reading_test_id,
         "writing_test_id": overall_exam.writing_test_id,
+        "speaking_test_id": overall_exam.speaking_test_id,
         "listening_exam_id": overall_exam.listening_exam_id,
         "reading_exam_id": overall_exam.reading_exam_id,
         "writing_exam_id": overall_exam.writing_exam_id,
+        "speaking_exam_id": overall_exam.speaking_exam_id,
         "modules": _serialize_overall_modules(overall_exam),
         "created_at": overall_exam.created_at,
         "updated_at": overall_exam.updated_at,
@@ -549,9 +573,11 @@ def _serialize_overall_exam_list_item(overall_exam: OverallExam) -> dict[str, An
         "listening_test_id": overall_exam.listening_test_id,
         "reading_test_id": overall_exam.reading_test_id,
         "writing_test_id": overall_exam.writing_test_id,
+        "speaking_test_id": overall_exam.speaking_test_id,
         "listening_exam_id": overall_exam.listening_exam_id,
         "reading_exam_id": overall_exam.reading_exam_id,
         "writing_exam_id": overall_exam.writing_exam_id,
+        "speaking_exam_id": overall_exam.speaking_exam_id,
         "created_at": overall_exam.created_at,
         "updated_at": overall_exam.updated_at,
     }
@@ -614,10 +640,10 @@ async def _apply_overall_transition_after_submit(
         await db.commit()
         return
 
-    if module == "writing":
+    if module == "speaking":
         overall_exam.status = "completed"
         overall_exam.phase = "completed"
-        overall_exam.current_module = "writing"
+        overall_exam.current_module = "speaking"
         overall_exam.finished_at = finished_at or datetime.now(UTC)
         overall_exam.finish_reason = FinishReasonEnum.completed
         overall_exam.break_started_at = None
@@ -1354,6 +1380,14 @@ async def finalize_speaking_exam(
         ),
     )
 
+    await _apply_overall_transition_after_submit(
+        db,
+        module="speaking",
+        exam_id=exam.id,
+        finish_reason=exam.finish_reason,
+        finished_at=exam.finished_at,
+    )
+
     return attempt.model_dump(mode="json")
 
 
@@ -1432,6 +1466,14 @@ async def start_overall_exam(
             status_code=404,
         )
 
+    speaking_test = await repository.get_first_active_speaking_test(db)
+    if speaking_test is None:
+        raise ApiError(
+            code="speaking_test_not_found",
+            message="No active speaking tests available",
+            status_code=404,
+        )
+
     started_at = datetime.now(UTC)
     listening_exam = ListeningExam(
         user_id=user.id,
@@ -1451,6 +1493,7 @@ async def start_overall_exam(
         listening_test_id=listening_test.id,
         reading_test_id=reading_test.id,
         writing_test_id=writing_test.id,
+        speaking_test_id=speaking_test.id,
         listening_exam_id=listening_exam.id,
     )
     db.add(overall_exam)
@@ -1508,6 +1551,19 @@ async def continue_overall_exam(
             db.add(next_exam)
             await db.flush()
             overall_exam.writing_exam_id = next_exam.id
+    elif overall_exam.current_module == "writing":
+        next_module = "speaking"
+        if overall_exam.speaking_exam_id is None:
+            next_exam = SpeakingExam(
+                user_id=user.id,
+                speaking_test_id=overall_exam.speaking_test_id,
+                current_part_id="part1",
+                current_question_index=0,
+                note_draft="",
+            )
+            db.add(next_exam)
+            await db.flush()
+            overall_exam.speaking_exam_id = next_exam.id
     else:
         raise ApiError(
             code="overall_exam_phase_invalid",

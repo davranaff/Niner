@@ -8,8 +8,8 @@ import { alpha } from '@mui/material/styles';
 
 import { useLocales } from 'src/locales';
 import { paths } from 'src/routes/paths';
-import { useParams, useRouter, useSearchParams } from 'src/routes/hook';
 import { appendBreadcrumbFromMyTests, isBreadcrumbFromMyTests } from 'src/routes/breadcrumb-from';
+import { useParams, useRouter, useSearchParams } from 'src/routes/hook';
 import { SessionLoadingState } from 'src/pages/components/apps/session';
 
 import {
@@ -312,6 +312,8 @@ export default function AppsSpeakingSessionView() {
   const searchParams = useSearchParams();
 
   const testId = Number(params.testId || 0);
+  const overallId = Number(searchParams.get('overallId') || 0);
+  const preferredExamId = Number(searchParams.get('examId') || 0);
 
   const detailQuery = useSpeakingDetailQuery(testId, testId > 0);
   const examsQuery = useMySpeakingExamsQuery({ enabled: testId > 0 });
@@ -344,9 +346,15 @@ export default function AppsSpeakingSessionView() {
     startSpeakingFlowMutation
       .mutateAsync({
         testId,
-        examId: storedActiveExamId ?? latestActiveExam?.id,
+        examId:
+          (preferredExamId > 0 ? preferredExamId : null) ?? storedActiveExamId ?? latestActiveExam?.id,
       })
       .then(async (exam) => {
+        if (overallId > 0 && exam.finishedAt) {
+          router.replace(paths.ielts.overallExamSession(String(overallId)));
+          return;
+        }
+
         setSpeakingActiveExam(testId, exam.id);
 
         const session = await fetchSpeakingSession(exam.id);
@@ -360,17 +368,30 @@ export default function AppsSpeakingSessionView() {
       .catch(() => {
         bootstrapRef.current = null;
       });
-  }, [detailQuery.data, examsQuery.data, examsQuery.isLoading, startSpeakingFlowMutation, testId]);
+  }, [
+    detailQuery.data,
+    examsQuery.data,
+    examsQuery.isLoading,
+    overallId,
+    preferredExamId,
+    router,
+    startSpeakingFlowMutation,
+    testId,
+  ]);
 
   const handleFinalized = useCallback(
     (attempt: SpeakingAttempt) => {
+      if (overallId > 0) {
+        router.replace(paths.ielts.overallExamSession(String(overallId)));
+        return;
+      }
       const destination = paths.ielts.speakingAttempt(String(attempt.examId));
       const withBreadcrumb = isBreadcrumbFromMyTests(searchParams)
         ? appendBreadcrumbFromMyTests(destination)
         : destination;
       router.replace(withBreadcrumb);
     },
-    [router, searchParams]
+    [overallId, router, searchParams]
   );
 
   if (

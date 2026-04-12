@@ -128,6 +128,7 @@ export default function AppsOverallExamView() {
                 <Chip size="small" variant="outlined" label={tx('pages.ielts.listening.title')} />
                 <Chip size="small" variant="outlined" label={tx('pages.ielts.reading.title')} />
                 <Chip size="small" variant="outlined" label={tx('pages.ielts.writing.title')} />
+                <Chip size="small" variant="outlined" label={tx('pages.ielts.speaking.title')} />
               </Stack>
             </Stack>
 
