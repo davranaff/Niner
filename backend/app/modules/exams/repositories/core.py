@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sqlalchemy import and_, select
+from sqlalchemy import and_, asc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -12,6 +12,7 @@ from app.db.models import (
     ListeningQuestion,
     ListeningQuestionBlock,
     ListeningTest,
+    OverallExam,
     ReadingExam,
     ReadingExamQuestionAnswer,
     ReadingPassage,
@@ -22,6 +23,26 @@ from app.db.models import (
     WritingExamPart,
     WritingTest,
 )
+
+
+async def get_first_active_reading_test(db: AsyncSession) -> ReadingTest | None:
+    stmt = select(ReadingTest).where(ReadingTest.is_active.is_(True)).order_by(asc(ReadingTest.id)).limit(1)
+    return (await db.execute(stmt)).scalar_one_or_none()
+
+
+async def get_first_active_listening_test(db: AsyncSession) -> ListeningTest | None:
+    stmt = (
+        select(ListeningTest)
+        .where(ListeningTest.is_active.is_(True))
+        .order_by(asc(ListeningTest.id))
+        .limit(1)
+    )
+    return (await db.execute(stmt)).scalar_one_or_none()
+
+
+async def get_first_active_writing_test(db: AsyncSession) -> WritingTest | None:
+    stmt = select(WritingTest).where(WritingTest.is_active.is_(True)).order_by(asc(WritingTest.id)).limit(1)
+    return (await db.execute(stmt)).scalar_one_or_none()
 
 
 async def get_reading_test(db: AsyncSession, test_id: int) -> ReadingTest | None:
@@ -88,6 +109,96 @@ async def get_writing_exam_with_relations(db: AsyncSession, exam_id: int) -> Wri
         )
     )
     return (await db.execute(stmt)).scalar_one_or_none()
+
+
+async def get_in_progress_overall_exam_by_user(db: AsyncSession, *, user_id: int) -> OverallExam | None:
+    stmt = (
+        select(OverallExam)
+        .where(
+            OverallExam.user_id == user_id,
+            OverallExam.status == "in_progress",
+        )
+        .order_by(OverallExam.id.desc())
+        .limit(1)
+        .options(
+            selectinload(OverallExam.listening_test),
+            selectinload(OverallExam.reading_test),
+            selectinload(OverallExam.writing_test),
+            selectinload(OverallExam.listening_exam).selectinload(ListeningExam.question_answers),
+            selectinload(OverallExam.reading_exam).selectinload(ReadingExam.question_answers),
+            selectinload(OverallExam.writing_exam).selectinload(WritingExam.writing_parts),
+        )
+    )
+    return (await db.execute(stmt)).scalar_one_or_none()
+
+
+async def get_overall_exam_with_relations(db: AsyncSession, overall_id: int) -> OverallExam | None:
+    stmt = (
+        select(OverallExam)
+        .where(OverallExam.id == overall_id)
+        .options(
+            selectinload(OverallExam.listening_test),
+            selectinload(OverallExam.reading_test),
+            selectinload(OverallExam.writing_test),
+            selectinload(OverallExam.listening_exam).selectinload(ListeningExam.question_answers),
+            selectinload(OverallExam.reading_exam).selectinload(ReadingExam.question_answers),
+            selectinload(OverallExam.writing_exam)
+            .selectinload(WritingExam.writing_parts)
+            .selectinload(WritingExamPart.part),
+        )
+    )
+    return (await db.execute(stmt)).scalar_one_or_none()
+
+
+async def get_in_progress_overall_by_module_exam(
+    db: AsyncSession,
+    *,
+    module: str,
+    exam_id: int,
+) -> OverallExam | None:
+    if module == "listening":
+        condition = OverallExam.listening_exam_id == exam_id
+    elif module == "reading":
+        condition = OverallExam.reading_exam_id == exam_id
+    else:
+        condition = OverallExam.writing_exam_id == exam_id
+
+    stmt = (
+        select(OverallExam)
+        .where(
+            condition,
+            OverallExam.status == "in_progress",
+        )
+        .options(
+            selectinload(OverallExam.listening_test),
+            selectinload(OverallExam.reading_test),
+            selectinload(OverallExam.writing_test),
+            selectinload(OverallExam.listening_exam).selectinload(ListeningExam.question_answers),
+            selectinload(OverallExam.reading_exam).selectinload(ReadingExam.question_answers),
+            selectinload(OverallExam.writing_exam).selectinload(WritingExam.writing_parts),
+        )
+    )
+    return (await db.execute(stmt)).scalar_one_or_none()
+
+
+async def list_all_user_overall_exams_with_relations(
+    db: AsyncSession,
+    *,
+    user_id: int,
+) -> list[OverallExam]:
+    stmt = (
+        select(OverallExam)
+        .where(OverallExam.user_id == user_id)
+        .options(
+            selectinload(OverallExam.listening_test),
+            selectinload(OverallExam.reading_test),
+            selectinload(OverallExam.writing_test),
+            selectinload(OverallExam.listening_exam).selectinload(ListeningExam.question_answers),
+            selectinload(OverallExam.reading_exam).selectinload(ReadingExam.question_answers),
+            selectinload(OverallExam.writing_exam).selectinload(WritingExam.writing_parts),
+        )
+    )
+    return list((await db.execute(stmt)).scalars().all())
 
 
 async def get_reading_exam_answer(

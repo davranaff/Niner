@@ -34,6 +34,35 @@ function toNumber(value: number | string | null | undefined, fallback = 0) {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+function toTimestamp(value: string | null | undefined): number | null {
+  if (!value) {
+    return null;
+  }
+  const parsed = Date.parse(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function resolveAttemptDate(item: {
+  finishedAt: string | null;
+  startedAt: string | null;
+  updatedAt: string;
+  createdAt: string;
+}) {
+  return item.finishedAt ?? item.startedAt ?? item.updatedAt ?? item.createdAt;
+}
+
+function resolveAttemptTimeSpentSeconds(item: {
+  finishedAt: string | null;
+  startedAt: string | null;
+}): number | null {
+  const startedAtTs = toTimestamp(item.startedAt);
+  const finishedAtTs = toTimestamp(item.finishedAt);
+  if (startedAtTs == null || finishedAtTs == null || finishedAtTs < startedAtTs) {
+    return null;
+  }
+  return Math.floor((finishedAtTs - startedAtTs) / 1000);
+}
+
 function clampIntensity(value: number) {
   if (value <= 0) return 0;
   if (value >= 4) return 4;
@@ -94,11 +123,16 @@ export function useStudentDashboardHistoryQuery(limit = 4, offset = 0) {
 
     return response.items.map((item) => ({
       id: item.id,
-      title: item.title,
-      testDate: item.testDate,
-      testType: item.testType,
-      bandScore: toNumber(item.bandScore),
-      timeTakenSeconds: Math.max(0, item.timeTakenSeconds ?? 0),
+      title: item.testTitle,
+      testDate: resolveAttemptDate(item),
+      testType: item.kind,
+      bandScore:
+        typeof item.estimatedBand === 'number' && Number.isFinite(item.estimatedBand)
+          ? item.estimatedBand
+          : null,
+      timeTakenSeconds: resolveAttemptTimeSpentSeconds(item),
+      status: item.status,
+      finishReason: item.finishReason,
     }));
   });
 }
@@ -107,6 +141,11 @@ export function useStudentDashboardQuickLinksQuery() {
   return useFetch<DashboardQuickLink[]>(studentDashboardQueryKeys.quickLinks, async () => {
     const response = await fetchDashboardQuickLinks();
 
-    return response.items;
+    return response.items.map((item) => ({
+      ...item,
+      attemptsCount: Math.max(0, item.attemptsCount ?? 0),
+      successfulAttemptsCount: Math.max(0, item.successfulAttemptsCount ?? 0),
+      failedAttemptsCount: Math.max(0, item.failedAttemptsCount ?? 0),
+    }));
   });
 }

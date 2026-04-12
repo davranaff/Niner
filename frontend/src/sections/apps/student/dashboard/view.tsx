@@ -61,11 +61,30 @@ function quickLinkVisual(link: DashboardQuickLink) {
   return { icon: 'solar:user-rounded-bold-duotone', colorKey: 'primary' as const };
 }
 
-function bandChipColor(score: number): 'success' | 'info' | 'warning' | 'error' {
+function bandChipColor(score: number | null): 'success' | 'info' | 'warning' | 'error' {
+  if (score == null) return 'info';
   if (score >= 7) return 'success';
   if (score >= 6) return 'info';
   if (score >= 5) return 'warning';
   return 'error';
+}
+
+function resolveBandChipLabel(
+  score: number | null,
+  status: 'in_progress' | 'completed' | 'terminated',
+  finishReason: string | null,
+  translate: DashboardTranslate
+) {
+  if (score != null) {
+    return score.toFixed(1);
+  }
+  if (status === 'in_progress') {
+    return translate('pages.ielts.shared.status_in_progress');
+  }
+  if (finishReason === 'left' || finishReason === 'time_is_up') {
+    return translate(`pages.ielts.shared.finish_${finishReason}`);
+  }
+  return '-';
 }
 
 function attemptResultPath(module: DashboardModule, attemptId: number): string | null {
@@ -359,7 +378,7 @@ export default function AppsDashboardView() {
                               <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                                 {fDate(item.testDate)}
                               </Typography>
-                              {item.timeTakenSeconds > 0 ? (
+                              {item.timeTakenSeconds != null && item.timeTakenSeconds > 0 ? (
                                 <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                                   {`${tx('pages.ielts.shared.time_spent')}: ${Math.round(
                                     item.timeTakenSeconds / 60
@@ -372,7 +391,12 @@ export default function AppsDashboardView() {
 
                         <Stack spacing={0.5} alignItems="flex-end">
                           <Chip
-                            label={item.bandScore.toFixed(1)}
+                            label={resolveBandChipLabel(
+                              item.bandScore,
+                              item.status,
+                              item.finishReason,
+                              tx
+                            )}
                             color={bandChipColor(item.bandScore)}
                             sx={{ minWidth: 56, fontWeight: 700 }}
                           />
@@ -424,6 +448,7 @@ export default function AppsDashboardView() {
                 {internalQuickLinks.length ? (
                   internalQuickLinks.map((item) => {
                     const linkVisual = quickLinkVisual(item);
+                    const quickStatsLabel = `${tx('pages.ielts.shared.attempts')}: ${item.attemptsCount} · ${tx('pages.ielts.shared.review_correct')}: ${item.successfulAttemptsCount} · ${tx('pages.ielts.shared.review_incorrect')}: ${item.failedAttemptsCount}`;
 
                     return (
                       <Button
@@ -464,7 +489,7 @@ export default function AppsDashboardView() {
                               {quickLinkLabel(item, tx)}
                             </Typography>
                             <Typography variant="caption" sx={{ color: 'text.secondary' }} noWrap>
-                              {item.path}
+                              {quickStatsLabel}
                             </Typography>
                           </Stack>
                         </Stack>

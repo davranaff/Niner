@@ -37,19 +37,36 @@ export type DashboardActivityResponse = {
   days: DashboardActivityDayResponse[];
 };
 
+export type DashboardAttemptStatus = 'in_progress' | 'completed' | 'terminated';
+
 export type DashboardHistoryAttemptResponse = {
   id: number;
-  title: string;
-  testDate: string;
-  testType: DashboardModule;
-  bandScore: number | string;
-  timeTakenSeconds: number | null;
+  kind: DashboardModule;
+  testId: number;
+  testTitle: string;
+  status: DashboardAttemptStatus;
+  finishReason: string | null;
+  startedAt: string | null;
+  finishedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  estimatedBand: number | null;
+};
+
+export type DashboardHistoryAttemptPageResponse = {
+  items: DashboardHistoryAttemptResponse[];
+  count: number;
+  limit: number;
+  offset: number;
 };
 
 export type DashboardQuickLinkResponse = {
   label: string;
   path: string;
   module: DashboardModule | null;
+  attemptsCount: number;
+  successfulAttemptsCount: number;
+  failedAttemptsCount: number;
 };
 
 export type DashboardQuickLinksResponse = {
@@ -84,12 +101,17 @@ export type DashboardHistoryAttempt = {
   title: string;
   testDate: string;
   testType: DashboardModule;
-  bandScore: number;
-  timeTakenSeconds: number;
+  bandScore: number | null;
+  timeTakenSeconds: number | null;
+  status: DashboardAttemptStatus;
+  finishReason: string | null;
 };
 
 export type DashboardQuickLink = {
   label: string;
   path: string;
   module: DashboardModule | null;
+  attemptsCount: number;
+  successfulAttemptsCount: number;
+  failedAttemptsCount: number;
 };

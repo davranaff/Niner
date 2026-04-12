@@ -1,11 +1,17 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import get_current_user
 from app.db.models import User
 from app.db.session import get_db
 from app.modules.exams import services
-from app.modules.exams.schemas import ExamAnswerIn, ExamCreateIn, ExamPublic, ExamSubmitOut
+from app.modules.exams.schemas import (
+    ExamAnswerIn,
+    ExamCreateIn,
+    ExamPublic,
+    ExamSubmitOut,
+    SubmitFinishReasonOverride,
+)
 
 router = APIRouter()
 
@@ -32,8 +38,15 @@ async def start_reading_exam(
 async def submit_reading_exam(
     exam_id: int,
     payload: list[ExamAnswerIn],
+    finish_reason: SubmitFinishReasonOverride | None = Query(default=None),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> ExamSubmitOut:
-    result = await services.submit_reading_exam(db, current_user, exam_id, [p.model_dump() for p in payload])
+    result = await services.submit_reading_exam(
+        db,
+        current_user,
+        exam_id,
+        [p.model_dump() for p in payload],
+        finish_reason_override=finish_reason,
+    )
     return ExamSubmitOut.model_validate(result)

@@ -1,11 +1,18 @@
 from __future__ import annotations
 
-from sqlalchemy import select
+from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.pagination import paginate_query
-from app.db.models import ReadingPassage, ReadingQuestion, ReadingQuestionBlock, ReadingTest
+from app.db.models import (
+    FinishReasonEnum,
+    ReadingExam,
+    ReadingPassage,
+    ReadingQuestion,
+    ReadingQuestionBlock,
+    ReadingTest,
+)
 
 
 async def list_active_tests(
@@ -35,3 +42,50 @@ async def get_test_detail(db: AsyncSession, test_id: int) -> ReadingTest | None:
     )
     return (await db.execute(stmt)).scalar_one_or_none()
 
+
+async def get_attempt_stats_by_test_ids(
+    db: AsyncSession,
+    *,
+    user_id: int,
+    test_ids: list[int],
+) -> dict[int, dict[str, int]]:
+    if not test_ids:
+        return {}
+
+    stmt = (
+        select(
+            ReadingExam.reading_test_id.label("test_id"),
+            func.count(ReadingExam.id).label("attempts_count"),
+            func.sum(
+                case(
+                    (ReadingExam.finish_reason == FinishReasonEnum.completed, 1),
+                    else_=0,
+                )
+            ).label("successful_attempts_count"),
+            func.sum(
+                case(
+                    (
+                        ReadingExam.finish_reason.in_(
+                            [FinishReasonEnum.left, FinishReasonEnum.time_is_up]
+                        ),
+                        1,
+                    ),
+                    else_=0,
+                )
+            ).label("failed_attempts_count"),
+        )
+        .where(
+            ReadingExam.user_id == user_id,
+            ReadingExam.reading_test_id.in_(test_ids),
+        )
+        .group_by(ReadingExam.reading_test_id)
+    )
+    rows = (await db.execute(stmt)).all()
+    return {
+        int(row.test_id): {
+            "attempts_count": int(row.attempts_count or 0),
+            "successful_attempts_count": int(row.successful_attempts_count or 0),
+            "failed_attempts_count": int(row.failed_attempts_count or 0),
+        }
+        for row in rows
+    }

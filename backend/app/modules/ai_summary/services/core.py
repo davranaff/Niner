@@ -8,7 +8,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import ApiError
 from app.core.pagination import page_response
-from app.db.models import AiModuleSummary, AiSummaryModuleEnum, AiSummarySourceEnum, RoleEnum, User
+from app.db.models import (
+    AiModuleSummary,
+    AiSummaryModuleEnum,
+    AiSummarySourceEnum,
+    AiSummaryStatusEnum,
+    RoleEnum,
+    User,
+)
 from app.modules.ai_summary import repository
 from app.modules.teacher_students.services.core import assert_access_to_student
 from app.workers.queue import enqueue_module_summary
@@ -134,6 +141,16 @@ async def create_auto_summary(
     attempts_limit: int = 10,
     lang: str = "en",
 ) -> dict[str, Any]:
+    existing = await repository.get_latest_summary_for_exam(
+        db,
+        user_id=user.id,
+        module=module,
+        source=AiSummarySourceEnum.auto_submit,
+        exam_id=exam_id,
+    )
+    if existing is not None and existing.status != AiSummaryStatusEnum.failed:
+        return serialize_summary(existing)
+
     return await _create_summary_job(
         db,
         target_user_id=user.id,
@@ -165,6 +182,8 @@ async def list_summaries(
     *,
     student_id: int | None,
     module: AiSummaryModuleEnum | None,
+    source: AiSummarySourceEnum | None,
+    exam_id: int | None,
     offset: int,
     limit: int,
 ) -> dict[str, Any]:
@@ -181,6 +200,8 @@ async def list_summaries(
         db,
         user_id=target_user_id,
         module=module,
+        source=source,
+        exam_id=exam_id,
         offset=offset,
         limit=limit,
     )

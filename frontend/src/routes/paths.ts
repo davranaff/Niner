@@ -29,6 +29,10 @@ export const paths = {
     writingSession: (testId: string) => `/dashboard/writing/tests/${testId}/session`,
     writingAttempt: (attemptId: string) => `/dashboard/writing/attempts/${attemptId}`,
 
+    overallExam: '/dashboard/overall-exam',
+    overallExamSession: (overallId: string) => `/dashboard/overall-exam/session/${overallId}`,
+    overallExamAttempt: (overallId: string) => `/dashboard/overall-exam/attempts/${overallId}`,
+
     myTests: '/dashboard/my-tests',
     profile: '/dashboard/profile',
 

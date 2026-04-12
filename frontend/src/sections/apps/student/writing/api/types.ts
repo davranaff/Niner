@@ -22,6 +22,9 @@ export type BackendWritingListItem = {
   timeLimit: number;
   isActive: boolean;
   createdAt: string;
+  attemptsCount: number;
+  successfulAttemptsCount: number;
+  failedAttemptsCount: number;
 };
 
 export type WritingListItem = {
@@ -32,6 +35,9 @@ export type WritingListItem = {
   durationMinutes: number;
   isActive: boolean;
   createdAt: string;
+  attemptsCount: number;
+  successfulAttemptsCount: number;
+  failedAttemptsCount: number;
 };
 
 export type WritingListPage = {
@@ -146,19 +152,10 @@ export type WritingSubmitPartInput = {
   essay: string;
 };
 
-export type BackendWritingSubmitAnswer = {
-  id: number;
-  exam: number;
-  part: number;
-  essay: string | null;
-  isChecked: boolean;
-  corrections: string | null;
-  score: number | null;
-  wordCount: number;
-};
+export type BackendExamResultStatus = 'success' | 'failed' | 'in_progress';
 
 export type BackendWritingSubmitResult = {
-  answers: BackendWritingSubmitAnswer[];
+  result: BackendExamResultStatus;
   score: number | null;
   correctAnswers: number | null;
   timeSpent: number | null;
@@ -186,6 +183,7 @@ export type WritingStoredResult = {
   testTitle: string;
   testDescription: string;
   submittedAt: string;
+  result: BackendExamResultStatus;
   finishReason: string | null;
   score: number | null;
   timeSpent: number | null;

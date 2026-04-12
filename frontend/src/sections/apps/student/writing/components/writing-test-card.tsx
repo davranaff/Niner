@@ -1,12 +1,10 @@
 import type { ReactNode } from 'react';
 
-import Card from '@mui/material/Card';
 import Chip from '@mui/material/Chip';
-import Stack from '@mui/material/Stack';
-import Divider from '@mui/material/Divider';
-import Typography from '@mui/material/Typography';
 
 import { fDate } from 'src/utils/format-time';
+import { TestCatalogCard } from 'src/sections/apps/common/module-test/catalog/test-catalog-card';
+import type { ModuleAttemptHistoryItem } from 'src/sections/apps/common/module-test/utils/attempt-history';
 
 import type { WritingListItem } from '../api/types';
 
@@ -15,6 +13,12 @@ type Props = {
   activeLabel: string;
   durationLabel: string;
   publishedAtLabel: string;
+  attemptsLabel: string;
+  successfulAttemptsLabel: string;
+  failedAttemptsLabel: string;
+  attemptHistoryLabel: string;
+  updatedLabel: string;
+  attemptHistoryItems?: ModuleAttemptHistoryItem[];
   actions?: ReactNode;
 };
 
@@ -23,37 +27,30 @@ export function WritingTestCard({
   activeLabel,
   durationLabel,
   publishedAtLabel,
+  attemptsLabel,
+  successfulAttemptsLabel,
+  failedAttemptsLabel,
+  attemptHistoryLabel,
+  updatedLabel,
+  attemptHistoryItems = [],
   actions,
 }: Props) {
   return (
-    <Card variant="outlined" sx={{ p: 3, height: 1 }}>
-      <Stack spacing={2.5} sx={{ height: 1 }}>
-        <Stack spacing={1.25}>
-          <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={2}>
-            <Stack spacing={1}>
-              <Typography variant="h6">{item.title}</Typography>
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {item.description}
-              </Typography>
-            </Stack>
-
-            {item.isActive ? <Chip label={activeLabel} size="small" color="success" /> : null}
-          </Stack>
-        </Stack>
-
-        <Divider sx={{ borderStyle: 'dashed' }} />
-
-        <Stack spacing={0.75} sx={{ mt: 'auto' }}>
-          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-            {durationLabel}: {item.durationMinutes} min
-          </Typography>
-          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-            {publishedAtLabel}: {fDate(item.createdAt)}
-          </Typography>
-        </Stack>
-
-        {actions ? <Stack direction="row" spacing={1.25}>{actions}</Stack> : null}
-      </Stack>
-    </Card>
+    <TestCatalogCard
+      title={item.title}
+      description={item.description}
+      titleAdornment={item.isActive ? <Chip label={activeLabel} size="small" color="primary" /> : null}
+      summaryLine={`${durationLabel}: ${item.durationMinutes} min · ${attemptsLabel}: ${item.attemptsCount}`}
+      primaryValue={`${item.successfulAttemptsCount}/${item.failedAttemptsCount}`}
+      primaryValueHint={`${successfulAttemptsLabel} / ${failedAttemptsLabel}`}
+      infoLines={[
+        `${successfulAttemptsLabel}: ${item.successfulAttemptsCount} · ${failedAttemptsLabel}: ${item.failedAttemptsCount}`,
+        `${publishedAtLabel}: ${fDate(item.createdAt)}`,
+      ]}
+      attemptHistoryLabel={attemptHistoryLabel}
+      updatedLabel={updatedLabel}
+      attemptHistoryItems={attemptHistoryItems}
+      actions={actions}
+    />
   );
 }

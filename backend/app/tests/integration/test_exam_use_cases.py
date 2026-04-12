@@ -1,6 +1,7 @@
 from datetime import UTC, datetime, timedelta
 
 import pytest
+from sqlalchemy import select
 
 from app.core.security import hash_password
 from app.db.models import (
@@ -15,6 +16,7 @@ from app.db.models import (
     RoleEnum,
     User,
     WritingExam,
+    WritingExamPart,
     WritingPart,
     WritingTest,
 )
@@ -134,8 +136,8 @@ async def test_listening_exam_ownership_start_and_submit_idempotency(client, db_
     )
     assert first_submit.status_code == 200
     first_payload = first_submit.json()
+    assert first_payload["result"] == "success"
     assert first_payload["correct_answers"] == 1
-    assert first_payload["answers"][0]["question_number"] == 1
 
     stranger_submit = await client.post(
         f"/api/v1/exams/listening/{exam_id}/submit",
@@ -151,6 +153,7 @@ async def test_listening_exam_ownership_start_and_submit_idempotency(client, db_
     )
     assert second_submit.status_code == 200
     second_payload = second_submit.json()
+    assert second_payload["result"] == "success"
     assert second_payload["correct_answers"] == first_payload["correct_answers"]
     assert second_payload["time_spent"] == first_payload["time_spent"]
 
@@ -224,15 +227,19 @@ async def test_writing_exam_submit_trims_essay_counts_words_and_is_idempotent(cl
     )
     assert first_submit.status_code == 200
     first_payload = first_submit.json()
+    assert first_payload["result"] == "success"
     assert first_payload["score"] is None
     assert first_payload["correct_answers"] is None
 
-    answers_by_part = {item["part"]: item for item in first_payload["answers"]}
-    assert answers_by_part[parts[0].id]["essay"] == "First essay text here"
-    assert answers_by_part[parts[0].id]["word_count"] == 4
-    assert answers_by_part[parts[1].id]["essay"] == "Second part response"
-    assert answers_by_part[parts[1].id]["word_count"] == 3
-    assert "AI evaluation is pending" in str(answers_by_part[parts[0].id]["corrections"])
+    exam_parts = (
+        await db_session.execute(select(WritingExamPart).where(WritingExamPart.exam_id == exam_id))
+    ).scalars()
+    answers_by_part = {item.part_id: item for item in exam_parts}
+    assert answers_by_part[parts[0].id].essay == "First essay text here"
+    assert len(answers_by_part[parts[0].id].essay.split()) == 4
+    assert answers_by_part[parts[1].id].essay == "Second part response"
+    assert len(answers_by_part[parts[1].id].essay.split()) == 3
+    assert "AI evaluation is pending" in str(answers_by_part[parts[0].id].corrections)
 
     second_submit = await client.post(
         f"/api/v1/exams/writing/{exam_id}/submit",
@@ -244,7 +251,7 @@ async def test_writing_exam_submit_trims_essay_counts_words_and_is_idempotent(cl
     )
     assert second_submit.status_code == 200
     second_payload = second_submit.json()
-    assert second_payload["answers"] == first_payload["answers"]
+    assert second_payload["result"] == "success"
     assert second_payload["time_spent"] == first_payload["time_spent"]
 
 
@@ -299,3 +306,61 @@ async def test_user_can_create_multiple_attempts_for_same_test_and_see_them_in_m
     reading_ids = {item["id"] for item in reading_items}
     assert first_exam.json()["id"] in reading_ids
     assert second_exam.json()["id"] in reading_ids
+
+
+@pytest.mark.asyncio
+async def test_my_tests_supports_listening_test_id_filter_and_user_isolation(client, db_session):
+    owner = await _create_user(db_session, "my-tests-listening-owner@example.com")
+    stranger = await _create_user(db_session, "my-tests-listening-stranger@example.com")
+    owner_headers = await _auth_headers(client, owner.email)
+    stranger_headers = await _auth_headers(client, stranger.email)
+
+    listening_test_a, _ = await _create_listening_test_with_single_question(db_session, time_limit=1800)
+    listening_test_b, _ = await _create_listening_test_with_single_question(db_session, time_limit=1800)
+
+    owner_exam_a1 = await client.post(
+        "/api/v1/exams/listening",
+        headers=owner_headers,
+        json={"test_id": listening_test_a.id},
+    )
+    assert owner_exam_a1.status_code == 200
+
+    owner_exam_a2 = await client.post(
+        "/api/v1/exams/listening",
+        headers=owner_headers,
+        json={"test_id": listening_test_a.id},
+    )
+    assert owner_exam_a2.status_code == 200
+
+    owner_exam_b = await client.post(
+        "/api/v1/exams/listening",
+        headers=owner_headers,
+        json={"test_id": listening_test_b.id},
+    )
+    assert owner_exam_b.status_code == 200
+
+    stranger_exam_a = await client.post(
+        "/api/v1/exams/listening",
+        headers=stranger_headers,
+        json={"test_id": listening_test_a.id},
+    )
+    assert stranger_exam_a.status_code == 200
+
+    filtered = await client.get(
+        f"/api/v1/exams/my-tests?module=listening&test_id={listening_test_a.id}&ordering=-created_at&offset=0&limit=20",
+        headers=owner_headers,
+    )
+    assert filtered.status_code == 200
+
+    payload = filtered.json()
+    assert payload["count"] == 2
+    assert len(payload["items"]) == 2
+
+    filtered_ids = {item["id"] for item in payload["items"]}
+    assert owner_exam_a1.json()["id"] in filtered_ids
+    assert owner_exam_a2.json()["id"] in filtered_ids
+    assert owner_exam_b.json()["id"] not in filtered_ids
+    assert stranger_exam_a.json()["id"] not in filtered_ids
+
+    assert all(item["test_id"] == listening_test_a.id for item in payload["items"])
+    assert all(item["kind"] == "listening" for item in payload["items"])

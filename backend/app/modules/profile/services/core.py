@@ -359,26 +359,45 @@ async def list_dashboard_history(
     )
 
 
-def get_quick_links() -> DashboardQuickLinksOut:
+async def get_quick_links(db: AsyncSession, user: User) -> DashboardQuickLinksOut:
+    reading_stats = await repository.get_reading_attempt_summary(db, user_id=user.id)
+    listening_stats = await repository.get_listening_attempt_summary(db, user_id=user.id)
+    writing_stats = await repository.get_writing_attempt_summary(db, user_id=user.id)
+
     return DashboardQuickLinksOut(
         items=[
             DashboardQuickLinkOut(
                 label="Reading",
                 path="/dashboard/reading",
                 module=ProgressTestTypeEnum.reading,
+                attempts_count=reading_stats["attempts_count"],
+                successful_attempts_count=reading_stats["successful_attempts_count"],
+                failed_attempts_count=reading_stats["failed_attempts_count"],
             ),
             DashboardQuickLinkOut(
                 label="Listening",
                 path="/dashboard/listening",
                 module=ProgressTestTypeEnum.listening,
+                attempts_count=listening_stats["attempts_count"],
+                successful_attempts_count=listening_stats["successful_attempts_count"],
+                failed_attempts_count=listening_stats["failed_attempts_count"],
             ),
             DashboardQuickLinkOut(
                 label="Writing",
                 path="/dashboard/writing",
                 module=ProgressTestTypeEnum.writing,
+                attempts_count=writing_stats["attempts_count"],
+                successful_attempts_count=writing_stats["successful_attempts_count"],
+                failed_attempts_count=writing_stats["failed_attempts_count"],
             ),
-            DashboardQuickLinkOut(label="Profile", path="/dashboard/profile", module=None),
+            DashboardQuickLinkOut(
+                label="Profile",
+                path="/dashboard/profile",
+                module=None,
+                attempts_count=0,
+                successful_attempts_count=0,
+                failed_attempts_count=0,
+            ),
         ]
     )
-
 

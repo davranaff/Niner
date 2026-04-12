@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import get_current_user
-from app.db.models import AiSummaryModuleEnum, User
+from app.db.models import AiSummaryModuleEnum, AiSummarySourceEnum, User
 from app.db.session import get_db
 from app.modules.ai_summary import services
 from app.modules.ai_summary.schemas import AiSummaryListOut, AiSummaryOut, AiSummaryTriggerIn
@@ -31,6 +31,8 @@ async def trigger_ai_summary(
 async def list_ai_summaries(
     student_id: int | None = Query(default=None, gt=0),
     module: AiSummaryModuleEnum | None = Query(default=None),
+    source: AiSummarySourceEnum | None = Query(default=None),
+    exam_id: int | None = Query(default=None, gt=0),
     offset: int = Query(default=0, ge=0),
     limit: int = Query(default=20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
@@ -41,6 +43,8 @@ async def list_ai_summaries(
         current_user,
         student_id=student_id,
         module=module,
+        source=source,
+        exam_id=exam_id,
         offset=offset,
         limit=limit,
     )

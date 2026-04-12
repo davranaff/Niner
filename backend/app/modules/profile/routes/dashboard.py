@@ -66,5 +66,8 @@ async def list_dashboard_history(
 
 
 @router.get("/dashboard/quick-links", response_model=DashboardQuickLinksOut, tags=["dashboard"])
-async def get_dashboard_quick_links() -> DashboardQuickLinksOut:
-    return services.get_quick_links()
+async def get_dashboard_quick_links(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> DashboardQuickLinksOut:
+    return await services.get_quick_links(db, current_user)

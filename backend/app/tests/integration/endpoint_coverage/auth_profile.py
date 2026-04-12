@@ -1,11 +1,17 @@
 from __future__ import annotations
 
+from unittest.mock import AsyncMock
+
 from app.db.models import RoleEnum
 
 from .context import CoverageContext
 
 
 async def cover_auth_users_profile_dashboard(ctx: CoverageContext) -> None:
+    from app.modules.auth.services import core as auth_services
+
+    auth_services.send_email = AsyncMock(return_value=None)
+
     admin_user = await ctx.create_active_user(
         "admin",
         email="admin-coverage@example.com",

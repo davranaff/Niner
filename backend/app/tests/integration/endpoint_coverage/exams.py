@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from sqlalchemy import select
+
 from app.db.models import (
     ListeningPart,
     ListeningQuestion,
@@ -11,6 +13,7 @@ from app.db.models import (
     ReadingQuestionAnswer,
     ReadingQuestionBlock,
     ReadingTest,
+    WritingExamPart,
     WritingPart,
     WritingTest,
 )
@@ -162,14 +165,86 @@ async def cover_exam_flows(ctx: CoverageContext) -> None:
         f"/api/v1/exams/writing/{ctx.ids['writing_exam_id']}/start",
         headers=student_headers,
     )
-    writing_submit_resp = await ctx.hit(
+    await ctx.hit(
         "POST",
         "/api/v1/exams/writing/{exam_id}/submit",
         f"/api/v1/exams/writing/{ctx.ids['writing_exam_id']}/submit",
         headers=student_headers,
         json=[{"part_id": write_exam_part.id, "essay": "Essay text"}],
     )
-    ctx.ids["writing_exam_part_id"] = writing_submit_resp.json()["answers"][0]["id"]
+
+    writing_exam_part_id = (
+        await ctx.db_session.execute(
+            select(WritingExamPart.id).where(WritingExamPart.exam_id == ctx.ids["writing_exam_id"])
+        )
+    ).scalar_one()
+    ctx.ids["writing_exam_part_id"] = int(writing_exam_part_id)
+
+    await ctx.hit(
+        "GET",
+        "/api/v1/exams/{kind}/{exam_id}/result",
+        f"/api/v1/exams/reading/{ctx.ids['reading_exam_id']}/result",
+        headers=student_headers,
+    )
+
+    await ctx.hit(
+        "GET",
+        "/api/v1/exams/my-tests",
+        "/api/v1/exams/my-tests?limit=20&offset=0",
+        headers=student_headers,
+    )
+    await ctx.hit(
+        "GET",
+        "/api/v1/exams/my-tests",
+        f"/api/v1/exams/my-tests?module=listening&test_id={listen_exam_test.id}&limit=20&offset=0",
+        headers=student_headers,
+    )
+
+    overall_start_resp = await ctx.hit(
+        "POST",
+        "/api/v1/exams/overall/start",
+        "/api/v1/exams/overall/start",
+        headers=student_headers,
+    )
+    overall_payload = overall_start_resp.json()
+    overall_id = int(overall_payload["id"])
+    overall_listening_exam_id = int(overall_payload["listening_exam_id"])
+    ctx.ids["overall_exam_id"] = overall_id
+
+    await ctx.hit(
+        "GET",
+        "/api/v1/exams/overall/{overall_id}",
+        f"/api/v1/exams/overall/{overall_id}",
+        headers=student_headers,
+    )
+
+    await ctx.hit(
+        "POST",
+        "/api/v1/exams/listening/{exam_id}/submit",
+        f"/api/v1/exams/listening/{overall_listening_exam_id}/submit",
+        headers=student_headers,
+        json=[{"id": listen_exam_question.id, "value": "listen"}],
+    )
+
+    await ctx.hit(
+        "POST",
+        "/api/v1/exams/overall/{overall_id}/continue",
+        f"/api/v1/exams/overall/{overall_id}/continue",
+        headers=student_headers,
+    )
+
+    await ctx.hit(
+        "GET",
+        "/api/v1/exams/overall/{overall_id}/result",
+        f"/api/v1/exams/overall/{overall_id}/result",
+        headers=student_headers,
+    )
+    await ctx.hit(
+        "GET",
+        "/api/v1/exams/overall/my-tests",
+        "/api/v1/exams/overall/my-tests?limit=20&offset=0",
+        headers=student_headers,
+    )
 
     await ctx.hit("GET", "/api/v1/exams/me", "/api/v1/exams/me", headers=student_headers)
 

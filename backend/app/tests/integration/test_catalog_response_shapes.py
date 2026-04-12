@@ -214,6 +214,7 @@ async def test_reading_listening_writing_detail_response_shapes(client, db_sessi
     assert listening_mc["answer_spec"]["answer_type"] == "single_choice"
     assert listening_mc["answer_spec"]["input_variant"] == "radio"
     assert listening_mc["questions"][0]["options"]
+    assert "is_correct" not in listening_mc["questions"][0]["options"][0]
 
     listening_table = listening_payload["parts"][1]["question_blocks"][0]
     assert listening_table["answer_spec"]["answer_type"] == "text_input"

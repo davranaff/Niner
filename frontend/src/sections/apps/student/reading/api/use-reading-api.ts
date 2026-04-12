@@ -5,6 +5,7 @@ import { useFetch, useMutate } from 'src/hooks/api';
 
 import {
   createReadingExam,
+  fetchReadingExamResult,
   fetchMyReadingExams,
   fetchReadingDetail,
   fetchReadingList,
@@ -128,7 +129,18 @@ export function useStartReadingFlowMutation() {
 
 export function useSubmitReadingExamMutation() {
   return useMutate(
-    async ({ examId, answers }: { examId: number; answers: ReadingSubmitAnswerInput[] }) =>
-      submitReadingExam(examId, answers)
+    async ({
+      examId,
+      answers,
+      finishReason,
+    }: {
+      examId: number;
+      answers: ReadingSubmitAnswerInput[];
+      finishReason?: 'left' | 'time_is_up';
+    }) => submitReadingExam(examId, answers, finishReason)
   );
+}
+
+export function useReadingExamResultMutation() {
+  return useMutate((examId: number) => fetchReadingExamResult(examId));
 }

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
@@ -19,6 +20,7 @@ import {
   SessionLoadingState,
 } from 'src/pages/components/apps/session';
 import { useSessionCountdown } from 'src/hooks/apps';
+import { useExamIntegrityGuard } from 'src/sections/apps/student/module-test/session/use-exam-integrity-guard';
 import {
   decreaseFontScale,
   formatSessionTimer,
@@ -29,6 +31,7 @@ import {
 import { ReadingPassageTabs, ReadingSessionQuestionList } from '../components';
 import {
   useMyReadingExamsQuery,
+  useReadingExamResultMutation,
   useReadingDetailQuery,
   useStartReadingFlowMutation,
   useSubmitReadingExamMutation,
@@ -63,13 +66,17 @@ export default function AppsReadingSessionView() {
   const { tx } = useLocales();
   const router = useRouter();
   const params = useParams();
+  const [searchParams] = useSearchParams();
 
   const testId = Number(params.testId || 0);
+  const overallId = Number(searchParams.get('overallId') || 0);
+  const preferredExamId = Number(searchParams.get('examId') || 0);
 
   const detailQuery = useReadingDetailQuery(testId, testId > 0);
   const examsQuery = useMyReadingExamsQuery({ enabled: testId > 0 });
   const startReadingFlowMutation = useStartReadingFlowMutation();
   const submitReadingExamMutation = useSubmitReadingExamMutation();
+  const readingExamResultMutation = useReadingExamResultMutation();
   const { values: sessionQuery, setValues: setSessionQuery } =
     useUrlQueryState(readingSessionQuerySchema);
 
@@ -81,9 +88,12 @@ export default function AppsReadingSessionView() {
   const [activeExamId, setActiveExamId] = useState<number | null>(null);
   const [activeExamStartedAt, setActiveExamStartedAt] = useState<string | null>(null);
   const [timeoutPromptShown, setTimeoutPromptShown] = useState(false);
+  const [leaveWarningOpen, setLeaveWarningOpen] = useState(false);
 
   const bootstrapTestRef = useRef<number | null>(null);
   const questionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const allowExitRef = useRef(false);
+  const finalizingRef = useRef(false);
 
   const detail = detailQuery.data;
   const questions = useMemo(() => (detail ? flattenReadingQuestions(detail) : []), [detail]);
@@ -113,9 +123,17 @@ export default function AppsReadingSessionView() {
     startReadingFlowMutation
       .mutateAsync({
         testId,
-        examId: storedActiveExamId ?? latestActiveExam?.id,
+        examId:
+          (preferredExamId > 0 ? preferredExamId : null) ??
+          storedActiveExamId ??
+          latestActiveExam?.id,
       })
       .then((exam) => {
+        if (overallId > 0 && exam.status === 'completed') {
+          router.replace(paths.ielts.overallExamSession(String(overallId)));
+          return;
+        }
+
         setActiveExamId(exam.id);
         setActiveExamStartedAt(exam.startedAt);
         setReadingActiveExam(testId, exam.id);
@@ -127,7 +145,16 @@ export default function AppsReadingSessionView() {
       .catch(() => {
         bootstrapTestRef.current = null;
       });
-  }, [detail, examItems, examsQuery.isLoading, startReadingFlowMutation, testId]);
+  }, [
+    detail,
+    examItems,
+    examsQuery.isLoading,
+    overallId,
+    preferredExamId,
+    router,
+    startReadingFlowMutation,
+    testId,
+  ]);
 
   const selectedPassage =
     readingPassages.find((item) => item.passageNumber === selectedPassageNumber) ??
@@ -186,14 +213,90 @@ export default function AppsReadingSessionView() {
     onTick: setRemainingTimeSec,
   });
 
+  const finalizeReadingExam = useCallback(
+    async ({ finishReason }: { finishReason?: 'left' | 'time_is_up' } = {}) => {
+      if (!detail || !activeExamId || finalizingRef.current) {
+        return;
+      }
+
+      finalizingRef.current = true;
+      allowExitRef.current = true;
+      setSubmitDialogOpen(false);
+
+      const finishedAt = new Date().toISOString();
+      const startedAt = activeExamStartedAt ?? finishedAt;
+
+      try {
+        const submitResult = await submitReadingExamMutation.mutateAsync({
+          examId: activeExamId,
+          answers: buildReadingSubmitPayload(detail, answers),
+          finishReason,
+        });
+        const canonicalResult = await readingExamResultMutation
+          .mutateAsync(activeExamId)
+          .catch(() => submitResult);
+
+        setReadingStoredResult(
+          toReadingStoredResult({
+            exam: {
+              id: activeExamId,
+              userId: 0,
+              startedAt,
+              finishedAt,
+              finishReason: finishReason ?? null,
+              testId,
+              kind: 'reading',
+              status: 'completed',
+            },
+            detail,
+            submitResult: canonicalResult,
+            finishedAt,
+          })
+        );
+
+        clearReadingActiveExam(testId);
+        clearReadingDraftAnswers(activeExamId);
+        if (overallId > 0) {
+          router.replace(paths.ielts.overallExamSession(String(overallId)));
+        } else {
+          router.replace(paths.ielts.readingAttempt(String(activeExamId)));
+        }
+      } catch {
+        finalizingRef.current = false;
+        allowExitRef.current = false;
+      }
+    },
+    [
+      activeExamId,
+      activeExamStartedAt,
+      answers,
+      detail,
+      overallId,
+      readingExamResultMutation,
+      router,
+      submitReadingExamMutation,
+      testId,
+    ]
+  );
+
+  useExamIntegrityGuard({
+    enabled: Boolean(activeExamId),
+    allowExitRef,
+    blockClipboard: true,
+    onViolation: () => {
+      setSubmitDialogOpen(false);
+      setLeaveWarningOpen(true);
+    },
+  });
+
   useEffect(() => {
     if (remainingTimeSec !== 0 || timeoutPromptShown) {
       return;
     }
 
     setTimeoutPromptShown(true);
-    setSubmitDialogOpen(true);
-  }, [remainingTimeSec, timeoutPromptShown]);
+    finalizeReadingExam({ finishReason: 'time_is_up' }).catch(() => {});
+  }, [finalizeReadingExam, remainingTimeSec, timeoutPromptShown]);
 
   const passageParagraphs = getPassageParagraphs(selectedPassage?.content);
   const answeredCount = useMemo(
@@ -251,46 +354,13 @@ export default function AppsReadingSessionView() {
   }, []);
 
   const handleSubmit = useCallback(async () => {
-    if (!detail || !activeExamId || !activeExamStartedAt) {
-      return;
-    }
+    await finalizeReadingExam();
+  }, [finalizeReadingExam]);
 
-    const finishedAt = new Date().toISOString();
-    const submitResult = await submitReadingExamMutation.mutateAsync({
-      examId: activeExamId,
-      answers: buildReadingSubmitPayload(detail, answers),
-    });
-
-    setReadingStoredResult(
-      toReadingStoredResult({
-        exam: {
-          id: activeExamId,
-          userId: 0,
-          startedAt: activeExamStartedAt,
-          finishedAt,
-          finishReason: null,
-          testId,
-          kind: 'reading',
-          status: 'completed',
-        },
-        detail,
-        submitResult,
-        finishedAt,
-      })
-    );
-
-    clearReadingActiveExam(testId);
-    clearReadingDraftAnswers(activeExamId);
-    router.replace(paths.ielts.readingAttempt(String(activeExamId)));
-  }, [
-    activeExamId,
-    activeExamStartedAt,
-    answers,
-    detail,
-    router,
-    submitReadingExamMutation,
-    testId,
-  ]);
+  const handleFinishAfterLeaveWarning = useCallback(async () => {
+    setLeaveWarningOpen(false);
+    await finalizeReadingExam({ finishReason: 'left' });
+  }, [finalizeReadingExam]);
 
   if (detailQuery.isLoading || !detail || startReadingFlowMutation.isPending || !activeExamId) {
     return <SessionLoadingState />;
@@ -436,6 +506,18 @@ export default function AppsReadingSessionView() {
               </Alert>
             ) : null}
 
+            <Alert
+              severity="info"
+              sx={{
+                py: 0,
+                '& .MuiAlert-icon, & .MuiAlert-message': {
+                  py: 0.5,
+                },
+              }}
+            >
+              {tx('pages.ielts.shared.exam_strict_mode_notice')}
+            </Alert>
+
             {missingChoiceQuestions.length ? (
               <Alert
                 severity="info"
@@ -490,10 +572,31 @@ export default function AppsReadingSessionView() {
             variant="contained"
             color="error"
             loading={submitReadingExamMutation.isPending}
-            disabled={missingChoiceQuestions.length > 0}
             onClick={handleSubmit}
           >
             {tx('pages.ielts.shared.submit_test')}
+          </LoadingButton>
+        }
+      />
+
+      <ConfirmDialog
+        open={leaveWarningOpen}
+        onClose={() => setLeaveWarningOpen(false)}
+        title={tx('pages.ielts.shared.leave_warning_title')}
+        cancelText={tx('pages.ielts.shared.leave_warning_close')}
+        content={
+          <Typography variant="body2">
+            {tx('pages.ielts.shared.leave_warning_description')}
+          </Typography>
+        }
+        action={
+          <LoadingButton
+            variant="contained"
+            color="error"
+            loading={submitReadingExamMutation.isPending}
+            onClick={handleFinishAfterLeaveWarning}
+          >
+            {tx('pages.ielts.shared.leave_warning_finish')}
           </LoadingButton>
         }
       />

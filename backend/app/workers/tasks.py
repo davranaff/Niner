@@ -315,6 +315,7 @@ async def generate_module_summary(ctx: dict, summary_id: int) -> None:
                 attempts_limit=summary.attempts_limit,
                 lang=summary.lang,
                 on_token=on_token,
+                exam_id=summary.exam_id,
             )
 
             summary.result_json = payload

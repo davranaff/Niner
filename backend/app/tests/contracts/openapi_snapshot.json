@@ -25,6 +25,7 @@
     "/api/v1/exams/writing": ["post"],
     "/api/v1/exams/writing/{exam_id}/start": ["post"],
     "/api/v1/exams/writing/{exam_id}/submit": ["post"],
+    "/api/v1/exams/{kind}/{exam_id}/result": ["get"],
     "/api/v1/exams/me": ["get"],
     "/api/v1/profile": ["get", "patch"],
     "/api/v1/progress": ["get", "post"],

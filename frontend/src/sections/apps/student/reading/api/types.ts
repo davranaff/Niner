@@ -21,6 +21,9 @@ export type BackendReadingListItem = {
   timeLimit: number;
   isActive: boolean;
   createdAt: string;
+  attemptsCount: number;
+  successfulAttemptsCount: number;
+  failedAttemptsCount: number;
 };
 
 export type ReadingListItem = {
@@ -31,6 +34,9 @@ export type ReadingListItem = {
   durationMinutes: number;
   isActive: boolean;
   createdAt: string;
+  attemptsCount: number;
+  successfulAttemptsCount: number;
+  failedAttemptsCount: number;
 };
 
 export type ReadingListPage = {
@@ -196,17 +202,10 @@ export type ReadingSubmitAnswerInput = {
   value: string;
 };
 
-export type BackendReadingSubmitAnswer = {
-  id: number;
-  question: number;
-  userAnswer: string;
-  correctAnswer: string;
-  isCorrect: boolean;
-  questionNumber: number | null;
-};
+export type BackendExamResultStatus = 'success' | 'failed' | 'in_progress';
 
 export type BackendReadingSubmitResult = {
-  answers: BackendReadingSubmitAnswer[];
+  result: BackendExamResultStatus;
   score: number | null;
   correctAnswers: number | null;
   timeSpent: number | null;
@@ -244,10 +243,11 @@ export type ReadingStoredResult = {
   testTitle: string;
   testDescription: string;
   submittedAt: string;
+  result: BackendExamResultStatus;
   finishReason: string | null;
   score: number | null;
   correctAnswers: number;
   totalQuestions: number;
   timeSpent: number | null;
-  answers: ReadingStoredResultAnswer[];
+  answers?: ReadingStoredResultAnswer[];
 };

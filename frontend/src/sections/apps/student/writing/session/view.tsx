@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
@@ -19,6 +20,7 @@ import {
   SessionLoadingState,
 } from 'src/pages/components/apps/session';
 import { useSessionCountdown } from 'src/hooks/apps';
+import { useExamIntegrityGuard } from 'src/sections/apps/student/module-test/session/use-exam-integrity-guard';
 import {
   decreaseFontScale,
   formatSessionTimer,
@@ -31,6 +33,7 @@ import {
   useStartWritingFlowMutation,
   useSubmitWritingExamMutation,
   useWritingDetailQuery,
+  useWritingExamResultMutation,
 } from '../api/use-writing-api';
 import {
   buildWritingSubmitPayload,
@@ -60,13 +63,17 @@ export default function AppsWritingSessionView() {
   const { tx } = useLocales();
   const router = useRouter();
   const params = useParams();
+  const [searchParams] = useSearchParams();
 
   const testId = Number(params.testId || 0);
+  const overallId = Number(searchParams.get('overallId') || 0);
+  const preferredExamId = Number(searchParams.get('examId') || 0);
 
   const detailQuery = useWritingDetailQuery(testId, testId > 0);
   const examsQuery = useMyWritingExamsQuery({ enabled: testId > 0 });
   const startWritingFlowMutation = useStartWritingFlowMutation();
   const submitWritingExamMutation = useSubmitWritingExamMutation();
+  const writingExamResultMutation = useWritingExamResultMutation();
   const { values: sessionQuery, setValues: setSessionQuery } =
     useUrlQueryState(writingSessionQuerySchema);
 
@@ -77,8 +84,11 @@ export default function AppsWritingSessionView() {
   const [activeExamId, setActiveExamId] = useState<number | null>(null);
   const [activeExamStartedAt, setActiveExamStartedAt] = useState<string | null>(null);
   const [timeoutPromptShown, setTimeoutPromptShown] = useState(false);
+  const [leaveWarningOpen, setLeaveWarningOpen] = useState(false);
 
   const bootstrapTestRef = useRef<number | null>(null);
+  const allowExitRef = useRef(false);
+  const finalizingRef = useRef(false);
 
   const detail = detailQuery.data;
   const examItems = useMemo(() => examsQuery.data?.items ?? [], [examsQuery.data]);
@@ -104,9 +114,17 @@ export default function AppsWritingSessionView() {
     startWritingFlowMutation
       .mutateAsync({
         testId,
-        examId: storedActiveExamId ?? latestActiveExam?.id,
+        examId:
+          (preferredExamId > 0 ? preferredExamId : null) ??
+          storedActiveExamId ??
+          latestActiveExam?.id,
       })
       .then((exam) => {
+        if (overallId > 0 && exam.status === 'completed') {
+          router.replace(paths.ielts.overallExamSession(String(overallId)));
+          return;
+        }
+
         setActiveExamId(exam.id);
         setActiveExamStartedAt(exam.startedAt);
         setWritingActiveExam(testId, exam.id);
@@ -118,7 +136,16 @@ export default function AppsWritingSessionView() {
       .catch(() => {
         bootstrapTestRef.current = null;
       });
-  }, [detail, examItems, examsQuery.isLoading, startWritingFlowMutation, testId]);
+  }, [
+    detail,
+    examItems,
+    examsQuery.isLoading,
+    overallId,
+    preferredExamId,
+    router,
+    startWritingFlowMutation,
+    testId,
+  ]);
 
   const selectedPart =
     writingParts.find((item) => item.order === selectedTaskOrder) ?? writingParts[0] ?? null;
@@ -147,14 +174,92 @@ export default function AppsWritingSessionView() {
     onTick: setRemainingTimeSec,
   });
 
+  const finalizeWritingExam = useCallback(
+    async ({ finishReason }: { finishReason?: 'left' | 'time_is_up' } = {}) => {
+      if (!detail || !activeExamId || finalizingRef.current) {
+        return;
+      }
+
+      finalizingRef.current = true;
+      allowExitRef.current = true;
+      setSubmitDialogOpen(false);
+
+      const finishedAt = new Date().toISOString();
+      const startedAt = activeExamStartedAt ?? finishedAt;
+      const submittedParts = buildWritingSubmitPayload(detail, responses);
+
+      try {
+        const submitResult = await submitWritingExamMutation.mutateAsync({
+          examId: activeExamId,
+          parts: submittedParts,
+          finishReason,
+        });
+        const canonicalResult = await writingExamResultMutation
+          .mutateAsync(activeExamId)
+          .catch(() => submitResult);
+
+        setWritingStoredResult(
+          toWritingStoredResult({
+            exam: {
+              id: activeExamId,
+              userId: 0,
+              startedAt,
+              finishedAt,
+              finishReason: finishReason ?? null,
+              testId,
+              kind: 'writing',
+              status: 'completed',
+            },
+            detail,
+            submitResult: canonicalResult,
+            submittedParts,
+            finishedAt,
+          })
+        );
+
+        clearWritingActiveExam(testId);
+        clearWritingDraftResponses(activeExamId);
+        if (overallId > 0) {
+          router.replace(paths.ielts.overallExamSession(String(overallId)));
+        } else {
+          router.replace(paths.ielts.writingAttempt(String(activeExamId)));
+        }
+      } catch {
+        finalizingRef.current = false;
+        allowExitRef.current = false;
+      }
+    },
+    [
+      activeExamId,
+      activeExamStartedAt,
+      detail,
+      overallId,
+      responses,
+      router,
+      submitWritingExamMutation,
+      testId,
+      writingExamResultMutation,
+    ]
+  );
+
+  useExamIntegrityGuard({
+    enabled: Boolean(activeExamId),
+    allowExitRef,
+    blockClipboard: true,
+    onViolation: () => {
+      setSubmitDialogOpen(false);
+      setLeaveWarningOpen(true);
+    },
+  });
+
   useEffect(() => {
     if (remainingTimeSec !== 0 || timeoutPromptShown) {
       return;
     }
 
     setTimeoutPromptShown(true);
-    setSubmitDialogOpen(true);
-  }, [remainingTimeSec, timeoutPromptShown]);
+    finalizeWritingExam({ finishReason: 'time_is_up' }).catch(() => {});
+  }, [finalizeWritingExam, remainingTimeSec, timeoutPromptShown]);
 
   const completedTasks = useMemo(
     () => countCompletedWritingTasks(writingParts, responses),
@@ -184,46 +289,13 @@ export default function AppsWritingSessionView() {
   }, []);
 
   const handleSubmit = useCallback(async () => {
-    if (!detail || !activeExamId || !activeExamStartedAt) {
-      return;
-    }
+    await finalizeWritingExam();
+  }, [finalizeWritingExam]);
 
-    const finishedAt = new Date().toISOString();
-    const submitResult = await submitWritingExamMutation.mutateAsync({
-      examId: activeExamId,
-      parts: buildWritingSubmitPayload(detail, responses),
-    });
-
-    setWritingStoredResult(
-      toWritingStoredResult({
-        exam: {
-          id: activeExamId,
-          userId: 0,
-          startedAt: activeExamStartedAt,
-          finishedAt,
-          finishReason: null,
-          testId,
-          kind: 'writing',
-          status: 'completed',
-        },
-        detail,
-        submitResult,
-        finishedAt,
-      })
-    );
-
-    clearWritingActiveExam(testId);
-    clearWritingDraftResponses(activeExamId);
-    router.replace(paths.ielts.writingAttempt(String(activeExamId)));
-  }, [
-    activeExamId,
-    activeExamStartedAt,
-    detail,
-    responses,
-    router,
-    submitWritingExamMutation,
-    testId,
-  ]);
+  const handleFinishAfterLeaveWarning = useCallback(async () => {
+    setLeaveWarningOpen(false);
+    await finalizeWritingExam({ finishReason: 'left' });
+  }, [finalizeWritingExam]);
 
   if (detailQuery.isLoading || !detail || startWritingFlowMutation.isPending || !activeExamId) {
     return <SessionLoadingState />;
@@ -258,6 +330,8 @@ export default function AppsWritingSessionView() {
           {remainingTimeSec === 0 ? (
             <Alert severity="warning">{tx('pages.ielts.shared.time_is_up_notice')}</Alert>
           ) : null}
+
+          <Alert severity="info">{tx('pages.ielts.shared.exam_strict_mode_notice')}</Alert>
 
           {missingParts.length ? (
             <Alert severity="info">
@@ -414,10 +488,31 @@ export default function AppsWritingSessionView() {
             variant="contained"
             color="error"
             loading={submitWritingExamMutation.isPending}
-            disabled={missingParts.length > 0}
             onClick={handleSubmit}
           >
             {tx('pages.ielts.shared.submit_test')}
+          </LoadingButton>
+        }
+      />
+
+      <ConfirmDialog
+        open={leaveWarningOpen}
+        onClose={() => setLeaveWarningOpen(false)}
+        title={tx('pages.ielts.shared.leave_warning_title')}
+        cancelText={tx('pages.ielts.shared.leave_warning_close')}
+        content={
+          <Typography variant="body2">
+            {tx('pages.ielts.shared.leave_warning_description')}
+          </Typography>
+        }
+        action={
+          <LoadingButton
+            variant="contained"
+            color="error"
+            loading={submitWritingExamMutation.isPending}
+            onClick={handleFinishAfterLeaveWarning}
+          >
+            {tx('pages.ielts.shared.leave_warning_finish')}
           </LoadingButton>
         }
       />

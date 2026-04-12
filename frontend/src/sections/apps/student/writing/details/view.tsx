@@ -1,20 +1,24 @@
-import { useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 
 import Alert from '@mui/material/Alert';
 import Card from '@mui/material/Card';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
+import ButtonBase from '@mui/material/ButtonBase';
 import Container from '@mui/material/Container';
 import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
+import { alpha } from '@mui/material/styles';
 
 import { useLocales } from 'src/locales';
 import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
 import { useParams, useRouter } from 'src/routes/hook';
-import { fDate } from 'src/utils/format-time';
-import { AppsPageHeader, InsightListCard, MetricCard } from 'src/pages/components/apps';
+import { fDate, fDateTime } from 'src/utils/format-time';
+import { AppsPageHeader, AppsStatusChip, InsightListCard, MetricCard } from 'src/pages/components/apps';
+import { toModuleAttemptHistoryItems } from 'src/sections/apps/common/module-test/utils/attempt-history';
 
 import {
   findLatestStoredWritingResultForTest,
@@ -47,7 +51,7 @@ export default function AppsWritingDetailsView() {
   const startWritingFlowMutation = useStartWritingFlowMutation();
 
   const detail = detailQuery.data;
-  const exams = examsQuery.data?.items ?? [];
+  const exams = useMemo(() => examsQuery.data?.items ?? [], [examsQuery.data?.items]);
   const storedActiveExamId = getWritingActiveExamId(testId);
   const latestActiveExam =
     findLatestUnfinishedWritingExamForTest(testId, exams) ?? null;
@@ -55,6 +59,10 @@ export default function AppsWritingDetailsView() {
   const latestStoredResult = findLatestStoredWritingResultForTest(testId);
   const writingParts = detail ? getWritingParts(detail) : [];
   const totalTasks = detail ? getWritingTaskCount(detail) : 0;
+  const attemptHistoryItems = useMemo(
+    () => toModuleAttemptHistoryItems('writing', exams, testId),
+    [exams, testId]
+  );
 
   let statusAlert: ReactNode = null;
 
@@ -172,6 +180,59 @@ export default function AppsWritingDetailsView() {
               </Stack>
             </Stack>
           </Card>
+
+          {attemptHistoryItems.length > 0 ? (
+            <Card variant="outlined" sx={{ p: 3, mb: 3 }}>
+              <Stack spacing={1.25}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                  {tx('pages.ielts.shared.attempt_history')} ({attemptHistoryItems.length})
+                </Typography>
+
+                <Stack spacing={0.9}>
+                  {attemptHistoryItems.map((attempt) => (
+                    <ButtonBase
+                      key={attempt.id}
+                      component={RouterLink}
+                      href={paths.ielts.writingAttempt(String(attempt.id))}
+                      sx={{ width: 1, borderRadius: 1, textAlign: 'left' }}
+                    >
+                      <Card
+                        variant="outlined"
+                        sx={(theme) => ({
+                          width: 1,
+                          p: 1.25,
+                          borderStyle: 'dashed',
+                          transition: theme.transitions.create(['border-color', 'background-color'], {
+                            duration: theme.transitions.duration.shorter,
+                          }),
+                          '&:hover': {
+                            borderColor: alpha(theme.palette.primary.main, 0.38),
+                            bgcolor: alpha(theme.palette.primary.main, 0.04),
+                          },
+                        })}
+                      >
+                        <Stack direction="row" spacing={1.25} alignItems="center" justifyContent="space-between">
+                          <Stack spacing={0.25}>
+                            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                              ID #{attempt.id}
+                            </Typography>
+                            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                              {tx('pages.ielts.shared.updated')}:{' '}
+                              {attempt.updatedAt ? fDateTime(attempt.updatedAt) : '-'}
+                            </Typography>
+                          </Stack>
+                          <AppsStatusChip
+                            status={attempt.status}
+                            label={tx(`pages.ielts.shared.status_${attempt.status}`)}
+                          />
+                        </Stack>
+                      </Card>
+                    </ButtonBase>
+                  ))}
+                </Stack>
+              </Stack>
+            </Card>
+          ) : null}
         </Grid>
 
         <Grid item xs={12} md={4}>

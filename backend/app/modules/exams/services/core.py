@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from decimal import ROUND_HALF_UP, Decimal
 from typing import Any, Literal
 
@@ -15,6 +15,7 @@ from app.db.models import (
     ListeningExam,
     ListeningExamQuestionAnswer,
     ListeningQuestion,
+    OverallExam,
     ReadingExam,
     ReadingExamQuestionAnswer,
     ReadingQuestion,
@@ -30,14 +31,19 @@ from app.modules.exams.services.validation import (
     validate_reading_submit_payload,
     validate_writing_submit_payload,
 )
-from app.modules.listening.service import question_numbering as listening_question_numbering
-from app.modules.reading.service import question_numbering as reading_question_numbering
 from app.workers.queue import enqueue_writing_evaluation
 
 logger = logging.getLogger(__name__)
 
 ExamKind = Literal["reading", "listening", "writing"]
 ExamAttemptStatus = Literal["in_progress", "completed", "terminated"]
+ExamResultStatus = Literal["success", "failed", "in_progress"]
+SubmitFinishReasonOverride = Literal["left", "time_is_up"]
+OverallModuleKind = Literal["listening", "reading", "writing"]
+OverallExamStatus = Literal["in_progress", "completed", "terminated"]
+OverallExamPhase = Literal["module", "break", "completed", "terminated"]
+OverallExamResultStatus = Literal["in_progress", "success", "failed"]
+OverallModuleAttemptStatus = Literal["not_started", "in_progress", "completed", "terminated"]
 
 DEFAULT_STUDENT_ATTEMPTS_ORDERING = "-updated_at"
 ALLOWED_STUDENT_ATTEMPTS_ORDERING = {
@@ -54,6 +60,20 @@ ALLOWED_STUDENT_ATTEMPTS_ORDERING = {
     "estimated_band",
     "-estimated_band",
 }
+DEFAULT_OVERALL_ATTEMPTS_ORDERING = "-updated_at"
+ALLOWED_OVERALL_ATTEMPTS_ORDERING = {
+    "created_at",
+    "-created_at",
+    "updated_at",
+    "-updated_at",
+    "started_at",
+    "-started_at",
+    "finished_at",
+    "-finished_at",
+    "overall_band",
+    "-overall_band",
+}
+BREAK_DURATION_SECONDS = 300
 
 
 def _calculate_elapsed_seconds(started_at: datetime | None, finished_at: datetime | None) -> int | None:
@@ -68,17 +88,14 @@ def _calculate_elapsed_seconds(started_at: datetime | None, finished_at: datetim
     return max(elapsed, 0)
 
 
-def _calculate_time_spent_seconds(
-    started_at: datetime | None,
-    finished_at: datetime | None,
-) -> int | None:
-    elapsed_seconds = _calculate_elapsed_seconds(started_at, finished_at)
-    if elapsed_seconds is None:
-        return None
-    return elapsed_seconds
-
-
-def _resolve_finish_reason(elapsed_seconds: int | None, limit_seconds: int) -> FinishReasonEnum:
+def _resolve_finish_reason(
+    elapsed_seconds: int | None,
+    limit_seconds: int,
+    *,
+    forced_reason: FinishReasonEnum | None = None,
+) -> FinishReasonEnum:
+    if forced_reason is not None:
+        return forced_reason
     if elapsed_seconds is not None and elapsed_seconds >= limit_seconds:
         return FinishReasonEnum.time_is_up
     return FinishReasonEnum.completed
@@ -138,6 +155,50 @@ def _resolve_attempt_status(exam: Any) -> ExamAttemptStatus:
     return "completed"
 
 
+def _resolve_exam_result_status(exam: Any) -> ExamResultStatus:
+    if exam.finished_at is None:
+        return "in_progress"
+    if exam.finish_reason == FinishReasonEnum.completed:
+        return "success"
+    return "failed"
+
+
+def _calculate_result_time_spent_seconds(
+    started_at: datetime | None,
+    finished_at: datetime | None,
+) -> int | None:
+    if started_at is None:
+        return None
+    effective_finished_at = finished_at or datetime.now(UTC)
+    return _calculate_elapsed_seconds(started_at, effective_finished_at)
+
+
+def _serialize_objective_exam_result(
+    exam: ReadingExam | ListeningExam,
+    question_answers: list[ReadingExamQuestionAnswer | ListeningExamQuestionAnswer],
+) -> dict[str, Any]:
+    result = _resolve_exam_result_status(exam)
+    correct_count = sum(1 for answer in question_answers if answer.is_correct)
+    has_answers = bool(question_answers)
+
+    score = reading_band_score(correct_count) if (has_answers or result != "in_progress") else None
+    return {
+        "result": result,
+        "score": score,
+        "correct_answers": correct_count,
+        "time_spent": _calculate_result_time_spent_seconds(exam.started_at, exam.finished_at),
+    }
+
+
+def _serialize_writing_exam_result(exam: WritingExam) -> dict[str, Any]:
+    return {
+        "result": _resolve_exam_result_status(exam),
+        "score": _calculate_writing_estimated_band(exam.writing_parts),
+        "correct_answers": None,
+        "time_spent": _calculate_result_time_spent_seconds(exam.started_at, exam.finished_at),
+    }
+
+
 def _calculate_reading_or_listening_estimated_band(question_answers: list[Any]) -> float | None:
     if not question_answers:
         return None
@@ -156,6 +217,28 @@ def _calculate_writing_estimated_band(parts: list[WritingExamPart]) -> float | N
     total = sum((Decimal(str(part.score)) for part in submitted_parts), Decimal("0.0"))
     average = (total / Decimal(len(submitted_parts))).quantize(Decimal("0.1"), rounding=ROUND_HALF_UP)
     return float(average)
+
+
+async def _ensure_auto_summary_for_exam(
+    db: AsyncSession,
+    *,
+    user: User,
+    module: AiSummaryModuleEnum,
+    exam_id: int,
+) -> None:
+    try:
+        await create_auto_summary(
+            db,
+            user=user,
+            module=module,
+            exam_id=exam_id,
+            attempts_limit=1,
+        )
+    except Exception:  # noqa: BLE001
+        logger.exception(
+            "Failed to create AI summary job",
+            extra={"exam_id": exam_id, "summary_module": module.value},
+        )
 
 
 def _serialize_student_attempt_item(kind: ExamKind, exam: Any) -> dict[str, Any]:
@@ -213,14 +296,285 @@ def _sort_student_attempts(
     null_items = [item for item in items if item.get(field) is None]
 
     if field in {"created_at", "updated_at", "started_at", "finished_at"}:
-        key_fn = lambda item: item[field]
+        def key_fn(item: dict[str, Any]) -> Any:
+            return item[field]
     elif field == "estimated_band":
-        key_fn = lambda item: float(item[field])
+        def key_fn(item: dict[str, Any]) -> Any:
+            return float(item[field])
     else:
-        key_fn = lambda item: str(item[field]).lower()
+        def key_fn(item: dict[str, Any]) -> Any:
+            return str(item[field]).lower()
 
     sorted_items = sorted(non_null_items, key=key_fn, reverse=reverse)
     return sorted_items + null_items
+
+
+def _resolve_overall_result_status(overall_exam: OverallExam) -> OverallExamResultStatus:
+    if overall_exam.status == "in_progress":
+        return "in_progress"
+    if overall_exam.status == "terminated":
+        return "failed"
+
+    linked_exams = [overall_exam.listening_exam, overall_exam.reading_exam, overall_exam.writing_exam]
+    if any(exam is None for exam in linked_exams):
+        return "failed"
+    if any(exam.finish_reason != FinishReasonEnum.completed for exam in linked_exams if exam is not None):
+        return "failed"
+    return "success"
+
+
+def _resolve_overall_module_status(exam: Any | None) -> OverallModuleAttemptStatus:
+    if exam is None:
+        return "not_started"
+    return _resolve_attempt_status(exam)
+
+
+def _serialize_overall_module_attempt(
+    module: OverallModuleKind,
+    *,
+    test_id: int,
+    test_title: str,
+    exam: Any | None,
+) -> dict[str, Any]:
+    if exam is None:
+        return {
+            "module": module,
+            "test_id": test_id,
+            "test_title": test_title,
+            "exam_id": None,
+            "status": "not_started",
+            "finish_reason": None,
+            "result": None,
+            "score": None,
+            "correct_answers": None,
+            "time_spent": None,
+            "started_at": None,
+            "finished_at": None,
+        }
+
+    if module in {"listening", "reading"}:
+        correct_answers = sum(1 for answer in exam.question_answers if answer.is_correct)
+        has_answers = bool(exam.question_answers)
+        score = reading_band_score(correct_answers) if (has_answers or exam.finished_at is not None) else None
+    else:
+        score = _calculate_writing_estimated_band(exam.writing_parts)
+        correct_answers = None
+
+    return {
+        "module": module,
+        "test_id": test_id,
+        "test_title": test_title,
+        "exam_id": exam.id,
+        "status": _resolve_overall_module_status(exam),
+        "finish_reason": exam.finish_reason.value if exam.finish_reason else None,
+        "result": _resolve_exam_result_status(exam),
+        "score": score,
+        "correct_answers": correct_answers,
+        "time_spent": _calculate_result_time_spent_seconds(exam.started_at, exam.finished_at),
+        "started_at": exam.started_at,
+        "finished_at": exam.finished_at,
+    }
+
+
+def _compute_break_remaining_seconds(overall_exam: OverallExam) -> int | None:
+    if overall_exam.phase != "break" or overall_exam.break_started_at is None:
+        return None
+    break_started_at = overall_exam.break_started_at
+    now = datetime.now(UTC)
+    if break_started_at.tzinfo is None:
+        now = now.replace(tzinfo=None)
+    deadline = break_started_at + timedelta(seconds=int(overall_exam.break_duration_seconds))
+    remaining = int((deadline - now).total_seconds())
+    return max(0, remaining)
+
+
+def _calculate_overall_band(overall_exam: OverallExam) -> tuple[float | None, bool]:
+    if overall_exam.writing_exam is None:
+        return (None, False)
+
+    listening_score = (
+        _calculate_reading_or_listening_estimated_band(overall_exam.listening_exam.question_answers)
+        if overall_exam.listening_exam is not None
+        else None
+    )
+    reading_score = (
+        _calculate_reading_or_listening_estimated_band(overall_exam.reading_exam.question_answers)
+        if overall_exam.reading_exam is not None
+        else None
+    )
+    writing_score = _calculate_writing_estimated_band(overall_exam.writing_exam.writing_parts)
+
+    if writing_score is None:
+        return (None, True)
+    if listening_score is None or reading_score is None:
+        return (None, False)
+
+    total = Decimal(str(listening_score)) + Decimal(str(reading_score)) + Decimal(str(writing_score))
+    average = (total / Decimal("3")).quantize(Decimal("0.1"), rounding=ROUND_HALF_UP)
+    return (float(average), False)
+
+
+def _serialize_overall_modules(overall_exam: OverallExam) -> list[dict[str, Any]]:
+    return [
+        _serialize_overall_module_attempt(
+            "listening",
+            test_id=overall_exam.listening_test_id,
+            test_title=overall_exam.listening_test.title,
+            exam=overall_exam.listening_exam,
+        ),
+        _serialize_overall_module_attempt(
+            "reading",
+            test_id=overall_exam.reading_test_id,
+            test_title=overall_exam.reading_test.title,
+            exam=overall_exam.reading_exam,
+        ),
+        _serialize_overall_module_attempt(
+            "writing",
+            test_id=overall_exam.writing_test_id,
+            test_title=overall_exam.writing_test.title,
+            exam=overall_exam.writing_exam,
+        ),
+    ]
+
+
+def _serialize_overall_exam_state(overall_exam: OverallExam) -> dict[str, Any]:
+    return {
+        "id": overall_exam.id,
+        "user_id": overall_exam.user_id,
+        "status": overall_exam.status,
+        "phase": overall_exam.phase,
+        "current_module": overall_exam.current_module,
+        "result": _resolve_overall_result_status(overall_exam),
+        "break_started_at": overall_exam.break_started_at,
+        "break_duration_seconds": int(overall_exam.break_duration_seconds),
+        "break_remaining_seconds": _compute_break_remaining_seconds(overall_exam),
+        "started_at": overall_exam.started_at,
+        "finished_at": overall_exam.finished_at,
+        "finish_reason": overall_exam.finish_reason.value if overall_exam.finish_reason else None,
+        "listening_test_id": overall_exam.listening_test_id,
+        "reading_test_id": overall_exam.reading_test_id,
+        "writing_test_id": overall_exam.writing_test_id,
+        "listening_exam_id": overall_exam.listening_exam_id,
+        "reading_exam_id": overall_exam.reading_exam_id,
+        "writing_exam_id": overall_exam.writing_exam_id,
+        "modules": _serialize_overall_modules(overall_exam),
+        "created_at": overall_exam.created_at,
+        "updated_at": overall_exam.updated_at,
+    }
+
+
+def _serialize_overall_exam_result(overall_exam: OverallExam) -> dict[str, Any]:
+    overall_band, overall_band_pending = _calculate_overall_band(overall_exam)
+    return {
+        "id": overall_exam.id,
+        "user_id": overall_exam.user_id,
+        "status": overall_exam.status,
+        "phase": overall_exam.phase,
+        "result": _resolve_overall_result_status(overall_exam),
+        "overall_band": overall_band,
+        "overall_band_pending": overall_band_pending,
+        "started_at": overall_exam.started_at,
+        "finished_at": overall_exam.finished_at,
+        "finish_reason": overall_exam.finish_reason.value if overall_exam.finish_reason else None,
+        "modules": _serialize_overall_modules(overall_exam),
+    }
+
+
+def _serialize_overall_exam_list_item(overall_exam: OverallExam) -> dict[str, Any]:
+    overall_band, overall_band_pending = _calculate_overall_band(overall_exam)
+    return {
+        "id": overall_exam.id,
+        "status": overall_exam.status,
+        "phase": overall_exam.phase,
+        "result": _resolve_overall_result_status(overall_exam),
+        "current_module": overall_exam.current_module,
+        "overall_band": overall_band,
+        "overall_band_pending": overall_band_pending,
+        "started_at": overall_exam.started_at,
+        "finished_at": overall_exam.finished_at,
+        "finish_reason": overall_exam.finish_reason.value if overall_exam.finish_reason else None,
+        "listening_test_id": overall_exam.listening_test_id,
+        "reading_test_id": overall_exam.reading_test_id,
+        "writing_test_id": overall_exam.writing_test_id,
+        "listening_exam_id": overall_exam.listening_exam_id,
+        "reading_exam_id": overall_exam.reading_exam_id,
+        "writing_exam_id": overall_exam.writing_exam_id,
+        "created_at": overall_exam.created_at,
+        "updated_at": overall_exam.updated_at,
+    }
+
+
+def _sort_overall_attempts(
+    items: list[dict[str, Any]],
+    ordering: str,
+) -> list[dict[str, Any]]:
+    normalized_ordering = (
+        ordering if ordering in ALLOWED_OVERALL_ATTEMPTS_ORDERING else DEFAULT_OVERALL_ATTEMPTS_ORDERING
+    )
+    reverse = normalized_ordering.startswith("-")
+    field = normalized_ordering[1:] if reverse else normalized_ordering
+
+    non_null_items = [item for item in items if item.get(field) is not None]
+    null_items = [item for item in items if item.get(field) is None]
+
+    if field in {"created_at", "updated_at", "started_at", "finished_at"}:
+
+        def key_fn(item: dict[str, Any]) -> Any:
+            return item[field]
+
+    else:
+
+        def key_fn(item: dict[str, Any]) -> Any:
+            return float(item[field])
+
+    sorted_items = sorted(non_null_items, key=key_fn, reverse=reverse)
+    return sorted_items + null_items
+
+
+async def _get_overall_exam_owned(db: AsyncSession, overall_id: int, user_id: int) -> OverallExam:
+    overall_exam = await repository.get_overall_exam_with_relations(db, overall_id)
+    if overall_exam is None:
+        raise ApiError(code="overall_exam_not_found", message="Overall exam not found", status_code=404)
+    if overall_exam.user_id != user_id:
+        raise ApiError(code="forbidden", message="Cannot access attempt owned by another user", status_code=403)
+    return overall_exam
+
+
+async def _apply_overall_transition_after_submit(
+    db: AsyncSession,
+    *,
+    module: OverallModuleKind,
+    exam_id: int,
+    finish_reason: FinishReasonEnum | None,
+    finished_at: datetime | None,
+) -> None:
+    overall_exam = await repository.get_in_progress_overall_by_module_exam(db, module=module, exam_id=exam_id)
+    if overall_exam is None:
+        return
+
+    if finish_reason == FinishReasonEnum.left:
+        overall_exam.status = "terminated"
+        overall_exam.phase = "terminated"
+        overall_exam.finished_at = finished_at or datetime.now(UTC)
+        overall_exam.finish_reason = FinishReasonEnum.left
+        overall_exam.break_started_at = None
+        await db.commit()
+        return
+
+    if module == "writing":
+        overall_exam.status = "completed"
+        overall_exam.phase = "completed"
+        overall_exam.current_module = "writing"
+        overall_exam.finished_at = finished_at or datetime.now(UTC)
+        overall_exam.finish_reason = FinishReasonEnum.completed
+        overall_exam.break_started_at = None
+        await db.commit()
+        return
+
+    overall_exam.phase = "break"
+    overall_exam.current_module = module
+    overall_exam.break_started_at = datetime.now(UTC)
+    await db.commit()
 
 
 async def create_exam(db: AsyncSession, user: User, kind: ExamKind, test_id: int) -> dict[str, Any]:
@@ -278,44 +632,32 @@ def _match_answer(user_answer: str, valid_answers: list[str]) -> bool:
     return any(normalized == candidate.strip().lower() for candidate in valid_answers)
 
 
-def _serialize_existing_reading_or_listening_result(
-    kind: Literal["reading", "listening"],
-    exam: ReadingExam | ListeningExam,
-    numbering: dict[int, int],
-) -> dict[str, Any]:
-    answers_payload: list[dict[str, Any]] = []
-    for answer in exam.question_answers:
-        payload = {
-            "id": answer.id,
-            "question": answer.question_id,
-            "user_answer": answer.user_answer,
-            "correct_answer": answer.correct_answer,
-            "is_correct": answer.is_correct,
-            "question_number": numbering.get(answer.question_id),
-        }
-        answers_payload.append(payload)
-
-    correct_count = sum(1 for item in answers_payload if item["is_correct"])
-    return {
-        "answers": answers_payload,
-        "score": reading_band_score(correct_count),
-        "correct_answers": correct_count,
-        "time_spent": _calculate_time_spent_seconds(exam.started_at, exam.finished_at),
-    }
-
-
 async def submit_reading_exam(
     db: AsyncSession,
     user: User,
     exam_id: int,
     answers: list[dict[str, Any]],
+    *,
+    finish_reason_override: SubmitFinishReasonOverride | None = None,
 ) -> dict[str, Any]:
     exam = await _get_reading_exam_owned(db, exam_id, user.id)
-    numbering = reading_question_numbering(exam.reading_test)
     time_limit_seconds = int(exam.reading_test.time_limit)
 
     if exam.finished_at is not None:
-        return _serialize_existing_reading_or_listening_result("reading", exam, numbering)
+        await _ensure_auto_summary_for_exam(
+            db,
+            user=user,
+            module=AiSummaryModuleEnum.reading,
+            exam_id=exam.id,
+        )
+        await _apply_overall_transition_after_submit(
+            db,
+            module="reading",
+            exam_id=exam.id,
+            finish_reason=exam.finish_reason,
+            finished_at=exam.finished_at,
+        )
+        return _serialize_objective_exam_result(exam, exam.question_answers)
 
     question_index: dict[int, ReadingQuestion] = {
         question.id: question
@@ -326,7 +668,7 @@ async def submit_reading_exam(
 
     normalized_answers = validate_reading_submit_payload(answers, question_index=question_index)
 
-    output_rows: list[dict[str, Any]] = []
+    correct_count = 0
 
     for item in normalized_answers:
         question_id = int(item["id"])
@@ -358,42 +700,43 @@ async def submit_reading_exam(
             row.correct_answer = correct_answer
             row.is_correct = is_correct
 
-        output_rows.append(
-            {
-                "id": row.id,
-                "question": question_id,
-                "user_answer": user_answer,
-                "correct_answer": correct_answer,
-                "is_correct": is_correct,
-                "question_number": numbering.get(question_id),
-            }
-        )
+        if is_correct:
+            correct_count += 1
 
     finished_at = datetime.now(UTC)
     if exam.started_at is None:
         exam.started_at = finished_at
 
     elapsed_seconds = _calculate_elapsed_seconds(exam.started_at, finished_at)
+    forced_reason = FinishReasonEnum(finish_reason_override) if finish_reason_override else None
     exam.finished_at = finished_at
-    exam.finish_reason = _resolve_finish_reason(elapsed_seconds, time_limit_seconds)
+    exam.finish_reason = _resolve_finish_reason(
+        elapsed_seconds,
+        time_limit_seconds,
+        forced_reason=forced_reason,
+    )
     await db.commit()
 
-    try:
-        await create_auto_summary(
-            db,
-            user=user,
-            module=AiSummaryModuleEnum.reading,
-            exam_id=exam.id,
-        )
-    except Exception:  # noqa: BLE001
-        logger.exception("Failed to create reading AI summary job", extra={"exam_id": exam.id})
+    await _ensure_auto_summary_for_exam(
+        db,
+        user=user,
+        module=AiSummaryModuleEnum.reading,
+        exam_id=exam.id,
+    )
 
-    correct_count = sum(1 for item in output_rows if item["is_correct"])
+    await _apply_overall_transition_after_submit(
+        db,
+        module="reading",
+        exam_id=exam.id,
+        finish_reason=exam.finish_reason,
+        finished_at=exam.finished_at,
+    )
+
     return {
-        "answers": output_rows,
+        "result": _resolve_exam_result_status(exam),
         "score": reading_band_score(correct_count),
         "correct_answers": correct_count,
-        "time_spent": _calculate_time_spent_seconds(exam.started_at, exam.finished_at),
+        "time_spent": _calculate_result_time_spent_seconds(exam.started_at, exam.finished_at),
     }
 
 
@@ -402,13 +745,27 @@ async def submit_listening_exam(
     user: User,
     exam_id: int,
     answers: list[dict[str, Any]],
+    *,
+    finish_reason_override: SubmitFinishReasonOverride | None = None,
 ) -> dict[str, Any]:
     exam = await _get_listening_exam_owned(db, exam_id, user.id)
-    numbering = listening_question_numbering(exam.listening_test)
     time_limit_seconds = int(exam.listening_test.time_limit)
 
     if exam.finished_at is not None:
-        return _serialize_existing_reading_or_listening_result("listening", exam, numbering)
+        await _ensure_auto_summary_for_exam(
+            db,
+            user=user,
+            module=AiSummaryModuleEnum.listening,
+            exam_id=exam.id,
+        )
+        await _apply_overall_transition_after_submit(
+            db,
+            module="listening",
+            exam_id=exam.id,
+            finish_reason=exam.finish_reason,
+            finished_at=exam.finished_at,
+        )
+        return _serialize_objective_exam_result(exam, exam.question_answers)
 
     question_index: dict[int, ListeningQuestion] = {
         question.id: question
@@ -419,7 +776,7 @@ async def submit_listening_exam(
 
     normalized_answers = validate_listening_submit_payload(answers, question_index=question_index)
 
-    output_rows: list[dict[str, Any]] = []
+    correct_count = 0
 
     for item in normalized_answers:
         question_id = int(item["id"])
@@ -451,62 +808,44 @@ async def submit_listening_exam(
             row.correct_answer = correct_answer
             row.is_correct = is_correct
 
-        output_rows.append(
-            {
-                "id": row.id,
-                "question": question_id,
-                "user_answer": user_answer,
-                "correct_answer": correct_answer,
-                "is_correct": is_correct,
-                "question_number": numbering.get(question_id),
-            }
-        )
+        if is_correct:
+            correct_count += 1
 
     finished_at = datetime.now(UTC)
     if exam.started_at is None:
         exam.started_at = finished_at
 
     elapsed_seconds = _calculate_elapsed_seconds(exam.started_at, finished_at)
+    forced_reason = FinishReasonEnum(finish_reason_override) if finish_reason_override else None
     exam.finished_at = finished_at
-    exam.finish_reason = _resolve_finish_reason(elapsed_seconds, time_limit_seconds)
+    exam.finish_reason = _resolve_finish_reason(
+        elapsed_seconds,
+        time_limit_seconds,
+        forced_reason=forced_reason,
+    )
     await db.commit()
 
-    try:
-        await create_auto_summary(
-            db,
-            user=user,
-            module=AiSummaryModuleEnum.listening,
-            exam_id=exam.id,
-        )
-    except Exception:  # noqa: BLE001
-        logger.exception("Failed to create listening AI summary job", extra={"exam_id": exam.id})
+    await _ensure_auto_summary_for_exam(
+        db,
+        user=user,
+        module=AiSummaryModuleEnum.listening,
+        exam_id=exam.id,
+    )
 
-    correct_count = sum(1 for item in output_rows if item["is_correct"])
+    await _apply_overall_transition_after_submit(
+        db,
+        module="listening",
+        exam_id=exam.id,
+        finish_reason=exam.finish_reason,
+        finished_at=exam.finished_at,
+    )
+
     return {
-        "answers": output_rows,
+        "result": _resolve_exam_result_status(exam),
         "score": reading_band_score(correct_count),
         "correct_answers": correct_count,
-        "time_spent": _calculate_time_spent_seconds(exam.started_at, exam.finished_at),
+        "time_spent": _calculate_result_time_spent_seconds(exam.started_at, exam.finished_at),
     }
-
-
-def _serialize_writing_parts(exam: WritingExam) -> list[dict[str, Any]]:
-    out: list[dict[str, Any]] = []
-    for part in exam.writing_parts:
-        essay = part.essay or ""
-        out.append(
-            {
-                "id": part.id,
-                "exam": part.exam_id,
-                "part": part.part_id,
-                "essay": part.essay,
-                "is_checked": part.is_checked,
-                "corrections": part.corrections,
-                "score": float(part.score) if isinstance(part.score, Decimal) else part.score,
-                "word_count": len(essay.split()) if essay else 0,
-            }
-        )
-    return out
 
 
 async def submit_writing_exam(
@@ -514,17 +853,27 @@ async def submit_writing_exam(
     user: User,
     exam_id: int,
     parts_payload: list[dict[str, Any]],
+    *,
+    finish_reason_override: SubmitFinishReasonOverride | None = None,
 ) -> dict[str, Any]:
     exam = await _get_writing_exam_owned(db, exam_id, user.id)
     time_limit_seconds = int(exam.writing_test.time_limit)
 
     if exam.finished_at is not None:
-        return {
-            "answers": _serialize_writing_parts(exam),
-            "score": None,
-            "correct_answers": None,
-            "time_spent": _calculate_time_spent_seconds(exam.started_at, exam.finished_at),
-        }
+        await _ensure_auto_summary_for_exam(
+            db,
+            user=user,
+            module=AiSummaryModuleEnum.writing,
+            exam_id=exam.id,
+        )
+        await _apply_overall_transition_after_submit(
+            db,
+            module="writing",
+            exam_id=exam.id,
+            finish_reason=exam.finish_reason,
+            finished_at=exam.finished_at,
+        )
+        return _serialize_writing_exam_result(exam)
 
     part_index = {part.id: part for part in exam.writing_test.writing_parts}
     normalized_parts = validate_writing_submit_payload(parts_payload, part_ids=set(part_index.keys()))
@@ -558,21 +907,23 @@ async def submit_writing_exam(
         exam.started_at = finished_at
 
     elapsed_seconds = _calculate_elapsed_seconds(exam.started_at, finished_at)
+    forced_reason = FinishReasonEnum(finish_reason_override) if finish_reason_override else None
     exam.finished_at = finished_at
-    exam.finish_reason = _resolve_finish_reason(elapsed_seconds, time_limit_seconds)
+    exam.finish_reason = _resolve_finish_reason(
+        elapsed_seconds,
+        time_limit_seconds,
+        forced_reason=forced_reason,
+    )
     await db.commit()
 
     serialized_exam = await _get_writing_exam_owned(db, exam.id, user.id)
 
-    try:
-        await create_auto_summary(
-            db,
-            user=user,
-            module=AiSummaryModuleEnum.writing,
-            exam_id=exam.id,
-        )
-    except Exception:  # noqa: BLE001
-        logger.exception("Failed to create writing AI summary job", extra={"exam_id": exam.id})
+    await _ensure_auto_summary_for_exam(
+        db,
+        user=user,
+        module=AiSummaryModuleEnum.writing,
+        exam_id=exam.id,
+    )
 
     for exam_part_id in exam_part_ids:
         try:
@@ -583,15 +934,32 @@ async def submit_writing_exam(
                 extra={"exam_id": exam.id, "exam_part_id": exam_part_id},
             )
 
-    return {
-        "answers": _serialize_writing_parts(serialized_exam),
-        "score": None,
-        "correct_answers": None,
-        "time_spent": _calculate_time_spent_seconds(
-            serialized_exam.started_at,
-            serialized_exam.finished_at,
-        ),
-    }
+    await _apply_overall_transition_after_submit(
+        db,
+        module="writing",
+        exam_id=exam.id,
+        finish_reason=exam.finish_reason,
+        finished_at=exam.finished_at,
+    )
+
+    return _serialize_writing_exam_result(serialized_exam)
+
+
+async def get_exam_result(
+    db: AsyncSession,
+    user: User,
+    kind: ExamKind,
+    exam_id: int,
+) -> dict[str, Any]:
+    if kind == "reading":
+        exam = await _get_reading_exam_owned(db, exam_id, user.id)
+        return _serialize_objective_exam_result(exam, exam.question_answers)
+    if kind == "listening":
+        exam = await _get_listening_exam_owned(db, exam_id, user.id)
+        return _serialize_objective_exam_result(exam, exam.question_answers)
+
+    exam = await _get_writing_exam_owned(db, exam_id, user.id)
+    return _serialize_writing_exam_result(exam)
 
 
 async def get_my_exams(
@@ -649,6 +1017,7 @@ async def list_student_attempts(
     *,
     search: str | None,
     module: ExamKind | None,
+    test_id: int | None,
     status: ExamAttemptStatus | None,
     ordering: str,
     offset: int,
@@ -669,11 +1038,174 @@ async def list_student_attempts(
         rows.extend(_serialize_student_attempt_item("writing", exam) for exam in writing_rows)
 
     filtered_rows = [row for row in rows if _matches_student_attempt_search(row, search)]
+    if test_id is not None:
+        filtered_rows = [row for row in filtered_rows if int(row["test_id"]) == int(test_id)]
     if status is not None:
         filtered_rows = [row for row in filtered_rows if row["status"] == status]
 
     sorted_rows = _sort_student_attempts(filtered_rows, ordering)
 
+    normalized_offset = normalize_offset(offset)
+    normalized_limit = normalize_limit(limit)
+    paged_rows = sorted_rows[normalized_offset : normalized_offset + normalized_limit]
+
+    return {
+        "items": paged_rows,
+        "count": len(sorted_rows),
+        "limit": normalized_limit,
+        "offset": normalized_offset,
+    }
+
+
+async def start_overall_exam(
+    db: AsyncSession,
+    user: User,
+) -> dict[str, Any]:
+    existing = await repository.get_in_progress_overall_exam_by_user(db, user_id=user.id)
+    if existing is not None:
+        return _serialize_overall_exam_state(existing)
+
+    listening_test = await repository.get_first_active_listening_test(db)
+    if listening_test is None:
+        raise ApiError(
+            code="listening_test_not_found",
+            message="No active listening tests available",
+            status_code=404,
+        )
+
+    reading_test = await repository.get_first_active_reading_test(db)
+    if reading_test is None:
+        raise ApiError(
+            code="reading_test_not_found",
+            message="No active reading tests available",
+            status_code=404,
+        )
+
+    writing_test = await repository.get_first_active_writing_test(db)
+    if writing_test is None:
+        raise ApiError(
+            code="writing_test_not_found",
+            message="No active writing tests available",
+            status_code=404,
+        )
+
+    started_at = datetime.now(UTC)
+    listening_exam = ListeningExam(
+        user_id=user.id,
+        listening_test_id=listening_test.id,
+        started_at=started_at,
+    )
+    db.add(listening_exam)
+    await db.flush()
+
+    overall_exam = OverallExam(
+        user_id=user.id,
+        status="in_progress",
+        phase="module",
+        current_module="listening",
+        started_at=started_at,
+        break_duration_seconds=BREAK_DURATION_SECONDS,
+        listening_test_id=listening_test.id,
+        reading_test_id=reading_test.id,
+        writing_test_id=writing_test.id,
+        listening_exam_id=listening_exam.id,
+    )
+    db.add(overall_exam)
+    await db.commit()
+
+    refreshed = await _get_overall_exam_owned(db, overall_exam.id, user.id)
+    return _serialize_overall_exam_state(refreshed)
+
+
+async def get_overall_exam_state(
+    db: AsyncSession,
+    user: User,
+    overall_id: int,
+) -> dict[str, Any]:
+    overall_exam = await _get_overall_exam_owned(db, overall_id, user.id)
+    return _serialize_overall_exam_state(overall_exam)
+
+
+async def continue_overall_exam(
+    db: AsyncSession,
+    user: User,
+    overall_id: int,
+) -> dict[str, Any]:
+    overall_exam = await _get_overall_exam_owned(db, overall_id, user.id)
+
+    if overall_exam.status != "in_progress":
+        return _serialize_overall_exam_state(overall_exam)
+
+    if overall_exam.phase != "break":
+        raise ApiError(
+            code="overall_exam_phase_invalid",
+            message="Overall exam is not waiting on break",
+            status_code=400,
+        )
+
+    if overall_exam.current_module == "listening":
+        next_module: OverallModuleKind = "reading"
+        if overall_exam.reading_exam_id is None:
+            next_exam = ReadingExam(
+                user_id=user.id,
+                reading_test_id=overall_exam.reading_test_id,
+                started_at=datetime.now(UTC),
+            )
+            db.add(next_exam)
+            await db.flush()
+            overall_exam.reading_exam_id = next_exam.id
+    elif overall_exam.current_module == "reading":
+        next_module = "writing"
+        if overall_exam.writing_exam_id is None:
+            next_exam = WritingExam(
+                user_id=user.id,
+                writing_test_id=overall_exam.writing_test_id,
+                started_at=datetime.now(UTC),
+            )
+            db.add(next_exam)
+            await db.flush()
+            overall_exam.writing_exam_id = next_exam.id
+    else:
+        raise ApiError(
+            code="overall_exam_phase_invalid",
+            message="No next module available for continuation",
+            status_code=400,
+        )
+
+    overall_exam.phase = "module"
+    overall_exam.current_module = next_module
+    overall_exam.break_started_at = None
+    await db.commit()
+
+    refreshed = await _get_overall_exam_owned(db, overall_exam.id, user.id)
+    return _serialize_overall_exam_state(refreshed)
+
+
+async def get_overall_exam_result(
+    db: AsyncSession,
+    user: User,
+    overall_id: int,
+) -> dict[str, Any]:
+    overall_exam = await _get_overall_exam_owned(db, overall_id, user.id)
+    return _serialize_overall_exam_result(overall_exam)
+
+
+async def list_overall_exams(
+    db: AsyncSession,
+    user: User,
+    *,
+    status: OverallExamStatus | None,
+    ordering: str,
+    offset: int,
+    limit: int,
+) -> dict[str, Any]:
+    rows = await repository.list_all_user_overall_exams_with_relations(db, user_id=user.id)
+    serialized = [_serialize_overall_exam_list_item(item) for item in rows]
+
+    if status is not None:
+        serialized = [item for item in serialized if item["status"] == status]
+
+    sorted_rows = _sort_overall_attempts(serialized, ordering)
     normalized_offset = normalize_offset(offset)
     normalized_limit = normalize_limit(limit)
     paged_rows = sorted_rows[normalized_offset : normalized_offset + normalized_limit]

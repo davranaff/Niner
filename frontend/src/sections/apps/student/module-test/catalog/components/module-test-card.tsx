@@ -1,13 +1,12 @@
-import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
 import Chip from '@mui/material/Chip';
-import Typography from '@mui/material/Typography';
 
 import { AppsStatusChip } from 'src/pages/components/apps';
 import { RouterLink } from 'src/routes/components';
 import type { TestListItem } from 'src/sections/apps/common/api/types';
+import { TestCatalogCard } from 'src/sections/apps/common/module-test/catalog/test-catalog-card';
+import type { ModuleAttemptHistoryItem } from 'src/sections/apps/common/module-test/utils/attempt-history';
 
 type ModuleTestCardProps = {
   item: TestListItem;
@@ -19,7 +18,10 @@ type ModuleTestCardProps = {
   restartLabel: string;
   continueLabel: string;
   reviewLabel: string;
+  attemptHistoryLabel: string;
+  updatedLabel: string;
   detailsHref: string;
+  attemptHistoryItems?: ModuleAttemptHistoryItem[];
   sessionHref?: string | null;
   resultHref?: string | null;
 };
@@ -34,12 +36,16 @@ export function ModuleTestCard({
   restartLabel,
   continueLabel,
   reviewLabel,
+  attemptHistoryLabel,
+  updatedLabel,
   detailsHref,
+  attemptHistoryItems = [],
   sessionHref,
   resultHref,
 }: ModuleTestCardProps) {
   const isContinueState = item.status === 'in_progress';
   const isReviewState = item.status === 'completed' || item.status === 'terminated';
+
   let actionLabel = startLabel;
   let actionHref = detailsHref;
 
@@ -52,48 +58,26 @@ export function ModuleTestCard({
   }
 
   return (
-    <Card variant="outlined" sx={{ p: 3, height: 1 }}>
-      <Stack spacing={2.5} sx={{ height: 1 }}>
-        <Stack spacing={1.25}>
-          <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={2}>
-            <Stack spacing={1}>
-              <Typography variant="h6">{item.title}</Typography>
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {item.description}
-              </Typography>
-            </Stack>
-
-            <Chip label={item.tag} size="small" variant="soft" color="primary" />
-          </Stack>
-
-          <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-            <AppsStatusChip status={item.status} label={statusLabel} />
-            <Chip size="small" variant="outlined" label={difficultyLabel} />
-          </Stack>
+    <TestCatalogCard
+      title={item.title}
+      description={item.description}
+      titleAdornment={<Chip label={item.tag} size="small" variant="soft" color="primary" />}
+      headerMeta={
+        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+          <AppsStatusChip status={item.status} label={statusLabel} />
+          <Chip size="small" variant="outlined" label={difficultyLabel} />
         </Stack>
-
-        <Divider sx={{ borderStyle: 'dashed' }} />
-
-        <Stack spacing={0.75}>
-          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-            {attemptsLabel}: {item.attemptsCount}
-          </Typography>
-          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-            {bestBandLabel}: {item.bestBand ? item.bestBand.toFixed(1) : '-'}
-          </Typography>
-          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-            {item.durationMinutes} min · {item.questionCount || item.taskCount} items
-          </Typography>
-        </Stack>
-
-        <Stack direction="row" spacing={1.5} sx={{ mt: 'auto' }}>
-          <Button
-            component={RouterLink}
-            href={actionHref}
-            variant="contained"
-            color="inherit"
-            fullWidth
-          >
+      }
+      summaryLine={`${item.durationMinutes} min · ${attemptsLabel}: ${item.attemptsCount}`}
+      primaryValue={item.bestBand ? item.bestBand.toFixed(1) : '-'}
+      primaryValueHint={bestBandLabel}
+      infoLines={[`${item.questionCount || item.taskCount} items`]}
+      attemptHistoryLabel={attemptHistoryLabel}
+      updatedLabel={updatedLabel}
+      attemptHistoryItems={attemptHistoryItems}
+      actions={
+        <Stack direction="row" spacing={1.5}>
+          <Button component={RouterLink} href={actionHref} variant="contained" color="primary" fullWidth>
             {actionLabel}
           </Button>
 
@@ -102,14 +86,14 @@ export function ModuleTestCard({
               component={RouterLink}
               href={resultHref}
               variant="outlined"
-              color="inherit"
+              color="primary"
               fullWidth
             >
               {reviewLabel}
             </Button>
           ) : null}
         </Stack>
-      </Stack>
-    </Card>
+      }
+    />
   );
 }

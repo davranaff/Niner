@@ -20,6 +20,12 @@ const AppsWritingTestPage = lazy(() => import('src/pages/apps/student/writing-te
 const AppsWritingSessionPage = lazy(() => import('src/pages/apps/student/writing-session'));
 const AppsWritingResultPage = lazy(() => import('src/pages/apps/student/writing-result'));
 
+const AppsOverallExamPage = lazy(() => import('src/pages/apps/student/overall-exam'));
+const AppsOverallExamSessionPage = lazy(
+  () => import('src/pages/apps/student/overall-exam-session-page')
+);
+const AppsOverallExamResultPage = lazy(() => import('src/pages/apps/student/overall-exam-result'));
+
 const AppsMyTestsPage = lazy(() => import('src/pages/apps/student/my-tests'));
 const AppsProfilePage = lazy(() => import('src/pages/apps/student/profile'));
 
@@ -43,6 +49,10 @@ export const studentAppSessionRoutes: RouteObject[] = [
   {
     path: 'dashboard/writing/tests/:testId/session',
     element: studentSessionPage(<AppsWritingSessionPage />),
+  },
+  {
+    path: 'dashboard/overall-exam/session/:overallId',
+    element: studentSessionPage(<AppsOverallExamSessionPage />),
   },
 ];
 
@@ -86,6 +96,14 @@ export const studentAppDashboardRoutes: RouteObject[] = [
   {
     path: 'writing/attempts/:attemptId',
     element: studentOnly(<AppsWritingResultPage />),
+  },
+  {
+    path: 'overall-exam',
+    element: studentOnly(<AppsOverallExamPage />),
+  },
+  {
+    path: 'overall-exam/attempts/:overallId',
+    element: studentOnly(<AppsOverallExamResultPage />),
   },
   {
     path: 'my-tests',
