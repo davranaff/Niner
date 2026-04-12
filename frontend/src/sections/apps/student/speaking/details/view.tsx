@@ -86,14 +86,14 @@ export default function AppsSpeakingDetailsView() {
             {latestExam && latestExam.status === 'completed' ? (
               <Button
                 variant="outlined"
-                color="inherit"
+                color="primary"
                 onClick={() => router.push(paths.ielts.speakingAttempt(String(latestExam.id)))}
               >
                 {tx('pages.ielts.shared.open_last_result')}
               </Button>
             ) : null}
 
-            <LoadingButton variant="contained" color="inherit" loading={isStarting} onClick={handleStart}>
+            <LoadingButton variant="contained" color="primary" loading={isStarting} onClick={handleStart}>
               {storedActiveExamId || latestActiveExam
                 ? tx('pages.ielts.shared.continue')
                 : tx('pages.ielts.shared.start')}

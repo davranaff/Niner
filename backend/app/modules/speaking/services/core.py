@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import ApiError
 from app.core.pagination import CursorPage, serialize_page
-from app.db.models import SpeakingQuestion, SpeakingTest
+from app.db.models import SpeakingQuestion, SpeakingTest, User
 from app.modules.speaking import repository
 from app.modules.speaking.schemas import SpeakingTestListItem
 
@@ -85,8 +85,13 @@ def get_next_question_by_index(test: SpeakingTest, index: int) -> SpeakingQuesti
     return questions[next_index]
 
 
-async def list_speaking_tests(db: AsyncSession, offset: int, limit: int) -> CursorPage:
+async def list_speaking_tests(db: AsyncSession, user: User, offset: int, limit: int) -> CursorPage:
     rows = await repository.list_active_tests(db, offset=offset, limit=limit)
+    stats_by_test_id = await repository.get_attempt_stats_by_test_ids(
+        db,
+        user_id=user.id,
+        test_ids=[row.id for row in rows],
+    )
     return serialize_page(
         rows,
         serializer=lambda row: SpeakingTestListItem(
@@ -98,6 +103,15 @@ async def list_speaking_tests(db: AsyncSession, offset: int, limit: int) -> Curs
             duration_minutes=row.duration_minutes,
             is_active=row.is_active,
             created_at=row.created_at,
+            attempts_count=stats_by_test_id.get(row.id, {}).get("attempts_count", 0),
+            successful_attempts_count=stats_by_test_id.get(row.id, {}).get(
+                "successful_attempts_count",
+                0,
+            ),
+            failed_attempts_count=stats_by_test_id.get(row.id, {}).get(
+                "failed_attempts_count",
+                0,
+            ),
         ).model_dump(),
         limit=limit,
         offset=offset,

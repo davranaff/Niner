@@ -285,16 +285,16 @@ function SpeakingRuntime({ examId, initialSnapshot, onFinalized }: RuntimeProps)
               fontSize: 16,
               fontWeight: 900,
               letterSpacing: 0.2,
-              color: '#FFFFFF',
+              color: theme.palette.primary.contrastText,
               bgcolor: snapshot.microphone.isMuted
                 ? theme.palette.error.main
-                : theme.palette.common.black,
+                : theme.palette.primary.main,
               border: `1px solid ${alpha(theme.palette.common.white, 0.28)}`,
-              boxShadow: `0 18px 38px ${alpha(theme.palette.common.black, 0.46)}`,
+              boxShadow: `0 18px 38px ${alpha(theme.palette.primary.main, 0.35)}`,
               '&:hover': {
                 bgcolor: snapshot.microphone.isMuted
                   ? theme.palette.error.dark
-                  : alpha(theme.palette.common.black, 0.88),
+                  : theme.palette.primary.dark,
               },
             })}
           >

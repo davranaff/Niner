@@ -18,6 +18,7 @@ type Props = {
   image?: string;
   whiteBackground?: boolean;
   centerContent?: boolean;
+  hideBreadcrumbs?: boolean;
   children: React.ReactNode;
 };
 
@@ -27,6 +28,7 @@ export default function AuthClassicLayout({
   title,
   whiteBackground = false,
   centerContent = false,
+  hideBreadcrumbs = false,
 }: Props) {
   const theme = useTheme();
 
@@ -57,7 +59,9 @@ export default function AuthClassicLayout({
         justifyContent: centerContent ? 'center' : 'flex-start',
       }}
     >
-      <AppBreadcrumbs sx={{ mb: 3, alignSelf: 'stretch', textAlign: 'left' }} />
+      {!hideBreadcrumbs && (
+        <AppBreadcrumbs sx={{ mb: 3, alignSelf: 'stretch', textAlign: 'left' }} />
+      )}
       {children}
     </Stack>
   );

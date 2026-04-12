@@ -116,7 +116,7 @@ export default function AppsSpeakingResultView() {
           action={
             <Button
               variant="contained"
-              color="inherit"
+              color="primary"
               onClick={() => router.push(fallbackDestination)}
             >
               {inProgress ? tx('pages.ielts.shared.continue') : tx('pages.ielts.shared.return_to_speaking')}
@@ -134,7 +134,7 @@ export default function AppsSpeakingResultView() {
         title={tx('pages.ielts.shared.result_title')}
         description={attempt.title}
         action={
-          <Button variant="outlined" color="inherit" onClick={() => router.push(paths.ielts.speaking)}>
+          <Button variant="outlined" color="primary" onClick={() => router.push(paths.ielts.speaking)}>
             {tx('pages.ielts.shared.return_to_speaking')}
           </Button>
         }

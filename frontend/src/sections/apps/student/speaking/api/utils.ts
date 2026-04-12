@@ -1,3 +1,8 @@
+import {
+  resolveAttemptStatus,
+  type ModuleAttemptHistoryItem,
+} from 'src/sections/apps/common/module-test/utils/attempt-history';
+import { getModuleAttemptPath, getModuleSessionPath } from 'src/sections/apps/common/module-test/utils/module-meta';
 import { localStorageAvailable } from 'src/utils/storage-available';
 
 import {
@@ -24,6 +29,47 @@ import type {
   SpeakingQuestionIndex,
   SpeakingRecentAttemptsStore,
 } from './types';
+
+function toHistoryTimestamp(value: string | null) {
+  if (!value) {
+    return 0;
+  }
+  const timestamp = new Date(value).getTime();
+  return Number.isFinite(timestamp) ? timestamp : 0;
+}
+
+export function toSpeakingAttemptHistoryItems(
+  testId: number,
+  exams: SpeakingExamSummary[]
+): ModuleAttemptHistoryItem[] {
+  return exams
+    .filter((exam) => exam.testId === testId)
+    .map((exam) => {
+      const status = resolveAttemptStatus(exam);
+      const updatedAt = exam.finishedAt ?? exam.startedAt ?? null;
+
+      return {
+        id: exam.id,
+        testId: exam.testId,
+        startedAt: exam.startedAt,
+        finishedAt: exam.finishedAt,
+        finishReason: exam.finishReason,
+        status,
+        updatedAt,
+        actionPath:
+          status === 'in_progress'
+            ? getModuleSessionPath('speaking', String(exam.testId))
+            : getModuleAttemptPath('speaking', String(exam.id)),
+      };
+    })
+    .sort((left, right) => {
+      const byUpdated = toHistoryTimestamp(right.updatedAt) - toHistoryTimestamp(left.updatedAt);
+      if (byUpdated !== 0) {
+        return byUpdated;
+      }
+      return right.id - left.id;
+    });
+}
 
 const SECONDS_IN_MINUTE = 60;
 
@@ -79,6 +125,9 @@ export function toSpeakingListItem(item: SpeakingTestListItem): SpeakingTestList
   return {
     ...item,
     durationMinutes: Math.max(1, item.durationMinutes),
+    attemptsCount: Math.max(0, item.attemptsCount ?? 0),
+    successfulAttemptsCount: Math.max(0, item.successfulAttemptsCount ?? 0),
+    failedAttemptsCount: Math.max(0, item.failedAttemptsCount ?? 0),
   };
 }
 

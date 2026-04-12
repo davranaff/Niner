@@ -61,6 +61,7 @@
   "layout": {
     "nav": {
       "group": "Band 9.0",
+      "group_exams": "Exams",
       "dashboard": "Dashboard",
       "overall_exam": "Overall exam",
       "reading": "Reading",

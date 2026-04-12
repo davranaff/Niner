@@ -83,9 +83,16 @@ export interface SpeakingTestListItem {
   durationMinutes: number;
   isActive: boolean;
   createdAt: string;
+  attemptsCount: number;
+  successfulAttemptsCount: number;
+  failedAttemptsCount: number;
 }
 
-export interface SpeakingTestDetail extends Omit<SpeakingTestListItem, 'isActive'> {
+export interface SpeakingTestDetail
+  extends Omit<
+    SpeakingTestListItem,
+    'isActive' | 'attemptsCount' | 'successfulAttemptsCount' | 'failedAttemptsCount'
+  > {
   instructions: string[];
   scoringFocus: string[];
   parts: SpeakingPart[];

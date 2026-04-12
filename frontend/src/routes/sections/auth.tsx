@@ -18,7 +18,12 @@ export const authRoutes = [
     path: 'login',
     element: (
       <GuestGuard>
-        <AuthClassicLayout image={AUTH_HERO_IMAGE} whiteBackground centerContent>
+        <AuthClassicLayout
+          image={AUTH_HERO_IMAGE}
+          whiteBackground
+          centerContent
+          hideBreadcrumbs
+        >
           <JwtLoginPage />
         </AuthClassicLayout>
       </GuestGuard>
@@ -28,7 +33,12 @@ export const authRoutes = [
     path: 'register',
     element: (
       <GuestGuard>
-        <AuthClassicLayout image={AUTH_HERO_IMAGE} whiteBackground centerContent>
+        <AuthClassicLayout
+          image={AUTH_HERO_IMAGE}
+          whiteBackground
+          centerContent
+          hideBreadcrumbs
+        >
           <JwtRegisterPage />
         </AuthClassicLayout>
       </GuestGuard>

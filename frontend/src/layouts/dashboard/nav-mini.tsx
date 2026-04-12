@@ -18,7 +18,7 @@ import { NavToggleButton } from '../_common';
 export default function NavMini() {
   const { user } = useAppUserProfile();
 
-  const navData = useNavData();
+  const navData = useNavData(user?.role || 'student');
 
   return (
     <Box

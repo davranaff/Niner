@@ -37,7 +37,7 @@ export default function NavVertical({ openNav, onCloseNav }: Props) {
 
   const lgUp = useResponsive('up', 'lg');
 
-  const navData = useNavData();
+  const navData = useNavData(user?.role || 'student');
 
   let roleLabel = user.role;
   if (user.role === 'teacher') {

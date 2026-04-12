@@ -11,6 +11,7 @@ import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import Dialog, { dialogClasses } from '@mui/material/Dialog';
 // hooks
+import { useAppUserProfile } from 'src/hooks/use-app-user-profile';
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useResponsive } from 'src/hooks/use-responsive';
 import { useEventListener } from 'src/hooks/use-event-listener';
@@ -32,13 +33,15 @@ function Searchbar() {
 
   const router = useRouter();
 
+  const { user } = useAppUserProfile();
+
   const search = useBoolean();
 
   const mdUp = useResponsive('up', 'md');
 
   const [searchQuery, setSearchQuery] = useState('');
 
-  const navData = useNavData();
+  const navData = useNavData(user?.role || 'student');
 
   const handleClose = useCallback(() => {
     search.onFalse();

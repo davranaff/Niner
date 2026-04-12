@@ -28,11 +28,40 @@ const ICONS = {
 
 // ----------------------------------------------------------------------
 
-export function useNavData() {
+export function useNavData(currentRole: string = 'student') {
   const { tx } = useLocales()
 
-  return useMemo(
-    () => [
+  return useMemo(() => {
+    const teacherGroup = {
+      subheader: tx('layout.nav.group'),
+      items: [
+        {
+          title: tx('layout.nav.teacher_dashboard'),
+          path: paths.ielts.teacher.root,
+          icon: ICONS.dashboard,
+          roles: ['teacher'],
+        },
+        {
+          title: tx('layout.nav.students'),
+          path: paths.ielts.teacher.students,
+          deepMatch: true,
+          icon: ICONS.students,
+          roles: ['teacher'],
+        },
+        {
+          title: tx('layout.nav.analytics'),
+          path: paths.ielts.teacher.analytics,
+          icon: ICONS.analytics,
+          roles: ['teacher'],
+        },
+      ],
+    }
+
+    if (currentRole === 'teacher') {
+      return [teacherGroup]
+    }
+
+    return [
       {
         subheader: tx('layout.nav.group'),
         items: [
@@ -42,6 +71,23 @@ export function useNavData() {
             icon: ICONS.dashboard,
             roles: ['student'],
           },
+          {
+            title: tx('layout.nav.my_tests'),
+            path: paths.ielts.myTests,
+            icon: ICONS.tests,
+            roles: ['student'],
+          },
+          {
+            title: tx('layout.nav.profile'),
+            path: paths.ielts.profile,
+            icon: ICONS.profile,
+            roles: ['student'],
+          },
+        ],
+      },
+      {
+        subheader: tx('layout.nav.group_exams'),
+        items: [
           {
             title: tx('layout.nav.overall_exam'),
             path: paths.ielts.overallExam,
@@ -57,49 +103,11 @@ export function useNavData() {
             roles: ['student'],
           },
           {
-            title: tx('layout.nav.listening'),
-            path: paths.ielts.listening,
-            deepMatch: true,
-            icon: ICONS.listening,
-            roles: ['student'],
-          },
-          {
             title: tx('layout.nav.writing'),
             path: paths.ielts.writing,
             deepMatch: true,
             icon: ICONS.writing,
             roles: ['student'],
-          },
-          {
-            title: tx('layout.nav.my_tests'),
-            path: paths.ielts.myTests,
-            icon: ICONS.tests,
-            roles: ['student'],
-          },
-          {
-            title: tx('layout.nav.profile'),
-            path: paths.ielts.profile,
-            icon: ICONS.profile,
-            roles: ['student'],
-          },
-          {
-            title: tx('layout.nav.teacher_dashboard'),
-            path: paths.ielts.teacher.root,
-            icon: ICONS.dashboard,
-            roles: ['teacher'],
-          },
-          {
-            title: tx('layout.nav.students'),
-            path: paths.ielts.teacher.students,
-            deepMatch: true,
-            icon: ICONS.students,
-            roles: ['teacher'],
-          },
-          {
-            title: tx('layout.nav.analytics'),
-            path: paths.ielts.teacher.analytics,
-            icon: ICONS.analytics,
-            roles: ['teacher'],
           },
           {
             title: tx('layout.nav.speaking'),
@@ -108,9 +116,15 @@ export function useNavData() {
             icon: ICONS.speaking,
             roles: ['student'],
           },
+          {
+            title: tx('layout.nav.listening'),
+            path: paths.ielts.listening,
+            deepMatch: true,
+            icon: ICONS.listening,
+            roles: ['student'],
+          },
         ],
       },
-    ],
-    [tx]
-  )
+    ]
+  }, [tx, currentRole])
 }
