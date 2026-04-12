@@ -1,4 +1,5 @@
 from datetime import UTC, datetime
+import secrets
 
 import pytest
 from sqlalchemy import func, select
@@ -23,6 +24,7 @@ from app.db.models import (
     WritingPart,
     WritingTest,
 )
+from app.modules.speaking.models import SpeakingPart, SpeakingQuestion, SpeakingTest
 
 
 async def _create_user(db_session, email: str) -> User:
@@ -139,6 +141,47 @@ async def _create_listening_test(db_session) -> tuple[ListeningTest, ListeningQu
     return test, question
 
 
+async def _create_speaking_test(db_session) -> SpeakingTest:
+    test = SpeakingTest(
+        slug=f"overall-speaking-{secrets.token_hex(4)}",
+        title="Overall Speaking",
+        description="Desc",
+        level="Academic",
+        duration_minutes=14,
+        instructions=[],
+        scoring_focus=[],
+        is_active=True,
+    )
+    db_session.add(test)
+    await db_session.flush()
+
+    part = SpeakingPart(
+        test_id=test.id,
+        part_id="part1",
+        part_order=1,
+        title="Part 1",
+        examiner_guidance="Guidance",
+        duration_minutes=5,
+    )
+    db_session.add(part)
+    await db_session.flush()
+
+    db_session.add(
+        SpeakingQuestion(
+            part_id=part.id,
+            question_code="q1",
+            question_order=1,
+            short_label="Q1",
+            prompt="Tell me about your hometown.",
+            expected_answer_seconds=60,
+            follow_ups=[],
+        )
+    )
+    await db_session.commit()
+    await db_session.refresh(test)
+    return test
+
+
 async def _create_writing_test(db_session) -> tuple[WritingTest, WritingPart]:
     test = WritingTest(
         title="Overall Writing",
@@ -167,6 +210,7 @@ async def test_overall_start_resumes_existing_in_progress_attempt(client, db_ses
     await _create_listening_test(db_session)
     await _create_reading_test(db_session)
     await _create_writing_test(db_session)
+    await _create_speaking_test(db_session)
     headers = await _auth_headers(client, user.email)
 
     first = await client.post("/api/v1/exams/overall/start", headers=headers)
@@ -205,6 +249,7 @@ async def test_overall_flow_with_breaks_continue_and_pending_band(client, db_ses
     _listening_test, listening_question = await _create_listening_test(db_session)
     _reading_test, reading_question = await _create_reading_test(db_session)
     _writing_test, writing_part = await _create_writing_test(db_session)
+    await _create_speaking_test(db_session)
     headers = await _auth_headers(client, user.email)
 
     start_response = await client.post("/api/v1/exams/overall/start", headers=headers)
@@ -264,8 +309,43 @@ async def test_overall_flow_with_breaks_continue_and_pending_band(client, db_ses
     state_after_writing = await client.get(f"/api/v1/exams/overall/{overall_id}", headers=headers)
     assert state_after_writing.status_code == 200
     state_after_writing_payload = state_after_writing.json()
-    assert state_after_writing_payload["status"] == "completed"
-    assert state_after_writing_payload["phase"] == "completed"
+    assert state_after_writing_payload["phase"] == "break"
+    assert state_after_writing_payload["current_module"] == "writing"
+
+    continue_speaking = await client.post(f"/api/v1/exams/overall/{overall_id}/continue", headers=headers)
+    assert continue_speaking.status_code == 200
+    continue_speaking_payload = continue_speaking.json()
+    speaking_exam_id = continue_speaking_payload["speaking_exam_id"]
+    assert speaking_exam_id is not None
+    assert continue_speaking_payload["current_module"] == "speaking"
+
+    start_speaking = await client.post(
+        f"/api/v1/exams/speaking/{speaking_exam_id}/start",
+        headers=headers,
+    )
+    assert start_speaking.status_code == 200
+
+    session_response = await client.get(
+        f"/api/v1/exams/speaking/{speaking_exam_id}/session",
+        headers=headers,
+    )
+    assert session_response.status_code == 200
+    session_payload = session_response.json()
+    session_payload["status"] = "finished"
+    session_payload["connection_state"] = "disconnected"
+    session_payload["current_speaker"] = "none"
+
+    finalize_response = await client.post(
+        f"/api/v1/exams/speaking/{speaking_exam_id}/finalize",
+        headers=headers,
+        json={"session": session_payload},
+    )
+    assert finalize_response.status_code == 200
+
+    final_state = await client.get(f"/api/v1/exams/overall/{overall_id}", headers=headers)
+    assert final_state.status_code == 200
+    assert final_state.json()["status"] == "completed"
+    assert final_state.json()["phase"] == "completed"
 
     result_response = await client.get(f"/api/v1/exams/overall/{overall_id}/result", headers=headers)
     assert result_response.status_code == 200
@@ -282,6 +362,7 @@ async def test_overall_terminates_when_user_left_in_active_module(client, db_ses
     _listening_test, listening_question = await _create_listening_test(db_session)
     await _create_reading_test(db_session)
     await _create_writing_test(db_session)
+    await _create_speaking_test(db_session)
     headers = await _auth_headers(client, user.email)
 
     start_response = await client.post("/api/v1/exams/overall/start", headers=headers)
@@ -314,6 +395,7 @@ async def test_overall_endpoints_enforce_ownership_and_not_found(client, db_sess
     await _create_listening_test(db_session)
     await _create_reading_test(db_session)
     await _create_writing_test(db_session)
+    await _create_speaking_test(db_session)
     owner_headers = await _auth_headers(client, owner.email)
     stranger_headers = await _auth_headers(client, stranger.email)
 

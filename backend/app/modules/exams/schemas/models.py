@@ -7,7 +7,7 @@ ExamKind = Literal["reading", "listening", "writing", "speaking"]
 ExamAttemptStatus = Literal["in_progress", "completed", "terminated"]
 ExamResultStatus = Literal["success", "failed", "in_progress"]
 SubmitFinishReasonOverride = Literal["left", "time_is_up"]
-OverallModuleKind = Literal["listening", "reading", "writing"]
+OverallModuleKind = Literal["listening", "reading", "writing", "speaking"]
 OverallExamStatus = Literal["in_progress", "completed", "terminated"]
 OverallExamPhase = Literal["module", "break", "completed", "terminated"]
 OverallExamResultStatus = Literal["in_progress", "success", "failed"]
@@ -112,9 +112,11 @@ class OverallExamStateOut(BaseModel):
     listening_test_id: int
     reading_test_id: int
     writing_test_id: int
+    speaking_test_id: int
     listening_exam_id: int | None
     reading_exam_id: int | None
     writing_exam_id: int | None
+    speaking_exam_id: int | None
     modules: list[OverallExamModuleAttemptOut]
     created_at: datetime
     updated_at: datetime
@@ -148,9 +150,11 @@ class OverallExamListItemOut(BaseModel):
     listening_test_id: int
     reading_test_id: int
     writing_test_id: int
+    speaking_test_id: int
     listening_exam_id: int | None
     reading_exam_id: int | None
     writing_exam_id: int | None
+    speaking_exam_id: int | None
     created_at: datetime
     updated_at: datetime
 

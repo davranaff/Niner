@@ -48,6 +48,11 @@ async def get_first_active_writing_test(db: AsyncSession) -> WritingTest | None:
     return (await db.execute(stmt)).scalar_one_or_none()
 
 
+async def get_first_active_speaking_test(db: AsyncSession) -> SpeakingTest | None:
+    stmt = select(SpeakingTest).where(SpeakingTest.is_active.is_(True)).order_by(asc(SpeakingTest.id)).limit(1)
+    return (await db.execute(stmt)).scalar_one_or_none()
+
+
 async def get_reading_test(db: AsyncSession, test_id: int) -> ReadingTest | None:
     return await db.get(ReadingTest, test_id)
 
@@ -144,9 +149,11 @@ async def get_in_progress_overall_exam_by_user(db: AsyncSession, *, user_id: int
             selectinload(OverallExam.listening_test),
             selectinload(OverallExam.reading_test),
             selectinload(OverallExam.writing_test),
+            selectinload(OverallExam.speaking_test),
             selectinload(OverallExam.listening_exam).selectinload(ListeningExam.question_answers),
             selectinload(OverallExam.reading_exam).selectinload(ReadingExam.question_answers),
             selectinload(OverallExam.writing_exam).selectinload(WritingExam.writing_parts),
+            selectinload(OverallExam.speaking_exam),
         )
     )
     return (await db.execute(stmt)).scalar_one_or_none()
@@ -160,11 +167,13 @@ async def get_overall_exam_with_relations(db: AsyncSession, overall_id: int) -> 
             selectinload(OverallExam.listening_test),
             selectinload(OverallExam.reading_test),
             selectinload(OverallExam.writing_test),
+            selectinload(OverallExam.speaking_test),
             selectinload(OverallExam.listening_exam).selectinload(ListeningExam.question_answers),
             selectinload(OverallExam.reading_exam).selectinload(ReadingExam.question_answers),
             selectinload(OverallExam.writing_exam)
             .selectinload(WritingExam.writing_parts)
             .selectinload(WritingExamPart.part),
+            selectinload(OverallExam.speaking_exam),
         )
     )
     return (await db.execute(stmt)).scalar_one_or_none()
@@ -180,8 +189,10 @@ async def get_in_progress_overall_by_module_exam(
         condition = OverallExam.listening_exam_id == exam_id
     elif module == "reading":
         condition = OverallExam.reading_exam_id == exam_id
-    else:
+    elif module == "writing":
         condition = OverallExam.writing_exam_id == exam_id
+    else:
+        condition = OverallExam.speaking_exam_id == exam_id
 
     stmt = (
         select(OverallExam)
@@ -193,9 +204,11 @@ async def get_in_progress_overall_by_module_exam(
             selectinload(OverallExam.listening_test),
             selectinload(OverallExam.reading_test),
             selectinload(OverallExam.writing_test),
+            selectinload(OverallExam.speaking_test),
             selectinload(OverallExam.listening_exam).selectinload(ListeningExam.question_answers),
             selectinload(OverallExam.reading_exam).selectinload(ReadingExam.question_answers),
             selectinload(OverallExam.writing_exam).selectinload(WritingExam.writing_parts),
+            selectinload(OverallExam.speaking_exam),
         )
     )
     return (await db.execute(stmt)).scalar_one_or_none()
@@ -213,9 +226,11 @@ async def list_all_user_overall_exams_with_relations(
             selectinload(OverallExam.listening_test),
             selectinload(OverallExam.reading_test),
             selectinload(OverallExam.writing_test),
+            selectinload(OverallExam.speaking_test),
             selectinload(OverallExam.listening_exam).selectinload(ListeningExam.question_answers),
             selectinload(OverallExam.reading_exam).selectinload(ReadingExam.question_answers),
             selectinload(OverallExam.writing_exam).selectinload(WritingExam.writing_parts),
+            selectinload(OverallExam.speaking_exam),
         )
     )
     return list((await db.execute(stmt)).scalars().all())

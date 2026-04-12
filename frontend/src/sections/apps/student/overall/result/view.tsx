@@ -33,13 +33,15 @@ function formatTimeSpent(value: number | null | undefined) {
 function moduleResultPath(module: OverallModule, examId: number) {
   if (module === 'listening') return paths.ielts.listeningAttempt(String(examId));
   if (module === 'reading') return paths.ielts.readingAttempt(String(examId));
-  return paths.ielts.writingAttempt(String(examId));
+  if (module === 'writing') return paths.ielts.writingAttempt(String(examId));
+  return paths.ielts.speakingAttempt(String(examId));
 }
 
 function moduleTitle(module: OverallModule, tx: (key: string) => string) {
   if (module === 'listening') return tx('pages.ielts.listening.title');
   if (module === 'reading') return tx('pages.ielts.reading.title');
-  return tx('pages.ielts.writing.title');
+  if (module === 'writing') return tx('pages.ielts.writing.title');
+  return tx('pages.ielts.speaking.title');
 }
 
 function moduleStatusLabel(
