@@ -193,7 +193,7 @@ def _resolve_exam_result_status(exam: Any) -> ExamResultStatus:
     return "failed"
 
 
-def _calculate_result_time_spent_seconds(
+def _calculate_time_spent_seconds(
     started_at: datetime | None,
     finished_at: datetime | None,
 ) -> int | None:
@@ -201,6 +201,14 @@ def _calculate_result_time_spent_seconds(
         return None
     effective_finished_at = finished_at or datetime.now(UTC)
     return _calculate_elapsed_seconds(started_at, effective_finished_at)
+
+
+def _calculate_result_time_spent_seconds(
+    started_at: datetime | None,
+    finished_at: datetime | None,
+) -> int | None:
+    # Backward-compatible alias used across legacy and new call sites.
+    return _calculate_time_spent_seconds(started_at, finished_at)
 
 
 def _serialize_objective_exam_result(
