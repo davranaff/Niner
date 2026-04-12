@@ -310,6 +310,105 @@ function PlatformFrame({ view }: { view: PlatformView }) {
   )
 }
 
+function PlatformFrameMobile({ view }: { view: PlatformView }) {
+  if (view === 'dashboard') {
+    return (
+      <div className="platform-mobile-shell platform-mobile-dashboard">
+        <header className="platform-mobile-head">
+          <span>Bandnine dashboard</span>
+          <strong>Band 7.0</strong>
+        </header>
+        <div className="platform-mobile-metrics">
+          <article>
+            <span>Signal</span>
+            <strong>7.0</strong>
+          </article>
+          <article>
+            <span>Attempts</span>
+            <strong>18</strong>
+          </article>
+          <article>
+            <span>Minutes</span>
+            <strong>146</strong>
+          </article>
+        </div>
+        <div className="platform-mobile-heatmap">
+          {dashboardHeatmapLevels.slice(0, 30).map((level, index) => (
+            <i key={`mobile-heat-${index}`} className={`lvl-${level}`} />
+          ))}
+        </div>
+        <p className="platform-mobile-caption">18 practice days in the last year</p>
+      </div>
+    )
+  }
+
+  if (view === 'writing') {
+    return (
+      <div className="platform-mobile-shell platform-mobile-writing">
+        <header className="platform-mobile-head">
+          <span>Writing module</span>
+          <strong>Live tasks</strong>
+        </header>
+        <div className="platform-mobile-tasklist">
+          {writingMockTests.slice(0, 3).map((test) => (
+            <article key={`mobile-${test}`}>
+              <div>
+                <strong>{test}</strong>
+                <p>60 min. Academic prompt with rubric scoring.</p>
+              </div>
+              <em>Available</em>
+            </article>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  if (view === 'speaking') {
+    return (
+      <div className="platform-mobile-shell platform-mobile-speaking">
+        <div className="platform-mobile-voicecore">
+          <span />
+          <i />
+        </div>
+        <p>Live speaking chamber is active.</p>
+        <small>Adaptive follow-ups injected in real time.</small>
+        <button type="button" className="platform-mobile-mute">
+          Mute mic
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="platform-mobile-shell platform-mobile-result">
+      <header className="platform-mobile-head">
+        <span>Attempt result</span>
+        <strong>6.0</strong>
+      </header>
+      <div className="platform-mobile-breakdown">
+        <div>
+          <p>Fluency and coherence</p>
+          <em style={{ width: '66%' }} />
+        </div>
+        <div>
+          <p>Lexical resource</p>
+          <em style={{ width: '71%' }} />
+        </div>
+        <div>
+          <p>Grammar and accuracy</p>
+          <em style={{ width: '64%' }} />
+        </div>
+      </div>
+      <ul className="platform-mobile-points">
+        <li>Controlled turn rhythm under pressure</li>
+        <li>Topic relevance sustained</li>
+        <li>Lexical precision needs one more upgrade</li>
+      </ul>
+    </div>
+  )
+}
+
 function TiltFeatureCard({
   title,
   description,
@@ -374,6 +473,7 @@ function TiltFeatureCard({
 function App() {
   const shouldReduceMotion = useReducedMotion()
   const [isScrolled, setIsScrolled] = useState(false)
+  const [isMobileViewport, setIsMobileViewport] = useState(false)
   const [activeSection, setActiveSection] = useState('#hero')
   const [introDone, setIntroDone] = useState(Boolean(shouldReduceMotion))
   const [bandScore, setBandScore] = useState(5.1)
@@ -385,6 +485,7 @@ function App() {
   const [demoRunning, setDemoRunning] = useState(false)
 
   const lenisRef = useRef<Lenis | null>(null)
+  const navRef = useRef<HTMLElement>(null)
   const pressureSectionRef = useRef<HTMLElement>(null)
   const examinerSectionRef = useRef<HTMLElement>(null)
   const platformSectionRef = useRef<HTMLElement>(null)
@@ -392,6 +493,7 @@ function App() {
   const pointerX = useMotionValue(50)
   const pointerY = useMotionValue(24)
   const ambientLayer = useMotionTemplate`radial-gradient(1040px circle at ${pointerX}% ${pointerY}%, rgba(248, 66, 56, 0.19), transparent 57%)`
+  const mobileMotionMode = isMobileViewport && !shouldReduceMotion
 
   const logoRotateX = useSpring(0, { stiffness: 180, damping: 24, mass: 0.7 })
   const logoRotateY = useSpring(0, { stiffness: 180, damping: 24, mass: 0.7 })
@@ -399,22 +501,42 @@ function App() {
 
   const { scrollYProgress: pressureProgress } = useScroll({
     target: pressureSectionRef,
-    offset: ['start start', 'end end'],
+    offset: isMobileViewport ? ['start 90%', 'end 10%'] : ['start start', 'end end'],
   })
 
   const pressureProgressSmooth = useSpring(pressureProgress, {
-    stiffness: shouldReduceMotion ? 220 : 58,
-    damping: shouldReduceMotion ? 48 : 22,
-    mass: 0.86,
+    stiffness: shouldReduceMotion ? 220 : isMobileViewport ? 68 : 58,
+    damping: shouldReduceMotion ? 48 : isMobileViewport ? 28 : 22,
+    mass: shouldReduceMotion ? 0.92 : isMobileViewport ? 0.96 : 0.86,
   })
 
   const chaosOpacity = useTransform(pressureProgressSmooth, [0, 0.42, 0.62], [1, 0.78, 0])
   const fluentOpacity = useTransform(pressureProgressSmooth, [0.34, 0.62, 1], [0, 0.74, 1])
-  const pressureEngineScaleRaw = useTransform(pressureProgressSmooth, [0, 0.44, 1], [0.9, 1, 1.03])
-  const pressureEngineRotateRaw = useTransform(pressureProgressSmooth, [0, 1], [5.6, -1.8])
-  const pressureEngineLiftRaw = useTransform(pressureProgressSmooth, [0, 0.5, 1], [34, 0, -12])
-  const pressureEngineTiltXRaw = useTransform(pressureProgressSmooth, [0, 0.5, 1], [2.8, 0.2, -0.9])
-  const pressureEngineTiltYRaw = useTransform(pressureProgressSmooth, [0, 0.5, 1], [-5.4, -1.2, 2.1])
+  const pressureEngineScaleRaw = useTransform(
+    pressureProgressSmooth,
+    [0, 0.44, 1],
+    shouldReduceMotion ? [1, 1, 1] : mobileMotionMode ? [0.972, 1, 1.014] : [0.9, 1, 1.03],
+  )
+  const pressureEngineRotateRaw = useTransform(
+    pressureProgressSmooth,
+    [0, 1],
+    shouldReduceMotion ? [0, 0] : mobileMotionMode ? [2.2, -0.9] : [5.6, -1.8],
+  )
+  const pressureEngineLiftRaw = useTransform(
+    pressureProgressSmooth,
+    [0, 0.5, 1],
+    shouldReduceMotion ? [0, 0, 0] : mobileMotionMode ? [18, 0, -8] : [34, 0, -12],
+  )
+  const pressureEngineTiltXRaw = useTransform(
+    pressureProgressSmooth,
+    [0, 0.5, 1],
+    shouldReduceMotion ? [0, 0, 0] : mobileMotionMode ? [1.2, 0, -0.5] : [2.8, 0.2, -0.9],
+  )
+  const pressureEngineTiltYRaw = useTransform(
+    pressureProgressSmooth,
+    [0, 0.5, 1],
+    shouldReduceMotion ? [0, 0, 0] : mobileMotionMode ? [-2.1, -0.4, 0.8] : [-5.4, -1.2, 2.1],
+  )
   const pressureEngineScale = useSpring(pressureEngineScaleRaw, { stiffness: 84, damping: 24, mass: 0.78 })
   const pressureEngineRotate = useSpring(pressureEngineRotateRaw, {
     stiffness: 84,
@@ -437,7 +559,11 @@ function App() {
     [0, 0.5, 1],
     [0.18, 0.42, 0.3],
   )
-  const trajectoryLength = useTransform(pressureProgressSmooth, [0, 1], [0.05, 1])
+  const trajectoryLength = useTransform(
+    pressureProgressSmooth,
+    [0, 1],
+    shouldReduceMotion ? [1, 1] : mobileMotionMode ? [0.16, 1] : [0.05, 1],
+  )
   const signalX = useTransform(pressureProgressSmooth, [0, 1], ['12%', '84%'])
   const signalY = useTransform(pressureProgressSmooth, [0, 1], ['74%', '18%'])
   const liveBand = useTransform(pressureProgressSmooth, [0, 1], [5.1, 8.95])
@@ -445,19 +571,35 @@ function App() {
 
   const { scrollYProgress: examinerProgress } = useScroll({
     target: examinerSectionRef,
-    offset: ['start start', 'end end'],
+    offset: isMobileViewport ? ['start 90%', 'end 12%'] : ['start start', 'end end'],
   })
 
   const examinerProgressSmooth = useSpring(examinerProgress, {
-    stiffness: shouldReduceMotion ? 220 : 64,
-    damping: shouldReduceMotion ? 48 : 24,
-    mass: 0.9,
+    stiffness: shouldReduceMotion ? 220 : isMobileViewport ? 70 : 64,
+    damping: shouldReduceMotion ? 48 : isMobileViewport ? 28 : 24,
+    mass: shouldReduceMotion ? 0.92 : isMobileViewport ? 0.96 : 0.9,
   })
 
-  const examinerYRaw = useTransform(examinerProgressSmooth, [0, 1], [76, -14])
-  const examinerRotateXRaw = useTransform(examinerProgressSmooth, [0, 1], [4.2, -1.1])
-  const examinerRotateYRaw = useTransform(examinerProgressSmooth, [0, 1], [-5.2, 2.3])
-  const examinerScaleRaw = useTransform(examinerProgressSmooth, [0, 1], [0.965, 1.012])
+  const examinerYRaw = useTransform(
+    examinerProgressSmooth,
+    [0, 1],
+    shouldReduceMotion ? [0, 0] : mobileMotionMode ? [32, -12] : [76, -14],
+  )
+  const examinerRotateXRaw = useTransform(
+    examinerProgressSmooth,
+    [0, 1],
+    shouldReduceMotion ? [0, 0] : mobileMotionMode ? [2.2, -0.7] : [4.2, -1.1],
+  )
+  const examinerRotateYRaw = useTransform(
+    examinerProgressSmooth,
+    [0, 1],
+    shouldReduceMotion ? [0, 0] : mobileMotionMode ? [-2.4, 1] : [-5.2, 2.3],
+  )
+  const examinerScaleRaw = useTransform(
+    examinerProgressSmooth,
+    [0, 1],
+    shouldReduceMotion ? [1, 1] : mobileMotionMode ? [0.985, 1.006] : [0.965, 1.012],
+  )
   const chamberGridY = useTransform(examinerProgressSmooth, [0, 1], [24, -18])
   const chamberGridOpacity = useTransform(examinerProgressSmooth, [0, 0.36, 1], [0.2, 0.34, 0.28])
   const chamberOrbitRotate = useTransform(examinerProgressSmooth, [0, 1], [-9, 12])
@@ -494,24 +636,40 @@ function App() {
 
   const { scrollYProgress: platformProgress } = useScroll({
     target: platformSectionRef,
-    offset: ['start start', 'end end'],
+    offset: isMobileViewport ? ['start 90%', 'end 12%'] : ['start start', 'end end'],
   })
 
   const platformProgressSmooth = useSpring(platformProgress, {
-    stiffness: shouldReduceMotion ? 220 : 62,
-    damping: shouldReduceMotion ? 48 : 24,
-    mass: 0.86,
+    stiffness: shouldReduceMotion ? 220 : isMobileViewport ? 72 : 62,
+    damping: shouldReduceMotion ? 48 : isMobileViewport ? 28 : 24,
+    mass: shouldReduceMotion ? 0.92 : isMobileViewport ? 0.96 : 0.86,
   })
   const platformSignal = useTransform(
     platformProgressSmooth,
-    [0, 0.24, 0.49, 0.74, 1],
-    [0, 1, 2, 3, 3],
+    [0, 0.25, 0.5, 0.75, 1],
+    [0, 0.99, 1.99, 2.99, 3.99],
   )
   const platformFill = useTransform(platformProgressSmooth, [0, 1], ['7%', '100%'])
-  const platformStageScale = useTransform(platformProgressSmooth, [0, 1], [0.95, 1.01])
-  const platformStageRotateX = useTransform(platformProgressSmooth, [0, 1], [3.5, -1.8])
-  const platformStageRotateY = useTransform(platformProgressSmooth, [0, 1], [-3.6, 2.2])
-  const platformStageY = useTransform(platformProgressSmooth, [0, 1], [28, -18])
+  const platformStageScale = useTransform(
+    platformProgressSmooth,
+    [0, 1],
+    shouldReduceMotion ? [1, 1] : mobileMotionMode ? [0.982, 1.008] : [0.95, 1.01],
+  )
+  const platformStageRotateX = useTransform(
+    platformProgressSmooth,
+    [0, 1],
+    shouldReduceMotion ? [0, 0] : mobileMotionMode ? [1.5, -0.9] : [3.5, -1.8],
+  )
+  const platformStageRotateY = useTransform(
+    platformProgressSmooth,
+    [0, 1],
+    shouldReduceMotion ? [0, 0] : mobileMotionMode ? [-1.7, 1.1] : [-3.6, 2.2],
+  )
+  const platformStageY = useTransform(
+    platformProgressSmooth,
+    [0, 1],
+    shouldReduceMotion ? [0, 0] : mobileMotionMode ? [18, -12] : [28, -18],
+  )
   const platformGlowX = useTransform(platformProgressSmooth, [0, 1], ['20%', '76%'])
   const platformGlowY = useTransform(platformProgressSmooth, [0, 1], ['30%', '62%'])
 
@@ -539,10 +697,22 @@ function App() {
   })
 
   useEffect(() => {
+    const updateViewportMode = () => {
+      setIsMobileViewport(window.innerWidth <= 900)
+    }
+
+    updateViewportMode()
+    window.addEventListener('resize', updateViewportMode)
+
+    return () => window.removeEventListener('resize', updateViewportMode)
+  }, [])
+
+  useEffect(() => {
     const lenis = new Lenis({
-      duration: 1.28,
+      duration: isMobileViewport ? 1.34 : 1.28,
       smoothWheel: true,
-      syncTouch: false,
+      syncTouch: isMobileViewport,
+      touchMultiplier: isMobileViewport ? 0.9 : 1,
       easing: (time) => 1 - Math.pow(1 - time, 3.2),
     })
 
@@ -561,7 +731,7 @@ function App() {
       lenis.destroy()
       lenisRef.current = null
     }
-  }, [])
+  }, [isMobileViewport])
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 20)
@@ -678,26 +848,29 @@ function App() {
     event.preventDefault()
     setActiveSection(href)
 
+    const navOffset = (navRef.current?.offsetHeight ?? (isMobileViewport ? 112 : 96)) + 14
     const targetElement = document.querySelector(href)
     const targetY =
       targetElement instanceof HTMLElement
-        ? targetElement.getBoundingClientRect().top + window.scrollY - 104
+        ? targetElement.getBoundingClientRect().top + window.scrollY - navOffset
         : null
 
     if (lenisRef.current) {
       const distance = targetY === null ? window.innerHeight : Math.abs(targetY - window.scrollY)
-      const adaptiveDuration = Math.min(3.35, Math.max(1.3, (distance / window.innerHeight) * 0.5))
+      const adaptiveDuration = isMobileViewport
+        ? Math.min(4.1, Math.max(1.85, (distance / window.innerHeight) * 0.74))
+        : Math.min(3.35, Math.max(1.3, (distance / window.innerHeight) * 0.5))
 
       lenisRef.current.scrollTo(href, {
         duration: adaptiveDuration,
-        offset: -104,
+        offset: -navOffset,
         easing: (time) => 1 - Math.pow(1 - time, 3.2),
       })
       return
     }
 
-    if (targetElement instanceof HTMLElement) {
-      targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    if (typeof targetY === 'number') {
+      window.scrollTo({ top: targetY, behavior: 'smooth' })
     }
   }
 
@@ -710,7 +883,7 @@ function App() {
       <motion.div className="ambient-layer" style={{ backgroundImage: ambientLayer }} />
       <div className="noise-layer" aria-hidden="true" />
 
-      <header className={`top-nav ${isScrolled ? 'is-scrolled' : ''}`}>
+      <header ref={navRef} className={`top-nav ${isScrolled ? 'is-scrolled' : ''}`}>
         <a
           className="brand-mark"
           href="#hero"
@@ -984,7 +1157,11 @@ function App() {
           </AnimatePresence>
         </motion.section>
 
-        <section className="story scene-pressure" id="experience" ref={pressureSectionRef}>
+        <section
+          className={`story scene-pressure ${isMobileViewport ? 'is-mobile' : ''}`}
+          id="experience"
+          ref={pressureSectionRef}
+        >
           <div className="story-sticky">
             <div className="scene-shell pressure-shell">
               <div className="scene-copy">
@@ -1019,6 +1196,12 @@ function App() {
                   rotate: pressureEngineRotate,
                   rotateX: pressureEngineTiltX,
                   rotateY: pressureEngineTiltY,
+                }}
+                transition={{
+                  type: 'spring',
+                  stiffness: shouldReduceMotion ? 150 : isMobileViewport ? 78 : 86,
+                  damping: shouldReduceMotion ? 34 : isMobileViewport ? 28 : 26,
+                  mass: 0.9,
                 }}
               >
                 <motion.div className="trajectory-aurora" style={{ opacity: pressureAuraOpacity, y: pressureAuraY }} />
@@ -1069,7 +1252,11 @@ function App() {
           </div>
         </section>
 
-        <section className="story scene-examiner" id="how-it-works" ref={examinerSectionRef}>
+        <section
+          className={`story scene-examiner ${isMobileViewport ? 'is-mobile' : ''}`}
+          id="how-it-works"
+          ref={examinerSectionRef}
+        >
           <div className="story-sticky">
             <div className="scene-shell examiner-shell-layout">
               <div className="scene-copy">
@@ -1175,7 +1362,11 @@ function App() {
           </div>
         </section>
 
-        <section className="story scene-platform" id="demo" ref={platformSectionRef}>
+        <section
+          className={`story scene-platform ${isMobileViewport ? 'is-mobile' : ''}`}
+          id="demo"
+          ref={platformSectionRef}
+        >
           <div className="story-sticky">
             <div className="scene-shell platform-shell">
               <div className="scene-copy platform-copy">
@@ -1232,6 +1423,10 @@ function App() {
                 />
                 {platformSlides.map((slide, index) => {
                   const isActive = platformStep === index
+                  const offsetY = isMobileViewport ? 64 : 108
+                  const offsetX = isMobileViewport ? 16 : 24
+                  const pastScale = isMobileViewport ? 0.91 : 0.86
+                  const futureScale = isMobileViewport ? 0.93 : 0.9
 
                   return (
                     <motion.article
@@ -1239,21 +1434,49 @@ function App() {
                       className={`platform-screen ${isActive ? 'is-active' : ''}`}
                       initial={false}
                       animate={{
-                        opacity: isActive ? 1 : index < platformStep ? 0.22 : 0.3,
-                        y: isActive ? 0 : index < platformStep ? -108 : 108,
-                        x: isActive ? 0 : index < platformStep ? -24 : 24,
-                        scale: isActive ? 1 : index < platformStep ? 0.86 : 0.9,
-                        rotateX: isActive ? 0 : index < platformStep ? 7.5 : -7.5,
-                        rotateY: isActive ? 0 : index % 2 === 0 ? -5.2 : 5.2,
-                        filter: isActive ? 'blur(0px)' : 'blur(1.5px)',
+                        opacity: isActive
+                          ? 1
+                          : index < platformStep
+                            ? isMobileViewport
+                              ? 0.34
+                              : 0.22
+                            : isMobileViewport
+                              ? 0.44
+                              : 0.3,
+                        y: isActive ? 0 : index < platformStep ? -offsetY : offsetY,
+                        x: isActive ? 0 : index < platformStep ? -offsetX : offsetX,
+                        scale: isActive ? 1 : index < platformStep ? pastScale : futureScale,
+                        rotateX: isActive
+                          ? 0
+                          : index < platformStep
+                            ? isMobileViewport
+                              ? 3.2
+                              : 7.5
+                            : isMobileViewport
+                              ? -3.2
+                              : -7.5,
+                        rotateY: isActive
+                          ? 0
+                          : index % 2 === 0
+                            ? isMobileViewport
+                              ? -1.8
+                              : -5.2
+                            : isMobileViewport
+                              ? 1.8
+                              : 5.2,
+                        filter: isActive ? 'blur(0px)' : `blur(${isMobileViewport ? 1.2 : 1.5}px)`,
                       }}
                       transition={{
-                        duration: shouldReduceMotion ? 0.01 : 0.7,
+                        duration: shouldReduceMotion ? 0.01 : isMobileViewport ? 0.96 : 0.7,
                         ease: [0.22, 1, 0.36, 1],
                       }}
                       style={{ zIndex: isActive ? 40 : platformSlides.length - index }}
                     >
-                      <PlatformFrame view={slide.view} />
+                      {isMobileViewport ? (
+                        <PlatformFrameMobile view={slide.view} />
+                      ) : (
+                        <PlatformFrame view={slide.view} />
+                      )}
                     </motion.article>
                   )
                 })}
@@ -1288,7 +1511,7 @@ function App() {
           </div>
         </section>
 
-        <section className="scene scene-demo" id="lab">
+        <section className={`scene scene-demo ${isMobileViewport ? 'is-mobile' : ''}`} id="lab">
           <div className="section-headline">
             <p className="scene-index">Scene 06</p>
             <h2>Operate the performance model.</h2>
@@ -1299,7 +1522,21 @@ function App() {
           </div>
 
           <div className="demo-grid">
-            <div className="demo-panel score-panel">
+            <motion.div
+              className="demo-panel score-panel"
+              initial={
+                shouldReduceMotion || !isMobileViewport
+                  ? false
+                  : { opacity: 0, y: 26, scale: 0.97, filter: 'blur(8px)' }
+              }
+              whileInView={
+                shouldReduceMotion || !isMobileViewport
+                  ? undefined
+                  : { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }
+              }
+              viewport={isMobileViewport ? { amount: 0.35 } : undefined}
+              transition={{ duration: shouldReduceMotion ? 0.01 : 0.8, ease: [0.22, 1, 0.36, 1] }}
+            >
               <label htmlFor="target-band">Target band: {targetBand.toFixed(1)}</label>
               <input
                 id="target-band"
@@ -1331,9 +1568,27 @@ function App() {
                   </p>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="demo-panel interaction-panel">
+            <motion.div
+              className="demo-panel interaction-panel"
+              initial={
+                shouldReduceMotion || !isMobileViewport
+                  ? false
+                  : { opacity: 0, y: 30, scale: 0.97, filter: 'blur(8px)' }
+              }
+              whileInView={
+                shouldReduceMotion || !isMobileViewport
+                  ? undefined
+                  : { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }
+              }
+              viewport={isMobileViewport ? { amount: 0.35 } : undefined}
+              transition={{
+                duration: shouldReduceMotion ? 0.01 : 0.86,
+                delay: shouldReduceMotion ? 0 : isMobileViewport ? 0.06 : 0,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+            >
               <div className="interaction-head">
                 <h3>Trigger examiner reaction</h3>
                 <button type="button" onClick={handleDemoStart}>
@@ -1361,7 +1616,7 @@ function App() {
                   ))}
                 </AnimatePresence>
               </div>
-            </div>
+            </motion.div>
           </div>
         </section>
 
