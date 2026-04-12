@@ -56,7 +56,7 @@ validate_port "FRONTEND_PORT" "${FRONTEND_PORT:-30000}"
 validate_port "LANDING_PORT" "${LANDING_PORT:-31000}"
 validate_port "POSTGRES_PORT" "${POSTGRES_PORT:-54320}"
 validate_port "REDIS_PORT" "${REDIS_PORT:-63790}"
-validate_port "CADDY_HTTP_PORT" "${CADDY_HTTP_PORT:-80}"
+validate_port "CADDY_HTTP_PORT" "${CADDY_HTTP_PORT:-800}"
 validate_port "CADDY_HTTPS_PORT" "${CADDY_HTTPS_PORT:-443}"
 
 compose config -q

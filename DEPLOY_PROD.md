@@ -10,7 +10,7 @@ Create these DNS records and point them to your server IP:
 ## 2) Open firewall ports
 Allow inbound ports:
 
-- `80/tcp` (HTTP, used for Let's Encrypt challenge + redirect)
+- `800/tcp` (HTTP container port published as host `800`)
 - `443/tcp` (HTTPS)
 - Optional direct service ports from `.env.prod` (`18000`, `30000`, `31000`, etc.)
 
