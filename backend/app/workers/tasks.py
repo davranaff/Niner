@@ -20,6 +20,7 @@ from app.db.models import (
     ParseStatusEnum,
     ReadingQuestionBlock,
     ProgressTestTypeEnum,
+    TrainingAssignment,
     UserAnalytics,
     UserProgress,
     WritingExam,
@@ -27,6 +28,11 @@ from app.db.models import (
 )
 from app.db.session import SessionLocal
 from app.modules.assignments import services as assignment_services
+from app.modules.assignments.services.generated_tests import (
+    GENERATION_STATUS_FAILED,
+    GENERATION_STATUS_QUEUED,
+    perform_assignment_test_generation,
+)
 from app.modules.ai_summary.services.generator import build_module_summary
 
 logger = logging.getLogger(__name__)
@@ -82,6 +88,32 @@ async def parse_table_completion(ctx: dict, kind: str, block_id: int) -> None:
             block.parse_status = ParseStatusEnum.failed
             await db.commit()
             logger.exception("Table parse failed", extra={"kind": kind, "block_id": block_id})
+
+
+async def generate_assignment_test(ctx: dict, assignment_id: int) -> None:
+    job_try = int(ctx.get("job_try", 1))
+
+    async with SessionLocal() as db:
+        assignment = await db.get(TrainingAssignment, assignment_id)
+        if assignment is None:
+            logger.warning("Assignment generation skipped, assignment not found", extra={"assignment_id": assignment_id})
+            return
+
+        try:
+            await perform_assignment_test_generation(db, assignment_id=assignment_id)
+        except Exception as exc:  # noqa: BLE001
+            assignment = await db.get(TrainingAssignment, assignment_id)
+            if assignment is not None:
+                assignment.generation_error = str(exc)
+                if job_try < 3:
+                    assignment.generation_status = GENERATION_STATUS_QUEUED
+                    assignment.generation_progress = max(5, int(assignment.generation_progress or 0))
+                    await db.commit()
+                    raise Retry(defer=2**job_try) from exc
+
+                assignment.generation_status = GENERATION_STATUS_FAILED
+                await db.commit()
+            logger.exception("Weak-area test generation failed", extra={"assignment_id": assignment_id})
 
 
 def _to_band_decimal(value: Any) -> Decimal | None:

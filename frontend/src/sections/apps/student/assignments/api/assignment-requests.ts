@@ -4,6 +4,7 @@ import type {
   AssignmentAttemptCreatePayload,
   AssignmentAttemptCreateResponse,
   AssignmentDetailsResponse,
+  AssignmentGenerateTestResponse,
   AssignmentListParams,
   AssignmentListResponse,
 } from './types';
@@ -12,6 +13,7 @@ const assignmentUrls = {
   list: '/api/v1/assignments',
   details: (assignmentId: number) => `/api/v1/assignments/${assignmentId}`,
   attempts: (assignmentId: number) => `/api/v1/assignments/${assignmentId}/attempts`,
+  generateTest: (assignmentId: number) => `/api/v1/assignments/${assignmentId}/generate-test`,
 } as const;
 
 export function fetchAssignments(params: AssignmentListParams = {}) {
@@ -37,5 +39,12 @@ export function submitAssignmentAttempt(
     method: 'POST',
     url: assignmentUrls.attempts(assignmentId),
     data: payload,
+  });
+}
+
+export function generateAssignmentTest(assignmentId: number) {
+  return request<AssignmentGenerateTestResponse>({
+    method: 'POST',
+    url: assignmentUrls.generateTest(assignmentId),
   });
 }

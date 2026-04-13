@@ -117,11 +117,18 @@ class TrainingAssignment(TimestampMixin, Base):
         default=AssignmentStatusEnum.recommended,
         nullable=False,
     )
+    generation_status: Mapped[str] = mapped_column(String(32), default="idle", nullable=False)
+    generation_progress: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    generation_error: Mapped[str | None] = mapped_column(Text, nullable=True)
     recommended_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=lambda: datetime.now(UTC),
         nullable=False,
     )
+    generation_requested_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    generation_started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    generated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    generated_test_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     due_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
@@ -173,3 +180,4 @@ Index("ix_assignment_error_skill", AssignmentErrorItem.user_id, AssignmentErrorI
 Index("ix_assignment_gap_user_seen", AssignmentSkillGap.user_id, AssignmentSkillGap.last_seen_at)
 Index("ix_training_assignment_user_status", TrainingAssignment.user_id, TrainingAssignment.status)
 Index("ix_training_assignment_exam", TrainingAssignment.source_exam_kind, TrainingAssignment.source_exam_id)
+Index("ix_training_assignment_generated_test", TrainingAssignment.module, TrainingAssignment.generated_test_id)

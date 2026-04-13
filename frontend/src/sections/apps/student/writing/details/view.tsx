@@ -20,6 +20,11 @@ import { fDate, fDateTime } from 'src/utils/format-time';
 import { AppsPageHeader, AppsStatusChip, InsightListCard, MetricCard } from 'src/pages/components/apps';
 import { toModuleAttemptHistoryItems } from 'src/sections/apps/common/module-test/utils/attempt-history';
 import { formatRoundedBand } from 'src/sections/apps/common/utils/format-band';
+import {
+  buildGeneratedAssignmentHref,
+  buildGeneratedTestOriginLabel,
+  buildGeneratedTestSourceAttemptLabel,
+} from 'src/sections/apps/common/module-test/generated-test-origin';
 
 import {
   findLatestStoredWritingResultForTest,
@@ -143,6 +148,20 @@ export default function AppsWritingDetailsView() {
       />
 
       {statusAlert}
+
+      {detail.origin ? (
+        <Alert
+          severity="warning"
+          sx={{ mb: 3 }}
+          action={
+            <Button component={RouterLink} href={buildGeneratedAssignmentHref(detail.origin)} color="inherit" size="small">
+              {tx('pages.ielts.assignments.open_assignment')}
+            </Button>
+          }
+        >
+          {buildGeneratedTestOriginLabel(detail.origin, tx)}. {buildGeneratedTestSourceAttemptLabel(detail.origin, tx)}
+        </Alert>
+      ) : null}
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={8}>

@@ -1,3 +1,5 @@
+import type { GeneratedTestOrigin } from 'src/sections/apps/common/module-test/generated-test-origin';
+
 export type ListeningListRequestParams = {
   offset: number;
   limit: number;
@@ -34,6 +36,7 @@ export type BackendListeningListItem = {
   attemptsCount: number;
   successfulAttemptsCount: number;
   failedAttemptsCount: number;
+  origin: GeneratedTestOrigin | null;
 };
 
 export type ListeningListItem = {
@@ -48,6 +51,7 @@ export type ListeningListItem = {
   attemptsCount: number;
   successfulAttemptsCount: number;
   failedAttemptsCount: number;
+  origin: GeneratedTestOrigin | null;
 };
 
 export type ListeningListPage = {
@@ -111,6 +115,7 @@ export type BackendListeningTestDetail = {
   timeLimit: number;
   createdAt: string;
   parts: BackendListeningPart[];
+  origin: GeneratedTestOrigin | null;
 };
 
 export type ListeningQuestionOption = {
@@ -165,6 +170,7 @@ export type ListeningTestDetail = {
   timeLimit: number;
   createdAt: string;
   parts: ListeningPart[];
+  origin: GeneratedTestOrigin | null;
 };
 
 export type BackendExamPublic = {

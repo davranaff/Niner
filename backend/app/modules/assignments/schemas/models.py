@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from decimal import Decimal
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -56,6 +56,26 @@ class AssignmentAttemptOut(BaseModel):
     updated_at: datetime
 
 
+class AssignmentGeneratedTestOut(BaseModel):
+    status: Literal["idle", "queued", "processing", "ready", "failed"]
+    progress_percent: int = Field(ge=0, le=100)
+    test_id: int | None = None
+    requested_at: datetime | None = None
+    started_at: datetime | None = None
+    generated_at: datetime | None = None
+    error: str | None = None
+
+
+class GeneratedTestOriginOut(BaseModel):
+    kind: Literal["assignment_generated"]
+    assignment_id: int
+    assignment_title: str
+    skill_label: str | None = None
+    source_exam_kind: ProgressTestTypeEnum
+    source_exam_id: int
+    generated_at: datetime | None = None
+
+
 class AssignmentOut(BaseModel):
     id: int
     module: ProgressTestTypeEnum
@@ -73,6 +93,7 @@ class AssignmentOut(BaseModel):
     attempts_count: int = Field(ge=0)
     skill_gap: AssignmentSkillGapOut | None = None
     latest_attempt: AssignmentAttemptOut | None = None
+    generated_test: AssignmentGeneratedTestOut
 
 
 class AssignmentListOut(BaseModel):
@@ -92,3 +113,7 @@ class AssignmentDetailsOut(BaseModel):
 class AssignmentAttemptCreateOut(BaseModel):
     assignment: AssignmentOut
     attempt: AssignmentAttemptOut
+
+
+class AssignmentGenerateTestOut(BaseModel):
+    assignment: AssignmentOut

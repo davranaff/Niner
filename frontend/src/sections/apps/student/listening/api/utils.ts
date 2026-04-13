@@ -176,6 +176,7 @@ export function toListeningListItem(item: BackendListeningListItem): ListeningLi
     attemptsCount: Math.max(0, item.attemptsCount ?? 0),
     successfulAttemptsCount: Math.max(0, item.successfulAttemptsCount ?? 0),
     failedAttemptsCount: Math.max(0, item.failedAttemptsCount ?? 0),
+    origin: item.origin ?? null,
   };
 }
 
@@ -204,6 +205,7 @@ export function toListeningTestDetail(response: BackendListeningTestDetail): Lis
     timeLimit: response.timeLimit,
     createdAt: response.createdAt,
     parts: response.parts.map(toListeningPart),
+    origin: response.origin ?? null,
   };
 }
 

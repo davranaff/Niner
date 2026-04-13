@@ -2,6 +2,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
+from app.modules.assignments.schemas import GeneratedTestOriginOut
+
 
 class WritingTestListItem(BaseModel):
     id: int
@@ -13,6 +15,7 @@ class WritingTestListItem(BaseModel):
     attempts_count: int = Field(ge=0, default=0)
     successful_attempts_count: int = Field(ge=0, default=0)
     failed_attempts_count: int = Field(ge=0, default=0)
+    origin: GeneratedTestOriginOut | None = None
 
 
 class WritingPromptAssets(BaseModel):
@@ -45,3 +48,4 @@ class WritingTestDetail(BaseModel):
     created_at: datetime
     parts: list[WritingPartDetail]
     writing_parts: list[WritingPartDetail]
+    origin: GeneratedTestOriginOut | None = None

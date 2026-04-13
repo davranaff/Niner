@@ -7,7 +7,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import ApiError
 from app.core.pagination import CursorPage, serialize_page
-from app.db.models import ReadingQuestion, ReadingQuestionBlock, ReadingTest, User
+from app.db.models import ProgressTestTypeEnum, ReadingQuestion, ReadingQuestionBlock, ReadingTest, User
+from app.modules.assignments.services.generated_tests import (
+    get_generated_test_origin,
+    get_generated_test_origin_map,
+)
 from app.modules.reading import repository
 from app.modules.reading.schemas import ReadingTestListItem
 
@@ -219,6 +223,12 @@ async def list_reading_tests(
     limit: int,
 ) -> CursorPage:
     rows = await repository.list_active_tests(db, offset=offset, limit=limit)
+    origin_by_test_id = await get_generated_test_origin_map(
+        db,
+        user_id=user.id,
+        module=ProgressTestTypeEnum.reading,
+        test_ids=[row.id for row in rows],
+    )
     stats_by_test_id = await repository.get_attempt_stats_by_test_ids(
         db,
         user_id=user.id,
@@ -242,14 +252,22 @@ async def list_reading_tests(
                 "failed_attempts_count",
                 0,
             ),
+            origin=origin_by_test_id.get(row.id),
         ).model_dump(),
         limit=limit,
         offset=offset,
     )
 
 
-async def get_reading_test_detail(db: AsyncSession, test_id: int) -> dict[str, Any]:
+async def get_reading_test_detail(db: AsyncSession, user: User, test_id: int) -> dict[str, Any]:
     test = await repository.get_test_detail(db, test_id)
     if test is None:
         raise ApiError(code="reading_test_not_found", message="Reading test not found", status_code=404)
-    return serialize_reading_test_detail(test)
+    payload = serialize_reading_test_detail(test)
+    payload["origin"] = await get_generated_test_origin(
+        db,
+        user_id=user.id,
+        module=ProgressTestTypeEnum.reading,
+        test_id=test_id,
+    )
+    return payload

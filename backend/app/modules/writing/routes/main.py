@@ -22,6 +22,10 @@ async def list_tests(
 
 
 @router.get("/tests/{test_id}", response_model=WritingTestDetail)
-async def get_test(test_id: int, db: AsyncSession = Depends(get_db)) -> WritingTestDetail:
-    payload = await services.get_writing_test_detail(db, test_id)
+async def get_test(
+    test_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> WritingTestDetail:
+    payload = await services.get_writing_test_detail(db, current_user, test_id)
     return WritingTestDetail.model_validate(payload)

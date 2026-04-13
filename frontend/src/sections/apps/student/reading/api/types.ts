@@ -1,3 +1,5 @@
+import type { GeneratedTestOrigin } from 'src/sections/apps/common/module-test/generated-test-origin';
+
 export type ReadingListRequestParams = {
   offset: number;
   limit: number;
@@ -24,6 +26,7 @@ export type BackendReadingListItem = {
   attemptsCount: number;
   successfulAttemptsCount: number;
   failedAttemptsCount: number;
+  origin: GeneratedTestOrigin | null;
 };
 
 export type ReadingListItem = {
@@ -37,6 +40,7 @@ export type ReadingListItem = {
   attemptsCount: number;
   successfulAttemptsCount: number;
   failedAttemptsCount: number;
+  origin: GeneratedTestOrigin | null;
 };
 
 export type ReadingListPage = {
@@ -104,6 +108,7 @@ export type BackendReadingTestDetail = {
   createdAt: string;
   parts: BackendReadingPart[];
   passages: BackendReadingPart[];
+  origin: GeneratedTestOrigin | null;
 };
 
 export type ReadingQuestionOption = {
@@ -161,6 +166,7 @@ export type ReadingTestDetail = {
   createdAt: string;
   parts: ReadingPart[];
   passages: ReadingPart[];
+  origin: GeneratedTestOrigin | null;
 };
 
 export type BackendExamPublic = {

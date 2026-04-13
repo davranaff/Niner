@@ -1,3 +1,5 @@
+import type { GeneratedTestOrigin } from 'src/sections/apps/common/module-test/generated-test-origin';
+
 export type SpeakingPartId = 'part1' | 'part2' | 'part3';
 
 export type SpeakingSessionStatus =
@@ -86,6 +88,7 @@ export interface SpeakingTestListItem {
   attemptsCount: number;
   successfulAttemptsCount: number;
   failedAttemptsCount: number;
+  origin: GeneratedTestOrigin | null;
 }
 
 export interface SpeakingTestDetail
@@ -96,6 +99,7 @@ export interface SpeakingTestDetail
   instructions: string[];
   scoringFocus: string[];
   parts: SpeakingPart[];
+  origin: GeneratedTestOrigin | null;
 }
 
 export interface SpeakingTranscriptSegment {

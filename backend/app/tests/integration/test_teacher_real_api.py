@@ -7,8 +7,16 @@ from app.core.security import hash_password
 from app.db.models import (
     FinishReasonEnum,
     ListeningExam,
+    ListeningExamQuestionAnswer,
+    ListeningPart,
+    ListeningQuestion,
+    ListeningQuestionBlock,
     ListeningTest,
     ReadingExam,
+    ReadingExamQuestionAnswer,
+    ReadingPassage,
+    ReadingQuestion,
+    ReadingQuestionBlock,
     ReadingTest,
     RoleEnum,
     SpeakingExam,
@@ -93,6 +101,59 @@ async def test_teacher_dashboards_and_analytics_use_real_backend_data(client, db
     db_session.add_all([reading_test, listening_test, writing_test, speaking_test])
     await db_session.flush()
 
+    reading_passage = ReadingPassage(
+        test_id=reading_test.id,
+        title="Teacher Reading Passage",
+        content="Passage content",
+        passage_number=1,
+    )
+    db_session.add(reading_passage)
+    await db_session.flush()
+
+    reading_block = ReadingQuestionBlock(
+        passage_id=reading_passage.id,
+        title="Teacher Reading Block",
+        description="Desc",
+        block_type="short_answers",
+        order=1,
+    )
+    db_session.add(reading_block)
+    await db_session.flush()
+
+    reading_question = ReadingQuestion(
+        question_block_id=reading_block.id,
+        question_text="Teacher reading question",
+        order=1,
+    )
+    db_session.add(reading_question)
+    await db_session.flush()
+
+    listening_part = ListeningPart(
+        test_id=listening_test.id,
+        title="Teacher Listening Part",
+        order=1,
+    )
+    db_session.add(listening_part)
+    await db_session.flush()
+
+    listening_block = ListeningQuestionBlock(
+        part_id=listening_part.id,
+        title="Teacher Listening Block",
+        description="Desc",
+        block_type="short_answer",
+        order=1,
+    )
+    db_session.add(listening_block)
+    await db_session.flush()
+
+    listening_question = ListeningQuestion(
+        question_block_id=listening_block.id,
+        question_text="Teacher listening question",
+        order=1,
+    )
+    db_session.add(listening_question)
+    await db_session.flush()
+
     writing_part = WritingPart(
         test_id=writing_test.id,
         order=2,
@@ -144,6 +205,25 @@ async def test_teacher_dashboards_and_analytics_use_real_backend_data(client, db
     )
     db_session.add_all([reading_exam, listening_exam, writing_exam, speaking_exam])
     await db_session.flush()
+
+    db_session.add_all(
+        [
+            ReadingExamQuestionAnswer(
+                exam_id=reading_exam.id,
+                question_id=reading_question.id,
+                user_answer="wrong reading answer",
+                correct_answer="correct reading answer",
+                is_correct=False,
+            ),
+            ListeningExamQuestionAnswer(
+                exam_id=listening_exam.id,
+                question_id=listening_question.id,
+                user_answer="wrong listening answer",
+                correct_answer="correct listening answer",
+                is_correct=False,
+            ),
+        ]
+    )
 
     db_session.add(
         WritingExamPart(

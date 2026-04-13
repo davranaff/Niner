@@ -1,6 +1,7 @@
 export type AssignmentModule = 'reading' | 'listening' | 'writing' | 'speaking';
 export type AssignmentStatus = 'recommended' | 'in_progress' | 'completed' | 'cancelled';
 export type SkillGapStatus = 'open' | 'improving' | 'resolved';
+export type AssignmentGeneratedTestStatus = 'idle' | 'queued' | 'processing' | 'ready' | 'failed';
 
 export type AssignmentSkillGap = {
   id: number;
@@ -27,6 +28,16 @@ export type AssignmentAttempt = {
   updatedAt: string;
 };
 
+export type AssignmentGeneratedTest = {
+  status: AssignmentGeneratedTestStatus;
+  progressPercent: number;
+  testId: number | null;
+  requestedAt: string | null;
+  startedAt: string | null;
+  generatedAt: string | null;
+  error: string | null;
+};
+
 export type AssignmentItem = {
   id: number;
   module: AssignmentModule;
@@ -44,6 +55,7 @@ export type AssignmentItem = {
   attemptsCount: number;
   skillGap: AssignmentSkillGap | null;
   latestAttempt: AssignmentAttempt | null;
+  generatedTest: AssignmentGeneratedTest;
 };
 
 export type AssignmentErrorItem = {
@@ -85,6 +97,10 @@ export type AssignmentAttemptCreatePayload = {
 export type AssignmentAttemptCreateResponse = {
   assignment: AssignmentItem;
   attempt: AssignmentAttempt;
+};
+
+export type AssignmentGenerateTestResponse = {
+  assignment: AssignmentItem;
 };
 
 export type AssignmentListParams = {

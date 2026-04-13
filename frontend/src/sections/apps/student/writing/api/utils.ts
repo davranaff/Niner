@@ -133,6 +133,7 @@ export function toWritingListItem(item: BackendWritingListItem): WritingListItem
     attemptsCount: Math.max(0, item.attemptsCount ?? 0),
     successfulAttemptsCount: Math.max(0, item.successfulAttemptsCount ?? 0),
     failedAttemptsCount: Math.max(0, item.failedAttemptsCount ?? 0),
+    origin: item.origin ?? null,
   };
 }
 
@@ -163,6 +164,7 @@ export function toWritingTestDetail(response: BackendWritingTestDetail): Writing
     createdAt: response.createdAt,
     parts,
     writingParts,
+    origin: response.origin ?? null,
   };
 }
 

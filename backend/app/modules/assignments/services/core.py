@@ -27,7 +27,15 @@ from app.db.models import (
     WritingExam,
 )
 from app.modules.assignments import repository
+from app.modules.assignments.services.generated_tests import (
+    ACTIVE_GENERATION_STATUSES,
+    GENERATION_STATUS_FAILED,
+    GENERATION_STATUS_IDLE,
+    GENERATION_STATUS_QUEUED,
+    serialize_generated_test,
+)
 from app.modules.exams import repository as exams_repository
+from app.workers.queue import enqueue_assignment_test_generation
 
 _ANSWER_NORMALIZE_RE = re.compile(r"[^a-z0-9]+")
 
@@ -170,6 +178,7 @@ def _serialize_assignment(assignment: TrainingAssignment) -> dict[str, Any]:
         "attempts_count": len(assignment.attempts),
         "skill_gap": _serialize_skill_gap(assignment.skill_gap),
         "latest_attempt": _serialize_attempt(latest_attempt),
+        "generated_test": serialize_generated_test(assignment),
     }
 
 
@@ -480,12 +489,14 @@ async def ensure_objective_exam_assignments(
             title=f"{example.skill_label} recovery drill",
             instructions=(
                 f"Review why your answer was incorrect in {example.skill_label}. "
-                "Then solve at least 5 timed items of the same type and explain each correction."
+                "Then solve 10 timed items of the same type and explain each correction."
             ),
             payload={
                 "module": kind,
                 "skill_key": skill_key,
+                "block_type": str((example.details or {}).get("block_type") or "").strip().lower(),
                 "exam_id": exam_id,
+                "target_question_count": 10,
                 "source_question_ids": [item.details.get("question_id") for item in errors],
                 "expected_answers": [item.expected_answer for item in errors if item.expected_answer],
             },
@@ -810,6 +821,53 @@ async def get_assignment_details(
         "error_items": [_serialize_error_item(item) for item in error_items],
         "attempts": serialized_attempts,
     }
+
+
+async def request_assignment_test_generation(
+    db: AsyncSession,
+    user: User,
+    *,
+    assignment_id: int,
+) -> dict[str, Any]:
+    if user.role not in {RoleEnum.student, RoleEnum.admin}:
+        raise ApiError(code="forbidden", message="Only students can generate assignment tests", status_code=403)
+
+    assignment = await repository.get_assignment_owned(db, user_id=user.id, assignment_id=assignment_id)
+    if assignment is None:
+        raise ApiError(code="assignment_not_found", message="Assignment not found", status_code=404)
+
+    current_status = str(assignment.generation_status or GENERATION_STATUS_IDLE)
+    if assignment.generated_test_id is not None or current_status in ACTIVE_GENERATION_STATUSES:
+        return {"assignment": _serialize_assignment(assignment)}
+
+    assignment.generation_status = GENERATION_STATUS_QUEUED
+    assignment.generation_progress = 5
+    assignment.generation_error = None
+    assignment.generation_requested_at = datetime.now(UTC)
+    assignment.generation_started_at = None
+    assignment.generated_at = None
+    await db.commit()
+
+    try:
+        await enqueue_assignment_test_generation(assignment.id)
+    except Exception as exc:  # noqa: BLE001
+        assignment = await repository.get_assignment_owned(db, user_id=user.id, assignment_id=assignment_id)
+        if assignment is not None:
+            assignment.generation_status = GENERATION_STATUS_FAILED
+            assignment.generation_progress = 0
+            assignment.generation_error = str(exc)
+            await db.commit()
+        raise ApiError(
+            code="assignment_generation_enqueue_failed",
+            message="Could not queue weak-area test generation",
+            status_code=503,
+        ) from exc
+
+    assignment = await repository.get_assignment_owned(db, user_id=user.id, assignment_id=assignment_id)
+    if assignment is None:
+        raise ApiError(code="assignment_not_found", message="Assignment not found", status_code=404)
+
+    return {"assignment": _serialize_assignment(assignment)}
 
 
 def _evaluate_attempt_score(

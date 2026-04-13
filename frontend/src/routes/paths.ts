@@ -49,6 +49,7 @@ export const paths = {
     overallExamAttempt: (overallId: string) => `/dashboard/overall-exam/attempts/${overallId}`,
 
     myTests: '/dashboard/my-tests',
+    assignments: '/dashboard/assignments',
     profile: '/dashboard/profile',
 
     teacher: {

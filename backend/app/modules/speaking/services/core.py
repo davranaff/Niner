@@ -6,7 +6,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import ApiError
 from app.core.pagination import CursorPage, serialize_page
-from app.db.models import SpeakingQuestion, SpeakingTest, User
+from app.db.models import ProgressTestTypeEnum, SpeakingQuestion, SpeakingTest, User
+from app.modules.assignments.services.generated_tests import (
+    get_generated_test_origin,
+    get_generated_test_origin_map,
+)
 from app.modules.speaking import repository
 from app.modules.speaking.schemas import SpeakingTestListItem
 
@@ -87,6 +91,12 @@ def get_next_question_by_index(test: SpeakingTest, index: int) -> SpeakingQuesti
 
 async def list_speaking_tests(db: AsyncSession, user: User, offset: int, limit: int) -> CursorPage:
     rows = await repository.list_active_tests(db, offset=offset, limit=limit)
+    origin_by_test_id = await get_generated_test_origin_map(
+        db,
+        user_id=user.id,
+        module=ProgressTestTypeEnum.speaking,
+        test_ids=[row.id for row in rows],
+    )
     stats_by_test_id = await repository.get_attempt_stats_by_test_ids(
         db,
         user_id=user.id,
@@ -112,14 +122,22 @@ async def list_speaking_tests(db: AsyncSession, user: User, offset: int, limit: 
                 "failed_attempts_count",
                 0,
             ),
+            origin=origin_by_test_id.get(row.id),
         ).model_dump(),
         limit=limit,
         offset=offset,
     )
 
 
-async def get_speaking_test_detail(db: AsyncSession, test_id: int) -> dict[str, Any]:
+async def get_speaking_test_detail(db: AsyncSession, user: User, test_id: int) -> dict[str, Any]:
     test = await repository.get_test_detail(db, test_id)
     if test is None:
         raise ApiError(code="speaking_test_not_found", message="Speaking test not found", status_code=404)
-    return serialize_speaking_test_detail(test)
+    payload = serialize_speaking_test_detail(test)
+    payload["origin"] = await get_generated_test_origin(
+        db,
+        user_id=user.id,
+        module=ProgressTestTypeEnum.speaking,
+        test_id=test_id,
+    )
+    return payload

@@ -3,6 +3,8 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from app.modules.assignments.schemas import GeneratedTestOriginOut
+
 
 class ReadingTestListItem(BaseModel):
     id: int
@@ -14,6 +16,7 @@ class ReadingTestListItem(BaseModel):
     attempts_count: int = Field(ge=0, default=0)
     successful_attempts_count: int = Field(ge=0, default=0)
     failed_attempts_count: int = Field(ge=0, default=0)
+    origin: GeneratedTestOriginOut | None = None
 
 
 class ReadingOptionDetail(BaseModel):
@@ -72,3 +75,4 @@ class ReadingTestDetail(BaseModel):
     created_at: datetime
     parts: list[ReadingPartDetail]
     passages: list[ReadingPartDetail]
+    origin: GeneratedTestOriginOut | None = None

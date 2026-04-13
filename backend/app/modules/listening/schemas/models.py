@@ -3,6 +3,8 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from app.modules.assignments.schemas import GeneratedTestOriginOut
+
 
 class ListeningTestListItem(BaseModel):
     id: int
@@ -15,6 +17,7 @@ class ListeningTestListItem(BaseModel):
     attempts_count: int = Field(ge=0, default=0)
     successful_attempts_count: int = Field(ge=0, default=0)
     failed_attempts_count: int = Field(ge=0, default=0)
+    origin: GeneratedTestOriginOut | None = None
 
 
 class ListeningOptionDetail(BaseModel):
@@ -69,3 +72,4 @@ class ListeningTestDetail(BaseModel):
     time_limit: int
     created_at: datetime
     parts: list[ListeningPartDetail]
+    origin: GeneratedTestOriginOut | None = None

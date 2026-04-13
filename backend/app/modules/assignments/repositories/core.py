@@ -172,6 +172,23 @@ async def get_assignment_owned(
     return (await db.execute(stmt)).scalar_one_or_none()
 
 
+async def get_assignment_with_relations(
+    db: AsyncSession,
+    *,
+    assignment_id: int,
+) -> TrainingAssignment | None:
+    stmt = (
+        select(TrainingAssignment)
+        .where(TrainingAssignment.id == assignment_id)
+        .options(
+            selectinload(TrainingAssignment.skill_gap),
+            selectinload(TrainingAssignment.attempts),
+            selectinload(TrainingAssignment.source_error_item),
+        )
+    )
+    return (await db.execute(stmt)).scalar_one_or_none()
+
+
 async def get_latest_assignment_attempt(
     db: AsyncSession,
     *,
@@ -184,3 +201,30 @@ async def get_latest_assignment_attempt(
         .limit(1)
     )
     return (await db.execute(stmt)).scalar_one_or_none()
+
+
+async def list_generated_assignments_for_tests(
+    db: AsyncSession,
+    *,
+    user_id: int,
+    module: ProgressTestTypeEnum,
+    test_ids: list[int],
+) -> list[TrainingAssignment]:
+    if not test_ids:
+        return []
+
+    stmt = (
+        select(TrainingAssignment)
+        .where(
+            TrainingAssignment.user_id == user_id,
+            TrainingAssignment.module == module,
+            TrainingAssignment.generated_test_id.is_not(None),
+            TrainingAssignment.generated_test_id.in_(test_ids),
+        )
+        .options(
+            selectinload(TrainingAssignment.skill_gap),
+            selectinload(TrainingAssignment.source_error_item),
+        )
+        .order_by(TrainingAssignment.id.desc())
+    )
+    return list((await db.execute(stmt)).scalars().all())

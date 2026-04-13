@@ -13,9 +13,15 @@ import LoadingButton from '@mui/lab/LoadingButton';
 
 import { useLocales } from 'src/locales';
 import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
 import { useParams, useRouter } from 'src/routes/hook';
 import { fDate } from 'src/utils/format-time';
 import { AppsPageHeader, InsightListCard, MetricCard } from 'src/pages/components/apps';
+import {
+  buildGeneratedAssignmentHref,
+  buildGeneratedTestOriginLabel,
+  buildGeneratedTestSourceAttemptLabel,
+} from 'src/sections/apps/common/module-test/generated-test-origin';
 
 import {
   findLatestSpeakingExamForTest,
@@ -105,6 +111,20 @@ export default function AppsSpeakingDetailsView() {
       {storedActiveExamId || latestActiveExam ? (
         <Alert severity="info" sx={{ mb: 3 }}>
           {tx('pages.ielts.shared.resume_available')}
+        </Alert>
+      ) : null}
+
+      {detail.origin ? (
+        <Alert
+          severity="warning"
+          sx={{ mb: 3 }}
+          action={
+            <Button component={RouterLink} href={buildGeneratedAssignmentHref(detail.origin)} color="inherit" size="small">
+              {tx('pages.ielts.assignments.open_assignment')}
+            </Button>
+          }
+        >
+          {buildGeneratedTestOriginLabel(detail.origin, tx)}. {buildGeneratedTestSourceAttemptLabel(detail.origin, tx)}
         </Alert>
       ) : null}
 

@@ -71,8 +71,12 @@ async def list_tests(
 
 
 @router.get("/tests/{test_id}", response_model=SpeakingTestDetail)
-async def get_test_detail(test_id: int, db: AsyncSession = Depends(get_db)) -> SpeakingTestDetail:
-    payload = await services.get_speaking_test_detail(db, test_id)
+async def get_test_detail(
+    test_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> SpeakingTestDetail:
+    payload = await services.get_speaking_test_detail(db, current_user, test_id)
     return SpeakingTestDetail.model_validate(payload)
 
 

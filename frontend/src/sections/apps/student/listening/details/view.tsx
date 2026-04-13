@@ -20,6 +20,11 @@ import { useParams, useRouter } from 'src/routes/hook';
 import { fDateTime } from 'src/utils/format-time';
 import { formatRoundedBand } from 'src/sections/apps/common/utils/format-band';
 import {
+  buildGeneratedAssignmentHref,
+  buildGeneratedTestOriginLabel,
+  buildGeneratedTestSourceAttemptLabel,
+} from 'src/sections/apps/common/module-test/generated-test-origin';
+import {
   AppsDetailSkeleton,
 } from 'src/sections/apps/student/module-test/details/skeleton';
 import {
@@ -164,6 +169,20 @@ export default function AppsListeningDetailsView() {
       />
 
       {statusAlert}
+
+      {detail.origin ? (
+        <Alert
+          severity="warning"
+          sx={{ mb: 3 }}
+          action={
+            <Button component={RouterLink} href={buildGeneratedAssignmentHref(detail.origin)} color="inherit" size="small">
+              {tx('pages.ielts.assignments.open_assignment')}
+            </Button>
+          }
+        >
+          {buildGeneratedTestOriginLabel(detail.origin, tx)}. {buildGeneratedTestSourceAttemptLabel(detail.origin, tx)}
+        </Alert>
+      ) : null}
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={8}>

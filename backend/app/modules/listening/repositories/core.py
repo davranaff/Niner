@@ -4,7 +4,7 @@ from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.core.pagination import paginate_query
+from app.core.pagination import normalize_limit, normalize_offset
 from app.db.models import (
     FinishReasonEnum,
     ListeningExam,
@@ -21,8 +21,14 @@ async def list_active_tests(
     offset: int,
     limit: int,
 ) -> list[ListeningTest]:
-    stmt = select(ListeningTest).where(ListeningTest.is_active.is_(True))
-    return await paginate_query(db, stmt, ListeningTest.id, limit, offset)
+    stmt = (
+        select(ListeningTest)
+        .where(ListeningTest.is_active.is_(True))
+        .order_by(ListeningTest.id.desc())
+        .offset(normalize_offset(offset))
+        .limit(normalize_limit(limit))
+    )
+    return list((await db.execute(stmt)).scalars().all())
 
 
 async def get_test_detail(db: AsyncSession, test_id: int) -> ListeningTest | None:

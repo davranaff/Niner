@@ -34,6 +34,7 @@ const AppsOverallExamSessionPage = lazy(
 const AppsOverallExamResultPage = lazy(() => import('src/pages/apps/student/overall-exam-result'));
 
 const AppsMyTestsPage = lazy(() => import('src/pages/apps/student/my-tests'));
+const AppsAssignmentsPage = lazy(() => import('src/pages/apps/student/assignments'));
 const AppsProfilePage = lazy(() => import('src/pages/apps/student/profile'));
 
 function studentOnly(element: ReactElement) {
@@ -145,6 +146,10 @@ export const studentAppDashboardRoutes: RouteObject[] = [
   {
     path: 'my-tests',
     element: studentOnly(<AppsMyTestsPage />),
+  },
+  {
+    path: 'assignments',
+    element: studentOnly(<AppsAssignmentsPage />),
   },
   {
     path: 'profile',

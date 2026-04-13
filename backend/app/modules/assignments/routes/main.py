@@ -12,6 +12,7 @@ from app.modules.assignments.schemas import (
     AssignmentAttemptCreateIn,
     AssignmentAttemptCreateOut,
     AssignmentDetailsOut,
+    AssignmentGenerateTestOut,
     AssignmentListOut,
 )
 
@@ -67,3 +68,17 @@ async def submit_assignment_attempt(
         explicit_score=payload.score,
     )
     return AssignmentAttemptCreateOut.model_validate(data)
+
+
+@router.post("/{assignment_id}/generate-test", response_model=AssignmentGenerateTestOut)
+async def generate_assignment_test(
+    assignment_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> AssignmentGenerateTestOut:
+    data = await services.request_assignment_test_generation(
+        db,
+        current_user,
+        assignment_id=assignment_id,
+    )
+    return AssignmentGenerateTestOut.model_validate(data)

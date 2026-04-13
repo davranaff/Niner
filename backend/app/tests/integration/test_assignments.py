@@ -176,3 +176,76 @@ async def test_writing_submit_generates_word_count_assignments(client, db_sessio
     assert submit_attempt.status_code == 200
     attempt_payload = submit_attempt.json()
     assert attempt_payload["assignment"]["status"] == "completed"
+
+
+@pytest.mark.asyncio
+async def test_assignment_generate_test_endpoint_queues_worker_job(client, db_session, monkeypatch):
+    user = await _create_user(db_session, "assign-generate@example.com")
+
+    reading_test = ReadingTest(
+        title="Generated Reading",
+        description="Desc",
+        time_limit=3600,
+        total_questions=1,
+        is_active=True,
+    )
+    db_session.add(reading_test)
+    await db_session.flush()
+
+    passage = ReadingPassage(test_id=reading_test.id, title="P1", content="Text", passage_number=1)
+    db_session.add(passage)
+    await db_session.flush()
+
+    block = ReadingQuestionBlock(
+        passage_id=passage.id,
+        title="Table",
+        description="Use one word only",
+        block_type="table_completion",
+        order=1,
+        table_completion="A | B",
+    )
+    db_session.add(block)
+    await db_session.flush()
+
+    question = ReadingQuestion(question_block_id=block.id, question_text="Q1", order=1)
+    db_session.add(question)
+    await db_session.flush()
+    db_session.add(ReadingQuestionAnswer(question_id=question.id, correct_answers="city"))
+    await db_session.commit()
+
+    headers = await _auth_headers(client, user.email)
+    create_exam = await client.post("/api/v1/exams/reading", headers=headers, json={"test_id": reading_test.id})
+    assert create_exam.status_code == 200
+    exam_id = int(create_exam.json()["id"])
+
+    submit = await client.post(
+        f"/api/v1/exams/reading/{exam_id}/submit",
+        headers=headers,
+        json=[{"id": question.id, "value": "lake"}],
+    )
+    assert submit.status_code == 200
+
+    assignments = await client.get(
+        "/api/v1/assignments",
+        headers=headers,
+        params={"module": "reading", "limit": 20, "offset": 0},
+    )
+    assert assignments.status_code == 200
+    assignment_id = int(assignments.json()["items"][0]["id"])
+
+    queued: dict[str, int] = {}
+
+    async def fake_enqueue(assignment_id: int) -> None:
+        queued["assignment_id"] = assignment_id
+
+    monkeypatch.setattr(
+        "app.modules.assignments.services.core.enqueue_assignment_test_generation",
+        fake_enqueue,
+    )
+
+    generate = await client.post(f"/api/v1/assignments/{assignment_id}/generate-test", headers=headers)
+    assert generate.status_code == 200
+    payload = generate.json()
+    assert payload["assignment"]["generated_test"]["status"] == "queued"
+    assert int(payload["assignment"]["generated_test"]["progress_percent"]) == 5
+    assert queued["assignment_id"] == assignment_id

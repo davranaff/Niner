@@ -26,3 +26,7 @@ async def enqueue_writing_evaluation(exam_part_id: int) -> None:
 
 async def enqueue_module_summary(summary_id: int) -> None:
     await _enqueue("generate_module_summary", summary_id)
+
+
+async def enqueue_assignment_test_generation(assignment_id: int) -> None:
+    await _enqueue("generate_assignment_test", assignment_id)

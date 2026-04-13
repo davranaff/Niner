@@ -6,9 +6,11 @@ from decimal import Decimal
 import pytest
 from arq import Retry
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from app.core.security import hash_password
 from app.db.models import (
+    AssignmentStatusEnum,
     AiModuleSummary,
     AiSummaryModuleEnum,
     AiSummarySourceEnum,
@@ -16,7 +18,10 @@ from app.db.models import (
     FinishReasonEnum,
     ParseStatusEnum,
     ProgressTestTypeEnum,
+    ReadingExam,
     ReadingPassage,
+    ReadingQuestion,
+    ReadingQuestionAnswer,
     ReadingQuestionBlock,
     ReadingTest,
     RoleEnum,
@@ -329,6 +334,174 @@ async def test_writing_ai_evaluation_syncs_progress_and_assignments_after_final_
         assignment_items = list(assignments)
         assert len(assignment_items) >= 2
         assert all(item.task_type == "writing_revision" for item in assignment_items)
+
+
+@pytest.mark.asyncio
+async def test_assignment_generation_worker_creates_reading_test(db_session):
+    user = await _create_user(db_session, "worker-generated-reading@example.com")
+
+    reading_test = ReadingTest(
+        title="Reading Source",
+        description="Desc",
+        time_limit=3600,
+        total_questions=0,
+        is_active=True,
+    )
+    donor_test = ReadingTest(
+        title="Reading Donor",
+        description="Donor",
+        time_limit=3600,
+        total_questions=0,
+        is_active=True,
+    )
+    db_session.add_all([reading_test, donor_test])
+    await db_session.flush()
+
+    passage = ReadingPassage(test_id=reading_test.id, title="P1", content="Text", passage_number=1)
+    donor_passage = ReadingPassage(test_id=donor_test.id, title="PD", content="Donor text", passage_number=1)
+    db_session.add_all([passage, donor_passage])
+    await db_session.flush()
+
+    weak_block = ReadingQuestionBlock(
+        passage_id=passage.id,
+        title="Table",
+        description="Use one word only",
+        block_type="table_completion",
+        order=1,
+        table_completion="A | B",
+        parse_status=ParseStatusEnum.done,
+    )
+    irrelevant_block = ReadingQuestionBlock(
+        passage_id=passage.id,
+        title="Multiple choice",
+        description="Choose one answer",
+        block_type="multiple_choice",
+        order=2,
+        parse_status=ParseStatusEnum.done,
+    )
+    donor_block = ReadingQuestionBlock(
+        passage_id=donor_passage.id,
+        title="Donor Table",
+        description="Use one word only",
+        block_type="table_completion",
+        order=1,
+        table_completion="X | Y",
+        parse_status=ParseStatusEnum.done,
+    )
+    db_session.add_all([weak_block, irrelevant_block, donor_block])
+    await db_session.flush()
+
+    source_questions: list[ReadingQuestion] = []
+    for order, text in enumerate(
+        [
+            "weak-source-1",
+            "weak-source-2",
+            "weak-source-3",
+            "weak-source-extra-4",
+            "weak-source-extra-5",
+        ],
+        start=1,
+    ):
+        question = ReadingQuestion(question_block_id=weak_block.id, question_text=text, order=order)
+        db_session.add(question)
+        await db_session.flush()
+        db_session.add(ReadingQuestionAnswer(question_id=question.id, correct_answers=f"answer-{order}"))
+        source_questions.append(question)
+
+    for order in range(1, 4):
+        question = ReadingQuestion(
+            question_block_id=irrelevant_block.id,
+            question_text=f"irrelevant-{order}",
+            order=order,
+        )
+        db_session.add(question)
+        await db_session.flush()
+        db_session.add(ReadingQuestionAnswer(question_id=question.id, correct_answers=f"skip-{order}"))
+
+    donor_questions: list[ReadingQuestion] = []
+    for order in range(1, 8):
+        question = ReadingQuestion(
+            question_block_id=donor_block.id,
+            question_text=f"weak-donor-{order}",
+            order=order,
+        )
+        db_session.add(question)
+        await db_session.flush()
+        db_session.add(ReadingQuestionAnswer(question_id=question.id, correct_answers=f"donor-{order}"))
+        donor_questions.append(question)
+    await db_session.flush()
+
+    exam = ReadingExam(
+        user_id=user.id,
+        reading_test_id=reading_test.id,
+        started_at=datetime.now(UTC) - timedelta(minutes=15),
+        finished_at=datetime.now(UTC),
+        finish_reason=FinishReasonEnum.completed,
+    )
+    db_session.add(exam)
+    await db_session.flush()
+
+    assignment = TrainingAssignment(
+        user_id=user.id,
+        module=ProgressTestTypeEnum.reading,
+        source_exam_kind="reading",
+        source_exam_id=exam.id,
+        dedupe_key="reading:generated:worker",
+        task_type="objective_retry",
+        title="Reading drill",
+        instructions="Practice the weak area.",
+        payload={
+            "skill_key": "reading:table_completion",
+            "block_type": "table_completion",
+            "target_question_count": 10,
+            "source_question_ids": [question.id for question in source_questions[:3]],
+        },
+        status=AssignmentStatusEnum.recommended,
+        recommended_at=datetime.now(UTC),
+    )
+    db_session.add(assignment)
+    await db_session.commit()
+
+    await tasks.generate_assignment_test({"job_try": 1}, assignment.id)
+
+    async with SessionLocal() as verify_db:
+        refreshed = await verify_db.get(TrainingAssignment, assignment.id)
+        assert refreshed is not None
+        assert refreshed.generation_status == "ready"
+        assert refreshed.generated_test_id is not None
+        assert int(refreshed.generation_progress) == 100
+
+        generated_test = (
+            await verify_db.execute(
+                select(ReadingTest)
+                .where(ReadingTest.id == refreshed.generated_test_id)
+                .options(
+                    selectinload(ReadingTest.passages)
+                    .selectinload(ReadingPassage.question_blocks)
+                    .selectinload(ReadingQuestionBlock.questions)
+                )
+            )
+        ).scalar_one()
+        assert generated_test is not None
+        assert generated_test.title.startswith("Weak-area Reading Drill")
+        assert int(generated_test.total_questions) == 10
+
+        generated_blocks = [
+            block
+            for passage in sorted(generated_test.passages, key=lambda item: item.passage_number)
+            for block in sorted(passage.question_blocks, key=lambda item: item.order)
+        ]
+        assert generated_blocks
+        assert {block.block_type for block in generated_blocks} == {"table_completion"}
+
+        generated_texts = [
+            question.question_text
+            for block in generated_blocks
+            for question in sorted(block.questions, key=lambda item: item.order)
+        ]
+        assert generated_texts[:5] == [question.question_text for question in source_questions]
+        assert generated_texts[5:] == [question.question_text for question in donor_questions[:5]]
+        assert all(not text.startswith("irrelevant-") for text in generated_texts)
 
 
 @pytest.mark.asyncio

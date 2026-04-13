@@ -618,7 +618,9 @@ async def list_all_user_reading_exams_with_relations(
         .where(ReadingExam.user_id == user_id)
         .options(
             selectinload(ReadingExam.reading_test),
-            selectinload(ReadingExam.question_answers),
+            selectinload(ReadingExam.question_answers)
+            .selectinload(ReadingExamQuestionAnswer.question)
+            .selectinload(ReadingQuestion.question_block),
         )
     )
     return list((await db.execute(stmt)).scalars().all())
@@ -634,7 +636,9 @@ async def list_all_user_listening_exams_with_relations(
         .where(ListeningExam.user_id == user_id)
         .options(
             selectinload(ListeningExam.listening_test),
-            selectinload(ListeningExam.question_answers),
+            selectinload(ListeningExam.question_answers)
+            .selectinload(ListeningExamQuestionAnswer.question)
+            .selectinload(ListeningQuestion.question_block),
         )
     )
     return list((await db.execute(stmt)).scalars().all())
